@@ -32,7 +32,15 @@ class _GymEnvWrapper:
     """Gymnasium 환경을 CustomRoomWrapper와 호환되도록 감싸는 클래스"""
     def __init__(self, gym_env):
         self.env = gym_env
-        self.size = gym_env.width  # MiniGrid 환경은 width와 height가 같음
+        # unwrapped를 통해 실제 MiniGrid 환경에 접근
+        unwrapped = gym_env.unwrapped
+        if hasattr(unwrapped, 'width'):
+            self.size = unwrapped.width  # MiniGrid 환경은 width와 height가 같음
+        elif hasattr(unwrapped, 'grid_size'):
+            self.size = unwrapped.grid_size
+        else:
+            # 기본값 사용 (이미지 크기로 추정)
+            self.size = 10
         
     def reset(self):
         obs, info = self.env.reset()
