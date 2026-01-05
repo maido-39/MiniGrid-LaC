@@ -19,6 +19,11 @@ from minigrid.minigrid_env import MiniGridEnv
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Union
 import matplotlib.pyplot as plt
+try:
+    import cv2
+    CV2_AVAILABLE = True
+except ImportError:
+    CV2_AVAILABLE = False
 
 # MiniGrid 환경 등록 (필수: 환경을 사용하기 전에 등록해야 함)
 register_minigrid_envs()
@@ -270,11 +275,14 @@ class CustomRoomWrapper:
         
         return obs, reward, terminated, truncated, info
     
-    def get_image(self) -> np.ndarray:
+    def get_image(self, fov_range: Optional[int] = None, fov_width: Optional[int] = None) -> np.ndarray:
         """
         현재 환경의 이미지를 반환 (VLM 입력용)
+        시야 제한(fog of war) 기능을 선택적으로 적용할 수 있습니다.
         
-        이 메서드는 VLM에 전달할 수 있는 RGB 이미지를 반환합니다.
+        Args:
+            fov_range: 에이전트 앞으로 볼 수 있는 거리 (칸 수). None이면 시야 제한 없음
+            fov_width: 시야의 좌우 폭 (칸 수). None이면 시야 제한 없음
         
         Returns:
             image: RGB 이미지 배열 (H, W, 3) 형태의 numpy 배열
@@ -286,7 +294,95 @@ class CustomRoomWrapper:
         if image is None:
             return np.zeros((self.size * 32, self.size * 32, 3), dtype=np.uint8)
         
+        # 시야 제한 적용 (fov_range와 fov_width가 모두 지정된 경우)
+        if fov_range is not None and fov_width is not None:
+            image = self._apply_fog_of_war(image, fov_range, fov_width)
+        
         return image
+    
+    def _apply_fog_of_war(self, image: np.ndarray, fov_range: int, fov_width: int) -> np.ndarray:
+        """
+        시야 제한을 적용하여 시야 밖의 영역을 검은색으로 마스킹
+        
+        Args:
+            image: 원본 이미지 (H, W, 3)
+            fov_range: 앞으로 볼 수 있는 거리
+            fov_width: 시야의 좌우 폭
+        
+        Returns:
+            masked_image: 시야 제한이 적용된 이미지
+        """
+        # 에이전트 위치 및 방향
+        if not hasattr(self.env, 'agent_pos') or not hasattr(self.env, 'agent_dir'):
+            return image
+        
+        agent_pos = self.env.agent_pos
+        if isinstance(agent_pos, np.ndarray):
+            agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
+        else:
+            agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
+        
+        agent_dir = self.env.agent_dir
+        
+        # 방향 벡터 (0=오른쪽, 1=아래, 2=왼쪽, 3=위)
+        dir_vectors = {
+            0: (1, 0),   # 오른쪽
+            1: (0, 1),   # 아래
+            2: (-1, 0),  # 왼쪽
+            3: (0, -1)   # 위
+        }
+        
+        # 에이전트가 바라보는 방향
+        forward_dx, forward_dy = dir_vectors[agent_dir]
+        
+        # 이미지 복사 (원본 보존)
+        masked_image = image.copy()
+        h, w = image.shape[:2]
+        
+        # 각 셀의 크기 (MiniGrid는 일반적으로 32x32 픽셀)
+        cell_size = 32
+        
+        # 그리드 크기
+        grid_size = self.size
+        
+        # 각 셀에 대해 시야 범위 내인지 확인
+        for grid_y in range(grid_size):
+            for grid_x in range(grid_size):
+                # 에이전트 위치에서 이 셀까지의 상대 위치
+                dx = grid_x - agent_x
+                dy = grid_y - agent_y
+                
+                # 에이전트 방향 기준으로 변환
+                if agent_dir == 0:  # 오른쪽
+                    rel_x, rel_y = dx, -dy  # y축 반전
+                elif agent_dir == 1:  # 아래
+                    rel_x, rel_y = dy, dx
+                elif agent_dir == 2:  # 왼쪽
+                    rel_x, rel_y = -dx, dy
+                else:  # 위
+                    rel_x, rel_y = -dy, -dx
+                
+                # 시야 범위 확인
+                # 앞으로 fov_range 칸까지, 좌우로 각각 fov_width//2 칸까지
+                in_fov = (
+                    rel_x >= 0 and  # 앞쪽만
+                    rel_x <= fov_range and  # 최대 거리
+                    abs(rel_y) <= fov_width // 2  # 좌우 폭
+                )
+                
+                # 시야 밖이면 검은색으로 마스킹
+                if not in_fov:
+                    # 픽셀 좌표 계산
+                    pixel_x = grid_x * cell_size
+                    pixel_y = grid_y * cell_size
+                    
+                    # 셀 영역을 검은색으로 마스킹
+                    end_x = min(pixel_x + cell_size, w)
+                    end_y = min(pixel_y + cell_size, h)
+                    
+                    masked_image[pixel_y:end_y, pixel_x:end_x] = [0, 0, 0]
+        
+        return masked_image
     
     def get_action_space(self) -> Dict:
         """
@@ -319,10 +415,10 @@ class CustomRoomWrapper:
         VLM이 반환한 텍스트를 액션 인덱스로 변환
         
         이 메서드는 VLM이 반환한 텍스트 액션을 정수 인덱스로 변환합니다.
-        다양한 표현을 지원합니다 (예: "move forward", "forward", "go forward" 등).
+        다양한 표현을 지원합니다 (예: "move forward", "forward", "go forward", "2" 등).
         
         Args:
-            action_str: 액션 텍스트 (예: "move forward", "turn left")
+            action_str: 액션 텍스트 (예: "move forward", "turn left", "2")
         
         Returns:
             action: 액션 인덱스 (0-6)
@@ -330,22 +426,35 @@ class CustomRoomWrapper:
         Raises:
             ValueError: 알 수 없는 액션인 경우
         """
-        # 소문자로 변환하고 공백 제거
-        action_str = action_str.lower().strip()
+        # 공백 제거
+        action_str = action_str.strip()
+        
+        # 숫자 문자열인 경우 직접 변환 (예: "0", "1", "2" 등)
+        try:
+            action_int = int(action_str)
+            # 유효한 액션 범위인지 확인 (0-6)
+            if 0 <= action_int < self.env.action_space.n:
+                return action_int
+        except ValueError:
+            # 숫자가 아니면 문자열로 처리
+            pass
+        
+        # 소문자로 변환
+        action_str_lower = action_str.lower()
         
         # 액션 별칭에서 찾기
-        if action_str in self.ACTION_ALIASES:
-            return self.ACTION_ALIASES[action_str]
+        if action_str_lower in self.ACTION_ALIASES:
+            return self.ACTION_ALIASES[action_str_lower]
         
         # 직접 매핑에서 찾기
         for idx, name in self.ACTION_NAMES.items():
-            if action_str == name.lower():
+            if action_str_lower == name.lower():
                 return idx
         
         # 찾지 못한 경우 에러 발생
         raise ValueError(
             f"Unknown action: '{action_str}'. "
-            f"Available actions: {list(self.ACTION_ALIASES.keys())}"
+            f"Available actions: {list(self.ACTION_ALIASES.keys())} or numbers 0-{self.env.action_space.n-1}"
         )
     
     def get_state(self) -> Dict:
@@ -359,8 +468,17 @@ class CustomRoomWrapper:
                 - mission: 현재 미션
                 - image: 현재 이미지
         """
+        # agent_pos 처리: numpy array인 경우 copy(), tuple인 경우 그대로 반환
+        agent_pos = None
+        if hasattr(self.env, 'agent_pos'):
+            if isinstance(self.env.agent_pos, np.ndarray):
+                agent_pos = self.env.agent_pos.copy()
+            else:
+                # tuple이나 다른 타입인 경우 그대로 반환
+                agent_pos = self.env.agent_pos
+        
         return {
-            'agent_pos': self.env.agent_pos.copy() if hasattr(self.env, 'agent_pos') else None,
+            'agent_pos': agent_pos,
             'agent_dir': self.env.agent_dir if hasattr(self.env, 'agent_dir') else None,
             'mission': self.env.mission if hasattr(self.env, 'mission') else None,
             'image': self.get_image()

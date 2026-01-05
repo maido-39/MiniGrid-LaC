@@ -54,8 +54,23 @@ obs, reward, terminated, truncated, info = wrapper.step(action)
 
 **Parameters:**
 - `action`: 액션 (정수 인덱스 또는 액션 이름 문자열)
-  - 정수: 0-6 (액션 인덱스)
-  - 문자열: "move forward", "turn left" 등
+  - **정수 인덱스 (0-6)**:
+    - `0`: Turn left (왼쪽으로 90° 회전)
+    - `1`: Turn right (오른쪽으로 90° 회전)
+    - `2`: Move forward (현재 heading 방향으로 한 칸 전진)
+    - `3`: Pickup (앞에 있는 객체 집기)
+    - `4`: Drop (들고 있는 객체 놓기)
+    - `5`: Toggle (문 열기/닫기 등 객체와 상호작용)
+    - `6`: Done (작업 완료, 에피소드 종료)
+  - **문자열 액션 이름** (대소문자 구분 없음, 다양한 동의어 지원):
+    - 회전: `"turn left"`, `"left"`, `"rotate left"`, `"turn_left"` → 0
+    - 회전: `"turn right"`, `"right"`, `"rotate right"`, `"turn_right"` → 1
+    - 전진: `"move forward"`, `"forward"`, `"go forward"`, `"move_forward"`, `"w"` → 2
+    - 집기: `"pickup"`, `"pick up"`, `"pick_up"`, `"grab"` → 3
+    - 놓기: `"drop"`, `"put down"`, `"put_down"`, `"release"` → 4
+    - 상호작용: `"toggle"`, `"interact"`, `"use"`, `"activate"` → 5
+    - 완료: `"done"`, `"complete"`, `"finish"` → 6
+  - **참고**: MiniGrid의 기본 액션 공간은 7개(`Discrete(7)`)이며, backward 액션은 지원되지 않습니다. 뒤로 이동하려면 180° 회전(왼쪽 또는 오른쪽으로 두 번 회전) 후 forward를 사용해야 합니다.
 
 **Returns:**
 - `obs`: 새로운 관찰 (딕셔너리)
@@ -245,15 +260,22 @@ wrapper = CustomRoomWrapper(
 
 ## 액션 인덱스
 
+MiniGrid의 표준 액션 공간은 7개의 이산적(discrete) 액션으로 구성됩니다:
+
 | 인덱스 | 액션 이름 | 설명 |
 |--------|----------|------|
-| 0 | turn left | 왼쪽으로 회전 |
-| 1 | turn right | 오른쪽으로 회전 |
-| 2 | move forward | 앞으로 이동 |
-| 3 | move backward | 뒤로 이동 |
-| 4 | pickup | 물체 집기 |
-| 5 | drop | 물체 놓기 |
-| 6 | toggle | 상호작용 (문 열기 등) |
+| 0 | turn left | 왼쪽으로 90° 회전 (counterclockwise) |
+| 1 | turn right | 오른쪽으로 90° 회전 (clockwise) |
+| 2 | move forward | 현재 heading 방향으로 한 칸 전진 |
+| 3 | pickup | 앞에 있는 객체 집기 |
+| 4 | drop | 들고 있는 객체 놓기 |
+| 5 | toggle | 객체와 상호작용 (문 열기/닫기 등) |
+| 6 | done | 작업 완료, 에피소드 종료 |
+
+**참고사항:**
+- MiniGrid에는 **backward 액션이 없습니다**. 뒤로 이동하려면 180° 회전(왼쪽 또는 오른쪽으로 두 번 회전) 후 `move forward`를 사용해야 합니다.
+- 모든 액션은 로봇의 현재 heading 방향을 기준으로 작동합니다 (상대적 이동).
+- 문자열 액션 이름은 대소문자를 구분하지 않으며, 다양한 동의어를 지원합니다 (예: "move forward", "forward", "go forward", "move_forward", "w" 모두 액션 2로 매핑됨).
 
 ## 참고
 

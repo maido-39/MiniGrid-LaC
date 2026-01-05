@@ -77,6 +77,9 @@ class ChatGPT4oVLMWrapper:
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
+        
+        # GPT-5 계열 모델인지 확인 (모델명이 "gpt-5"로 시작하는 경우)
+        self.is_gpt5_model = model.startswith("gpt-5") if model else False
     
     def _encode_image(self, image: Union[str, Path, np.ndarray, Image.Image]) -> str:
         """
@@ -198,12 +201,21 @@ class ChatGPT4oVLMWrapper:
         
         # API 호출
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens
-            )
+            # GPT-5 계열 모델은 max_completion_tokens 사용, 그 외는 max_tokens 사용
+            api_params = {
+                "model": self.model,
+                "messages": messages,
+                "temperature": self.temperature
+            }
+            
+            if self.is_gpt5_model:
+                # GPT-5 계열: max_completion_tokens 사용
+                api_params["max_completion_tokens"] = self.max_tokens
+            else:
+                # GPT-4 계열: max_tokens 사용
+                api_params["max_tokens"] = self.max_tokens
+            
+            response = self.client.chat.completions.create(**api_params)
             
             # 응답 텍스트 추출 및 반환
             raw_response = response.choices[0].message.content

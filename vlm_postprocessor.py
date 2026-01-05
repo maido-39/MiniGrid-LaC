@@ -77,13 +77,22 @@ class VLMResponsePostProcessor:
                     if field not in parsed:
                         raise ValueError(f"응답에 필수 필드 '{field}'가 없습니다.")
             
-            # 기본값 적용
+            # 기본값 적용 (원본 타입 유지)
             result = {}
             for field in self.required_fields:
                 if field in parsed:
-                    result[field] = str(parsed[field])
+                    # 리스트나 딕셔너리는 원본 타입 유지, 나머지는 문자열로 변환
+                    value = parsed[field]
+                    if isinstance(value, (list, dict)):
+                        result[field] = value
+                    else:
+                        result[field] = str(value)
                 elif field in self.default_fields:
-                    result[field] = str(self.default_fields[field])
+                    default_value = self.default_fields[field]
+                    if isinstance(default_value, (list, dict)):
+                        result[field] = default_value
+                    else:
+                        result[field] = str(default_value)
                 else:
                     result[field] = ""
             
