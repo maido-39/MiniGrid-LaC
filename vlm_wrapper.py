@@ -241,7 +241,7 @@ if __name__ == "__main__":
     response = wrapper.generate(
         # image="path/to/image.png",
         system_prompt="You are a helpful assistant.",
-        user_prompt="Describe this image."
+        user_prompt="describe the miku's characteristics"
     )
     print(response)
 
