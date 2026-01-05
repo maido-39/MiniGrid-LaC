@@ -6,6 +6,24 @@ MiniGrid 환경에서 Language-conditioned 강화학습을 위한 프로젝트�
 
 이 프로젝트는 MiniGrid 환경에서 언어 지시(language instruction)를 활용한 강화학습 에이전트를 구현합니다.
 
+## 문서
+
+프로젝트의 상세한 문서는 [`docs/`](docs/) 폴더에서 확인할 수 있습니다:
+
+### MiniGrid 기초
+- [MiniGrid 예제 환경 목록](docs/minigrid-environments.md) - MiniGrid에 존재하는 모든 내장 환경 목록
+- [MiniGrid 오브젝트 및 속성](docs/minigrid-objects.md) - MiniGrid에서 사용 가능한 오브젝트 타입과 속성
+- [환경 생성 가이드](docs/environment-creation.md) - MiniGrid 환경 생성 방법
+- [베스트 프랙티스](docs/best-practices.md) - MiniGrid 환경 생성 권장사항
+
+### API 문서
+- [커스텀 환경 API](docs/custom-environment-api.md) - CustomRoomEnv API 문서
+- [Wrapper API](docs/wrapper-api.md) - CustomRoomWrapper API 문서
+- [Wrapper 메서드 가이드](docs/wrapper-methods.md) - CustomRoomWrapper의 모든 메서드 설명
+
+### 사용 가이드
+- [키보드 제어 가이드](docs/keyboard-control.md) - 키보드 제어 예제 설명
+
 ## 기능
 
 - MiniGrid 환경 통합
