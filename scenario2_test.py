@@ -248,40 +248,40 @@ class Visualizer:
     
     def visualize_grid_cli(self, wrapper: CustomRoomWrapper, state: dict):
         """CLI에서 그리드를 텍스트로 시각화"""
-    env = wrapper.env
-    size = wrapper.size
-    
-    agent_pos = state['agent_pos']
-    if isinstance(agent_pos, np.ndarray):
-        agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
-    else:
-        agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
-    
-    agent_dir = state['agent_dir']
-    direction_symbols = {0: '>', 1: 'v', 2: '<', 3: '^'}
-    agent_symbol = direction_symbols.get(agent_dir, 'A')
+        env = wrapper.env
+        size = wrapper.size
         
-    grid_chars = []
-    for y in range(size):
-        row = []
-        for x in range(size):
-            cell = env.grid.get(x, y)
-            
-            if x == agent_x and y == agent_y:
-                row.append(agent_symbol)
-            elif cell is not None and cell.type == 'wall':
-                if hasattr(cell, 'color'):
-                    if cell.color == 'blue':
-                        row.append('🟦')
-                    elif cell.color == 'purple':
-                        row.append('🟪')
-                    elif cell.color == 'red':
-                        row.append('🟥')
-                    elif cell.color == 'green':
-                        row.append('🟩')
+        agent_pos = state['agent_pos']
+        if isinstance(agent_pos, np.ndarray):
+            agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
+        else:
+            agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
+        
+        agent_dir = state['agent_dir']
+        direction_symbols = {0: '>', 1: 'v', 2: '<', 3: '^'}
+        agent_symbol = direction_symbols.get(agent_dir, 'A')
+        
+        grid_chars = []
+        for y in range(size):
+            row = []
+            for x in range(size):
+                cell = env.grid.get(x, y)
+                
+                if x == agent_x and y == agent_y:
+                    row.append(agent_symbol)
+                elif cell is not None and cell.type == 'wall':
+                    if hasattr(cell, 'color'):
+                        if cell.color == 'blue':
+                            row.append('🟦')
+                        elif cell.color == 'purple':
+                            row.append('🟪')
+                        elif cell.color == 'red':
+                            row.append('🟥')
+                        elif cell.color == 'green':
+                            row.append('🟩')
                         elif cell.color == 'yellow':
                             row.append('🟨')
-                    else:
+                        else:
                             row.append('⬛')
                     else:
                         row.append('⬛')
@@ -293,22 +293,22 @@ class Visualizer:
                             row.append('🟦')
                         elif cell.color == 'purple':
                             row.append('🟪')
-                else:
-                    row.append('🟨')
+                        else:
+                            row.append('🟨')
                     else:
                         row.append('🟨')
-            else:
-                row.append('⬜️')
-        grid_chars.append(row)
-    
-    print("\n" + "=" * 60)
-    print("Current Grid State:")
-    print("=" * 60)
-    for y in range(size):
+                else:
+                    row.append('⬜️')
+            grid_chars.append(row)
+        
+        print("\n" + "=" * 60)
+        print("Current Grid State:")
+        print("=" * 60)
+        for y in range(size):
             print(''.join(grid_chars[y]))
-    print("=" * 60)
+        print("=" * 60)
         print(f"Agent Position: ({agent_x}, {agent_y}), Direction: {agent_dir} ({agent_symbol})")
-    print("=" * 60 + "\n")
+        print("=" * 60 + "\n")
 
     def display_image(self, img: np.ndarray):
         """OpenCV를 사용하여 이미지 표시"""
@@ -492,8 +492,8 @@ Please analyze the feedback and generate concise knowledge to improve future act
     def _init_csv_logging(self):
         """CSV 로깅 초기화"""
         csv_path = self.log_dir / "experiment_log.csv"
-    file_exists = csv_path.exists()
-    
+        file_exists = csv_path.exists()
+        
         self.csv_file = open(csv_path, 'a', newline='', encoding='utf-8')
         self.csv_writer = csv.writer(self.csv_file)
         
@@ -514,7 +514,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
         if isinstance(agent_pos, np.ndarray):
             agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
         else:
-                    agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
+            agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
         
         image_path = f"step_{self.step:04d}.png"
         
@@ -601,18 +601,18 @@ Please analyze the feedback and generate concise knowledge to improve future act
     
     def initialize(self):
         """실험 초기화"""
-    print("=" * 60)
-    print("시나리오 2: VLM 제어 실험")
-    print("=" * 60)
-    print("\n환경 구성:")
+        print("=" * 60)
+        print("시나리오 2: VLM 제어 실험")
+        print("=" * 60)
+        print("\n환경 구성:")
         print("  - 파란 기둥: 2x2 Grid (색상이 있는 벽)")
         print("  - 테이블: 보라색 1x3 Grid (색상이 있는 벽)")
         print("  - 시작점: (1, 8)")
         print("  - 종료점: (8, 1)")
-    print("\nMission: 파란 기둥으로 가서 오른쪽으로 돌고, 테이블 옆에 멈추시오")
+        print("\nMission: 파란 기둥으로 가서 오른쪽으로 돌고, 테이블 옆에 멈추시오")
         print(f"\n로그 디렉토리: {self.log_dir}")
         
-    print("\n[1] 환경 생성 중...")
+        print("\n[1] 환경 생성 중...")
         self.wrapper = create_scenario2_environment()
         self.wrapper.reset()
         
@@ -621,9 +621,9 @@ Please analyze the feedback and generate concise knowledge to improve future act
         print(f"에이전트 방향: {self.state['agent_dir']}")
         
         print("\n[2] VLM 초기화 완료")
-    print("\n" + "=" * 60)
-    print("실험 시작")
-    print("=" * 60)
+        print("\n" + "=" * 60)
+        print("실험 시작")
+        print("=" * 60)
     
     def run_step(self):
         """한 스텝 실행"""
@@ -683,28 +683,87 @@ Please analyze the feedback and generate concise knowledge to improve future act
         
         if len(action_chunk) == 0:
             action_str = '2'
-                else:
+        else:
             action_str = str(action_chunk[0])
         
-        print(f"파싱된 액션 Chunk: {action_chunk}")
-        print(f"실행할 액션 (첫 번째): {action_str}")
-        print(f"Reasoning: {self.vlm_response_parsed.get('reasoning', 'N/A')}")
-        
-        # Memory 업데이트
+        # Memory 파싱
         memory = self.vlm_response_parsed.get('memory', {})
         if isinstance(memory, str):
             try:
                 memory = json.loads(memory)
             except Exception:
                 memory = {}
+        if not isinstance(memory, dict):
+            memory = {}
+        
+        # Memory 업데이트
         if isinstance(memory, dict):
             self.prompt_organizer.previous_action = memory.get('previous_action', action_str)
             self.prompt_organizer.current_subtask = memory.get('current_subtask', '')
         
         # Grounding 업데이트 (응답에서 온 경우)
         grounding_update = self.vlm_response_parsed.get('grounding', '')
+        grounding_updated = False
         if grounding_update and grounding_update.strip():
             self.prompt_organizer.update_grounding(grounding_update)
+            grounding_updated = True
+        
+        # CLI 출력: Action, Reasoning, Memory, Grounding
+        print("\n" + "=" * 80)
+        print("[VLM 응답 정보]")
+        print("=" * 80)
+        
+        # Action Chunk 출력
+        print("\n[Action Chunk]")
+        print("-" * 80)
+        if len(action_chunk) > 0:
+            for i, action in enumerate(action_chunk, 1):
+                marker = "→ 실행" if i == 1 else "  예측"
+                print(f"  {marker} [{i}] {action}")
+        else:
+            print("  (액션 없음)")
+        
+        # Reasoning 출력
+        reasoning = self.vlm_response_parsed.get('reasoning', '')
+        print("\n[Reasoning]")
+        print("-" * 80)
+        if reasoning:
+            print(f"  {reasoning}")
+        else:
+            print("  (없음)")
+        
+        # Memory 출력
+        print("\n[Memory]")
+        print("-" * 80)
+        spatial_desc = memory.get('spatial_description', '')
+        current_subtask = memory.get('current_subtask', '')
+        prev_action = memory.get('previous_action', '')
+        
+        print("  Spatial Description:")
+        if spatial_desc:
+            print(f"    {spatial_desc}")
+        else:
+            print("    (없음)")
+        
+        print("  Current Subtask:")
+        if current_subtask:
+            print(f"    {current_subtask}")
+        else:
+            print("    (없음)")
+        
+        print("  Previous Action:")
+        if prev_action:
+            print(f"    {prev_action}")
+        else:
+            print("    (없음)")
+        
+        # Grounding 출력 (업데이트된 경우만)
+        if grounding_updated:
+            print("\n[Grounding Update]")
+            print("-" * 80)
+            print(f"  {grounding_update}")
+        
+        print("=" * 80)
         
         print("\n[5] 액션 실행 중...")
         try:
@@ -744,14 +803,14 @@ Please analyze the feedback and generate concise knowledge to improve future act
                 break
             
             if self.done:
-        print("\n" + "=" * 80)
+                print("\n" + "=" * 80)
                 print("Goal 도착! 종료")
-            print("=" * 80)
-            break
-        
+                print("=" * 80)
+                break
+            
             if self.step >= 100:
                 print("\n최대 스텝 수(100)에 도달했습니다.")
-            break
+                break
     
         self.cleanup()
     
