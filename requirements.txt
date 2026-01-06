@@ -15,3 +15,10 @@ matplotlib>=3.9.0
 # VLM (Vision Language Model) 관련
 openai>=1.0.0
 python-dotenv>=1.0.0
+dashscope>=1.0.0  # Qwen VLM (DashScope API)
+transformers>=4.0.0  # Qwen/Gemma VLM (Hugging Face)
+torch>=2.0.0  # Qwen/Gemma VLM (PyTorch)
+
+# 유사도 계산 관련
+gensim>=4.0.0
+sentence-transformers>=2.0.0

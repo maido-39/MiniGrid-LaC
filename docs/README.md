@@ -17,6 +17,7 @@
 
 ### 사용 가이드
 - [키보드 제어 가이드](./keyboard-control.md) - 키보드로 환경 제어하기
+- [VLM 핸들러 시스템 가이드](./vlm-handlers.md) - 다양한 VLM 모델 사용하기 (OpenAI, Qwen, Gemma)
 
 ## 빠른 시작
 

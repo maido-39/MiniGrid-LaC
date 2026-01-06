@@ -45,8 +45,8 @@ git clone https://github.com/maido-39/MiniGrid-LaC.git
 cd MiniGrid-LaC
 
 # Conda 환경 생성 (Python 3.10 권장)
-conda create -n minigrid-lac python=3.10 -y
-conda activate minigrid-lac
+conda create -n minigrid python=3.10 -y
+conda activate minigrid
 
 # 의존성 설치
 pip install -r requirements.txt

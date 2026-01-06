@@ -26,18 +26,24 @@ VLM_MAX_TOKENS = 1000
 
 def get_system_prompt() -> str:
     """System Prompt 생성"""
-    return """You are a robot action planner for object goal navigation.
+    return """You are a robot operating on a grid map.
 
 ## Environment
 Grid world with walls (black), blue pillar (impassable), purple table (impassable), robot (red arrow shows heading), and goal (green marker if present).
 
+## Robot Orientation
+In the image, the red triangle represents the robot.
+The robot's heading direction is defined as the direction pointed by the triangle's apex (sharp tip).
+The top of the image is North, and the bottom is South.
+The left is West, and the right is East.
+
 ## Action Space
-- 0 or "turn left": Rotate 90° counterclockwise
-- 1 or "turn right": Rotate 90° clockwise
-- 2 or "move forward": Move one cell forward in heading direction
-- 3 or "pickup": Pick up object in front
-- 4 or "drop": Drop carried object
-- 5 or "toggle": Interact with objects (e.g., open doors)
+- "turn left": Rotate 90° counterclockwise
+- "turn right": Rotate 90° clockwise
+- "move forward": Move one cell forward in heading direction
+- "pickup": Pick up object in front
+- "drop": Drop carried object
+- "toggle": Interact with objects (e.g., open doors)
 
 ## Movement Rules
 **CRITICAL**: All movements are RELATIVE to robot's current heading direction.
@@ -45,12 +51,14 @@ Grid world with walls (black), blue pillar (impassable), purple table (impassabl
 - "turn left/right" = rotate 90° from current heading
 - Think in relative movements, NOT absolute coordinates
 
+
+
 ## Response Format
 Respond in JSON format:
 ```json
 {
     "action": "<action_name_or_number>",
-    "environment_info": "<description of current state with spatial relationships relative to robot>",
+    "environment_info": "<description of current state with spatial relationships relative to robot heading orientation>",
     "reasoning": "<explanation of why you chose this action>"
 }
 ```
@@ -75,18 +83,15 @@ def create_scenario2_environment():
         walls.append((0, i))
         walls.append((size-1, i))
     
-    # 파란 기둥: 2x2 Grid
+    # 파란 기둥: 2x2 Grid (색상이 있는 벽으로 변경)
     blue_pillar_positions = [(3, 4), (4, 4), (3, 5), (4, 5)]
-    
-    # 테이블: 보라색 1x3 Grid
-    table_positions = [(5, 1), (6, 1), (7, 1)]
-    
-    # 객체 리스트 생성
-    objects = []
     for pos in blue_pillar_positions:
-        objects.append({'type': 'box', 'pos': pos, 'color': 'blue'})
+        walls.append((pos[0], pos[1], 'blue'))
+    
+    # 테이블: 보라색 1x3 Grid (색상이 있는 벽으로 변경)
+    table_positions = [(5, 1), (6, 1), (7, 1)]
     for pos in table_positions:
-        objects.append({'type': 'box', 'pos': pos, 'color': 'purple'})
+        walls.append((pos[0], pos[1], 'purple'))
     
     # 시작점과 종료점
     start_pos = (1, 8)
@@ -96,7 +101,7 @@ def create_scenario2_environment():
         'start_pos': start_pos,
         'goal_pos': goal_pos,
         'walls': walls,
-        'objects': objects
+        'objects': []  # box 객체 제거
     }
     
     return CustomRoomWrapper(size=size, room_config=room_config)
@@ -128,7 +133,22 @@ def visualize_grid_cli(wrapper: CustomRoomWrapper, state: dict):
             if x == agent_x and y == agent_y:
                 row.append(agent_symbol)
             elif cell is not None and cell.type == 'wall':
-                row.append('⬛')
+                # 색상이 있는 벽 표시
+                if hasattr(cell, 'color'):
+                    if cell.color == 'blue':
+                        row.append('🟦')
+                    elif cell.color == 'purple':
+                        row.append('🟪')
+                    elif cell.color == 'red':
+                        row.append('🟥')
+                    elif cell.color == 'green':
+                        row.append('🟩')
+                    elif cell.color == 'yellow':
+                        row.append('🟨')
+                    else:
+                        row.append('⬛')  # 기본 색상 (grey)
+                else:
+                    row.append('⬛')  # 색상 없음
             elif cell is not None and cell.type == 'goal':
                 row.append('🟩')
             elif cell is not None:
@@ -269,8 +289,8 @@ def main():
             vlm_response = postprocessor.process(vlm_response_raw, strict=True)
             action_str = vlm_response.get('action', '2')
             print(f"파싱된 액션: {action_str}")
-            print(f"Environment Info: {vlm_response.get('environment_info', 'N/A')[:100]}...")
-            print(f"Reasoning: {vlm_response.get('reasoning', 'N/A')[:100]}...")
+            print(f"Environment Info: {vlm_response.get('environment_info', 'N/A')}")
+            print(f"Reasoning: {vlm_response.get('reasoning', 'N/A')}")
         except ValueError as e:
             print(f"응답 파싱 실패: {e}")
             print(f"원본 응답: {vlm_response_raw[:200]}...")

@@ -79,6 +79,8 @@ class VLMResponsePostProcessor:
             
             # 기본값 적용 (원본 타입 유지)
             result = {}
+            
+            # required_fields 처리
             for field in self.required_fields:
                 if field in parsed:
                     # 리스트나 딕셔너리는 원본 타입 유지, 나머지는 문자열로 변환
@@ -95,6 +97,14 @@ class VLMResponsePostProcessor:
                         result[field] = str(default_value)
                 else:
                     result[field] = ""
+            
+            # required_fields에 없는 필드도 포함 (예: reasoning)
+            for field, value in parsed.items():
+                if field not in result:
+                    if isinstance(value, (list, dict)):
+                        result[field] = value
+                    else:
+                        result[field] = str(value)
             
             return result
             
