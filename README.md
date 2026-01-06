@@ -32,13 +32,57 @@ MiniGrid 환경에서 Language-conditioned 강화학습을 위한 프로젝트�
 
 ## 설치
 
+### 필수 요구사항
+
+- Python 3.8 이상
+- OpenAI API 키 (VLM 기능 사용 시)
+
+### Conda를 사용한 설치 (권장)
+
 ```bash
 # 리포지토리 클론
 git clone https://github.com/maido-39/MiniGrid-LaC.git
 cd MiniGrid-LaC
 
-# 의존성 설치 (필요시)
+# Conda 환경 생성 (Python 3.10 권장)
+conda create -n minigrid-lac python=3.10 -y
+conda activate minigrid-lac
+
+# 의존성 설치
 pip install -r requirements.txt
+
+# OpenAI API 키 설정 (.env 파일 생성)
+echo "OPENAI_API_KEY=your-api-key-here" > .env
+```
+
+### pip를 사용한 설치
+
+```bash
+# 리포지토리 클론
+git clone https://github.com/maido-39/MiniGrid-LaC.git
+cd MiniGrid-LaC
+
+# 가상환경 생성 (선택사항이지만 권장)
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# 또는
+venv\Scripts\activate  # Windows
+
+# 의존성 설치
+pip install -r requirements.txt
+
+# OpenAI API 키 설정 (.env 파일 생성)
+echo "OPENAI_API_KEY=your-api-key-here" > .env
+```
+
+### 설치 확인
+
+```bash
+# Python 버전 확인
+python --version  # Python 3.8 이상이어야 함
+
+# 패키지 설치 확인
+python -c "import minigrid; import gymnasium; import openai; import cv2; print('All packages installed successfully!')"
 ```
 
 ## 사용법

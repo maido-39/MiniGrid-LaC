@@ -13,12 +13,13 @@ VLM(Vision Language Model)과의 연동을 고려하여 설계되었습니다.
 
 from minigrid import register_minigrid_envs
 from minigrid.core.grid import Grid
-from minigrid.core.world_object import Wall, Goal, Key, Ball, Box, Door
+from minigrid.core.world_object import Wall, Goal, Key, Ball, Box, Door, WorldObj
 from minigrid.core.mission import MissionSpace
 from minigrid.minigrid_env import MiniGridEnv
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Union
 import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw, ImageFont
 try:
     import cv2
     CV2_AVAILABLE = True
@@ -27,6 +28,167 @@ except ImportError:
 
 # MiniGrid 환경 등록 (필수: 환경을 사용하기 전에 등록해야 함)
 register_minigrid_envs()
+
+# 이모지 이름과 실제 이모지 문자 매핑
+EMOJI_MAP = {
+    'tree': '🌲',
+    'mushroom': '🍄',
+    'flower': '🌼',
+    'cat': '🐈',
+    'grass': '🌾',
+    'rock': '🗿',
+    'box': '📦',
+    'chair': '🪑',
+    'apple': '🍎',
+}
+
+
+class EmojiObject(WorldObj):
+    """
+    이모지를 표시하는 커스텀 객체
+    
+    이모지 이름, 색상, 집기 가능 여부를 설정할 수 있습니다.
+    파싱 시 이모지 이름이 반환됩니다.
+    항상 통과 불가능합니다 (에이전트가 올라갈 수 없음).
+    """
+    
+    def __init__(
+        self,
+        emoji_name: str,
+        color: str = 'yellow',
+        can_pickup: bool = False
+    ):
+        """
+        Emoji 객체 초기화
+        
+        Args:
+            emoji_name: 이모지 이름 (예: "tree", "rock", "flower" 등)
+            color: 색상 (기본값: 'yellow')
+                - 지원 색상: 'red', 'green', 'blue', 'purple', 'yellow', 'grey'
+            can_pickup: 집기 가능 여부 (기본값: False)
+                - True: 에이전트가 앞에서 바라보면 집을 수 있음
+                - False: 집을 수 없음 (장애물)
+        """
+        # 항상 Box 타입 사용 (통과 불가능하게 설정)
+        super().__init__('box', color)
+        
+        # 이모지 이름 저장
+        self.emoji_name = emoji_name
+        self._can_pickup = can_pickup
+        
+        # 타입을 'emoji'로 설정하여 구분
+        self.type = 'emoji'
+    
+    def can_pickup(self):
+        """에이전트가 이 객체를 집을 수 있는지 여부"""
+        return self._can_pickup
+    
+    def can_overlap(self):
+        """에이전트가 이 객체와 겹칠 수 있는지 여부 (항상 False - 통과 불가능)"""
+        return False
+    
+    def encode(self):
+        """객체를 인코딩 (MiniGrid 호환성을 위해 'box' 타입으로 인코딩)"""
+        # MiniGrid의 encode()는 OBJECT_TO_IDX를 사용하므로
+        # 'emoji' 타입이 등록되어 있지 않아 KeyError 발생
+        # 따라서 'box' 타입으로 인코딩하되, 이모지 이름은 별도 속성으로 저장
+        from minigrid.core.constants import OBJECT_TO_IDX, COLOR_TO_IDX
+        
+        # 'box' 타입으로 인코딩 (MiniGrid 호환성)
+        obj_type_idx = OBJECT_TO_IDX['box']
+        color_idx = COLOR_TO_IDX[self.color]
+        state = 0
+        
+        return (obj_type_idx, color_idx, state)
+    
+    def render(self, img):
+        """
+        이모지를 실제로 렌더링 (OpenCV 호환)
+        emoji_opencv_display.py의 로직을 활용
+        
+        Args:
+            img: 렌더링할 이미지 배열 (numpy array, shape: (H, W, 3))
+        """
+        # 이모지 문자 가져오기
+        emoji_char = EMOJI_MAP.get(self.emoji_name, '❓')
+        
+        # 이미지 크기 확인
+        h, w = img.shape[:2]
+        
+        # 이모지 폰트 크기 (타일 크기에 맞게 조정)
+        font_size = int(min(h, w) * 0.8)
+        
+        # 로컬 fonts 디렉토리에서 폰트 로드 (emoji_opencv_display.py 로직 활용)
+        font = None
+        try:
+            import os
+            # 현재 파일의 디렉토리 기준으로 fonts 폰트 찾기
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            local_font_path = os.path.join(script_dir, 'fonts', 'NotoEmoji-Regular.ttf')
+            
+            # 로컬 폰트 로드
+            if os.path.exists(local_font_path):
+                font = ImageFont.truetype(local_font_path, font_size)
+        except Exception:
+            font = None
+        
+        # RGBA 모드로 변환 (투명도 지원)
+        pil_img = Image.fromarray(img.astype(np.uint8)).convert('RGBA')
+        draw = ImageDraw.Draw(pil_img)
+        
+        # 이모지 텍스트 크기 계산
+        if font:
+            try:
+                # textbbox 사용 (PIL 8.0.0 이상)
+                bbox = draw.textbbox((0, 0), emoji_char, font=font)
+                text_width = bbox[2] - bbox[0]
+                text_height = bbox[3] - bbox[1]
+            except AttributeError:
+                # textsize 사용 (구버전 PIL)
+                try:
+                    text_width, text_height = draw.textsize(emoji_char, font=font)
+                except:
+                    text_width = font_size
+                    text_height = font_size
+            except:
+                text_width = font_size
+                text_height = font_size
+        else:
+            text_width = font_size
+            text_height = font_size
+        
+        # 중앙에 이모지 그리기
+        x = (w - text_width) // 2
+        y = (h - text_height) // 2 - 2  # 약간 위로 조정
+        
+        # 이모지 그리기 (RGBA 흰색)
+        fill_color = (255, 255, 255, 255)
+        
+        if font:
+            try:
+                draw.text((x, y), emoji_char, font=font, fill=fill_color)
+            except:
+                try:
+                    draw.text((x, y), emoji_char, fill=fill_color)
+                except:
+                    pass
+        else:
+            try:
+                draw.text((x, y), emoji_char, fill=fill_color)
+            except:
+                pass
+        
+        # RGBA를 RGB로 변환하여 원본 이미지에 복사
+        rgb_img = pil_img.convert('RGB')
+        img[:] = np.array(rgb_img)
+    
+    def __str__(self):
+        """문자열 표현 (이모지 이름 반환)"""
+        return self.emoji_name
+    
+    def __repr__(self):
+        """객체 표현"""
+        return f"EmojiObject(emoji_name='{self.emoji_name}', color='{self.color}', can_pickup={self._can_pickup})"
 
 
 class CustomRoomEnv(MiniGridEnv):
@@ -81,10 +243,27 @@ class CustomRoomEnv(MiniGridEnv):
         if self.room_config:
             # 3-1: 벽 배치
             if 'walls' in self.room_config:
-                for wall_x, wall_y in self.room_config['walls']:
+                for wall_info in self.room_config['walls']:
+                    # 벽 정보가 튜플인 경우 (기존 형태: (x, y))
+                    if isinstance(wall_info, tuple):
+                        if len(wall_info) == 2:
+                            wall_x, wall_y = wall_info
+                            wall_color = 'grey'  # 기본 색상
+                        elif len(wall_info) == 3:
+                            wall_x, wall_y, wall_color = wall_info
+                        else:
+                            continue
+                    # 벽 정보가 딕셔너리인 경우 (새 형태: {'pos': (x, y), 'color': 'red'})
+                    elif isinstance(wall_info, dict):
+                        wall_pos = wall_info.get('pos', (0, 0))
+                        wall_x, wall_y = wall_pos
+                        wall_color = wall_info.get('color', 'grey')
+                    else:
+                        continue
+                    
                     # 좌표가 유효한 범위 내에 있는지 확인
                     if 0 <= wall_x < width and 0 <= wall_y < height:
-                        self.grid.set(wall_x, wall_y, Wall())
+                        self.grid.set(wall_x, wall_y, Wall(wall_color))
             
             # 3-2: Goal 위치 설정 (공식 방법: put_obj 사용)
             if 'goal_pos' in self.room_config:
@@ -111,7 +290,14 @@ class CustomRoomEnv(MiniGridEnv):
                         elif obj_type == 'box':
                             obj = Box(obj_color)
                         elif obj_type == 'door':
-                            obj = Door(obj_color, is_locked=False, is_open=True)
+                            is_locked = obj_info.get('is_locked', False)
+                            is_open = obj_info.get('is_open', True)
+                            obj = Door(obj_color, is_locked=is_locked, is_open=is_open)
+                        elif obj_type == 'emoji':
+                            # 이모지 객체 생성
+                            emoji_name = obj_info.get('emoji_name', 'emoji')
+                            can_pickup = obj_info.get('can_pickup', False)
+                            obj = EmojiObject(emoji_name=emoji_name, color=obj_color, can_pickup=can_pickup)
                         else:
                             obj = Key(obj_color)  # 기본값
                         
@@ -191,10 +377,14 @@ class CustomRoomWrapper:
         
         Args:
             size: 환경 크기 (기본값: 10)
-            walls: 벽 위치 리스트 [(x1, y1), (x2, y2), ...] (기본값: None)
+            walls: 벽 위치 리스트 (기본값: None)
+                - 기존 형태: [(x1, y1), (x2, y2), ...] (기본 색상: 'grey')
+                - 색상 지정: [(x1, y1, 'red'), (x2, y2, 'blue'), ...]
+                - 딕셔너리 형태: [{'pos': (x, y), 'color': 'red'}, ...]
             room_config: 방 구조 설정 딕셔너리 (기본값: None)
                 - start_pos: (x, y) 튜플 - 에이전트 시작 위치
                 - goal_pos: (x, y) 튜플 - 목표 위치
+                - walls: 벽 리스트 (위와 동일한 형태 지원)
                 - objects: 객체 리스트 [{'type': 'key', 'pos': (x, y), 'color': 'yellow'}, ...]
             render_mode: 렌더링 모드 ('rgb_array' 또는 'human') (기본값: 'rgb_array')
             **kwargs: CustomRoomEnv의 추가 파라미터
@@ -484,6 +674,70 @@ class CustomRoomWrapper:
             'image': self.get_image()
         }
     
+    def parse_grid(self) -> Dict[Tuple[int, int], str]:
+        """
+        그리드를 파싱하여 각 위치의 객체 정보를 반환
+        
+        이모지 객체의 경우 이모지 이름이 반환됩니다.
+        
+        Returns:
+            grid_map: 딕셔너리 {(x, y): object_name}
+                - 이모지 객체: 이모지 이름 (예: "tree", "rock")
+                - 다른 객체: 객체 타입 (예: "wall", "key", "goal")
+                - 빈 공간: None 또는 빈 문자열
+        """
+        grid_map = {}
+        
+        if not hasattr(self.env, 'grid'):
+            return grid_map
+        
+        width = self.env.grid.width
+        height = self.env.grid.height
+        
+        for y in range(height):
+            for x in range(width):
+                cell = self.env.grid.get(x, y)
+                
+                if cell is None:
+                    # 빈 공간
+                    grid_map[(x, y)] = None
+                elif hasattr(cell, 'type'):
+                    # 이모지 객체인 경우
+                    if cell.type == 'emoji' and hasattr(cell, 'emoji_name'):
+                        grid_map[(x, y)] = cell.emoji_name
+                    else:
+                        # 다른 객체 타입
+                        grid_map[(x, y)] = cell.type
+                else:
+                    # 객체 타입을 알 수 없는 경우
+                    grid_map[(x, y)] = str(cell)
+        
+        return grid_map
+    
+    def get_emoji_at(self, x: int, y: int) -> Optional[str]:
+        """
+        특정 위치의 이모지 이름을 반환
+        
+        Args:
+            x: X 좌표
+            y: Y 좌표
+            
+        Returns:
+            emoji_name: 이모지 이름 (이모지 객체가 아닌 경우 None)
+        """
+        if not hasattr(self.env, 'grid'):
+            return None
+        
+        cell = self.env.grid.get(x, y)
+        
+        if cell is None:
+            return None
+        
+        if hasattr(cell, 'type') and cell.type == 'emoji' and hasattr(cell, 'emoji_name'):
+            return cell.emoji_name
+        
+        return None
+    
     def close(self):
         """환경 종료 및 리소스 정리"""
         self.env.close()
@@ -631,6 +885,34 @@ def test_environment(wrapper):
     return obs, reward, done
 
 
+def create_emoji_environment():
+    """
+    이모지 객체를 사용하는 환경 생성 예제
+    
+    Returns:
+        CustomRoomWrapper: 이모지 객체가 포함된 환경
+    """
+    size = 10
+    
+    room_config = {
+        'start_pos': (1, 1),
+        'goal_pos': (8, 8),
+        'walls': [],  # 외벽은 자동 생성
+        'objects': [
+            # 집을 수 없는 이모지 객체 (장애물)
+            {'type': 'emoji', 'pos': (3, 3), 'emoji_name': 'tree', 'color': 'green', 'can_pickup': False},
+            {'type': 'emoji', 'pos': (4, 4), 'emoji_name': 'rock', 'color': 'grey', 'can_pickup': False},
+            {'type': 'emoji', 'pos': (5, 5), 'emoji_name': 'mountain', 'color': 'blue', 'can_pickup': False},
+            
+            # 집을 수 있는 이모지 객체
+            {'type': 'emoji', 'pos': (2, 2), 'emoji_name': 'flower', 'color': 'yellow', 'can_pickup': True},
+            {'type': 'emoji', 'pos': (6, 6), 'emoji_name': 'grass', 'color': 'green', 'can_pickup': True},
+        ]
+    }
+    
+    return CustomRoomWrapper(size=size, room_config=room_config)
+
+
 def main():
     """
     메인 함수: 다양한 환경 생성 및 테스트
@@ -646,6 +928,26 @@ def main():
     visualize_environment(wrapper1)
     test_environment(wrapper1)
     wrapper1.close()
+    
+    # 예제 1.5: 이모지 객체 사용 예제
+    print("\n[예제 1.5] 이모지 객체 사용")
+    print("-" * 60)
+    emoji_wrapper = create_emoji_environment()
+    emoji_wrapper.reset()
+    
+    # 그리드 파싱 테스트
+    grid_map = emoji_wrapper.parse_grid()
+    print("\n그리드 파싱 결과 (이모지 이름):")
+    for (x, y), obj_name in grid_map.items():
+        if obj_name is not None:
+            print(f"  ({x}, {y}): {obj_name}")
+    
+    # 특정 위치의 이모지 확인
+    emoji_at_3_3 = emoji_wrapper.get_emoji_at(3, 3)
+    print(f"\n위치 (3, 3)의 이모지: {emoji_at_3_3}")
+    
+    visualize_environment(emoji_wrapper)
+    emoji_wrapper.close()
     
     # 예제 2: 실내 집 환경
     print("\n[예제 2] 실내 집 환경 생성 (복도, 방, 차고)")
