@@ -57,58 +57,64 @@ class PromptOrganizer:
     
     def get_system_prompt(self, wrapper=None) -> str:
         """전체 System Prompt 생성"""
-        base = "You are a robot operating on a grid map.\n\n"
+        base = "You are a robot operating in a grid-based environment.\n\n"
         
-        # Current Heading 섹션 (wrapper가 제공된 경우)
-        heading_section = ""
+        # Robot State (Authoritative) 섹션
+        robot_state_section = ""
         if wrapper is not None:
             try:
                 heading = wrapper.get_heading()
-                heading_desc = wrapper.get_heading_description()
                 heading_short = wrapper.get_heading_short()
-                heading_section = f"""## Current Robot Heading
-- Direction: {heading} ({heading_short})
-- Description: {heading_desc}
-
-**Important**: This is the current heading direction of the robot. All movements are relative to this heading.
+                robot_state_section = f"""## Robot State (Authoritative)
+- The robot's current heading is {heading} ({heading_short}).
+- Heading indicates the robot's forward-facing direction.
+- This heading is ground-truth and MUST be used as-is.
+- Do NOT infer or reinterpret the robot's heading from the image.
 
 """
             except Exception:
-                # heading 정보를 가져올 수 없는 경우 무시
-                pass
-        
-        # Grounding 섹션
-        grounding_section = ""
-        if self.grounding:
-            grounding_section = f"""## Grounding Knowledge (Lessons Learned from Mistakes)
-{self.grounding}
+                # heading 정보를 가져올 수 없는 경우 기본 메시지
+                robot_state_section = """## Robot State (Authoritative)
+- The robot's current heading is provided by the environment.
+- Heading indicates the robot's forward-facing direction.
+- This heading is ground-truth and MUST be used as-is.
+- Do NOT infer or reinterpret the robot's heading from the image.
 
-**Important**: This section contains knowledge learned from previous mistakes. Always refer to this section to avoid repeating the same mistakes.
+"""
+        else:
+            robot_state_section = """## Robot State (Authoritative)
+- The robot's current heading is provided by the environment.
+- Heading indicates the robot's forward-facing direction.
+- This heading is ground-truth and MUST be used as-is.
+- Do NOT infer or reinterpret the robot's heading from the image.
 
 """
         
-        # Memory 섹션
-        memory_section = ""
-        if self.previous_action or self.current_subtask:
-            memory_section = f"""## Permanent Memory (Current Progress Summary)
-- Previous Action: {self.previous_action if self.previous_action else "None"}
-- Current Subtask: {self.current_subtask if self.current_subtask else "Not specified"}
-
-**Important**: This memory contains information about the previous action and current subtask. Use this to maintain consistency in your actions.
+        # Coordinate Convention 섹션
+        coordinate_section = """## Coordinate Convention
+- Top of the image: North
+- Bottom of the image: South
+- Left of the image: West
+- Right of the image: East
 
 """
         
-        # Environment Info (전체 System Prompt 내용)
-        env_info = """## Environment
-Grid world with walls (black), blue pillar (impassable), purple table (impassable), robot (red arrow shows heading), and goal (green marker if present).
+        # Environment 섹션
+        env_section = """## Environment
+Grid world with:
+- Walls (black, impassable)
+- Blue pillar (impassable)
+- Purple table (impassable)
+- Robot (red arrow marker)
+- Goal (green marker, if present)
 
-## Robot Orientation
-In the image, the red triangle represents the robot.
-The robot's heading direction is defined as the direction pointed by the triangle's apex (sharp tip).
-The top of the image is North, and the bottom is South.
-The left is West, and the right is East.
+The image describes the environment layout ONLY.
+Do NOT use the image to estimate robot orientation.
 
-## Action Space
+"""
+        
+        # Action Space 섹션
+        action_space_section = """## Action Space
 - "turn left": Rotate 90° counterclockwise
 - "turn right": Rotate 90° clockwise
 - "move forward": Move one cell forward in heading direction
@@ -116,70 +122,103 @@ The left is West, and the right is East.
 - "drop": Drop carried object
 - "toggle": Interact with objects (e.g., open doors)
 
-## Movement Rules
-**CRITICAL**: All movements are RELATIVE to robot's current heading direction.
-- "forward" = move one cell in facing direction
-- "turn left/right" = rotate 90° from current heading
-- Think in relative movements, NOT absolute coordinates
-
-## Response Format
-Respond in JSON format:
-```json
-{
-    "action": ["<action1>", "<action2>", "<action3>"],
-    "reasoning": "<explanation of why you chose this action>",
-    "grounding": "<grounding knowledge update if feedback detected, otherwise empty>",
-    "memory": {
-        "spatial_description": "<description of current state with spatial relationships relative to robot heading orientation>",
-        "current_subtask": "<current subtask from the user prompt task breakdown>",
-        "previous_action": "<this action will be recorded here for next step consistency>"
-    }
-}
-```
-
-**Important**: 
-- You MUST provide exactly 3 actions in the "action" array as a sequential action chunk
-- Only the first action will be executed, but all 3 actions should form a coherent sequence
-- The "previous_action" in memory should be set to the first action you choose
-- For consistency, refer to the "previous_action" in memory when planning your next action
-- Valid JSON format required
-- Actions must be from the action space list above
-- Complete mission from user prompt
-- Use relative movements based on heading, not coordinates
 """
         
-        return base + heading_section + memory_section + grounding_section + env_info
+        # Movement Rules 섹션
+        movement_rules_section = """## Movement Rules (CRITICAL)
+Before selecting actions:
+1. Use the provided robot heading to establish the robot's local reference frame.
+2. Reason about all objects and goals relative to this heading.
+3. Select actions ONLY based on relative movement.
+
+Rules:
+- All movements are RELATIVE to the robot's current heading.
+- "move forward" moves one cell in the facing direction.
+- "turn left/right" rotates 90° relative to current heading.
+- Do NOT reason using absolute coordinates when choosing actions.
+
+"""
+        
+        # Grounding Knowledge 섹션
+        grounding_section = ""
+        if self.grounding:
+            grounding_section = f"""## Grounding Knowledge (Experience from Past Failures)
+This section contains lessons learned from human feedback after failures.
+- These are NOT universal rules.
+- Use them only when the current situation is similar.
+- Do not blindly apply grounding knowledge.
+
+{self.grounding}
+
+"""
+        
+        # Memory 섹션
+        memory_section = f"""## Memory (State Continuity)
+- Previous Action: {self.previous_action if self.previous_action else "None"}
+- Current Subtask: {self.current_subtask if self.current_subtask else "Not specified"}
+
+Use this memory to maintain temporal consistency across steps.
+
+"""
+        
+        # Response Format 섹션
+        response_format_section = """## Response Format (STRICT)
+Respond in valid JSON:
+
+```json
+{{
+  "action": ["<action1>", "<action2>", "<action3>"],
+  "reasoning": "<why the first action is correct given the heading>",
+  "grounding": "<update grounding only if new failure feedback is detected>",
+  "memory": {{
+    "spatial_description": "<environment described relative to robot heading>",
+    "current_subtask": "<current subtask>",
+    "previous_action": "<set to the first selected action>"
+  }}
+}}
+```
+
+Important:
+
+* EXACTLY 3 actions must be provided.
+* Only the first action will be executed.
+* Actions must come from the defined action space.
+* Use relative movement reasoning ONLY.
+* Complete the mission specified by the user.
+"""
+        
+        return (base + robot_state_section + coordinate_section + env_section + 
+                action_space_section + movement_rules_section + grounding_section + 
+                memory_section + response_format_section)
     
     def get_feedback_system_prompt(self) -> str:
         """Feedback 생성용 System Prompt"""
-        return """You are a feedback analyzer for a robot navigation system.
+        return """You are a feedback-to-knowledge converter for a robot navigation system.
 
-Your task is to analyze feedback and generate concise knowledge to improve the robot's behavior.
+Your task is to convert human feedback into a single-line behavioral heuristic.
 
 ## Context
 You will receive:
-- The full system prompt used for action generation
-- The previous action that was taken
-- The current user feedback
+- The previous action taken by the robot
+- The current user feedback describing a mistake
 
 ## Your Task
-Analyze the feedback in the context of the system prompt and previous action.
-Generate concise knowledge (1-2 sentences) that explains:
-1. What went wrong
-2. How to avoid this mistake in the future
+Generate ONE concise sentence that:
+- Describes the situation (implicit condition)
+- States the correct behavior to follow next time
+
+## Constraints
+- Use relative, heading-based terms only
+- Do NOT reference specific map positions or episode details
+- Keep it general and reusable
+- Exactly one sentence
 
 ## Response Format
-Respond in JSON format:
 ```json
 {
-    "knowledge": "<concise knowledge (1-2 sentences) explaining what went wrong and how to avoid it>"
+  "grounding_rule": "<single-line heuristic>"
 }
 ```
-
-**Important**:
-- Keep the knowledge brief and actionable (1-2 sentences max)
-- Focus on specific, actionable guidance
-- The knowledge will be added to the grounding section for future reference
 """
     
     def update_grounding(self, new_grounding: str):
