@@ -6,8 +6,10 @@ Word2Vec과 SBERT를 사용하여 단어 및 문장 간의 의미적 유사도�
 
 ```
 similarity_calculator/
-├── word_similarity.py      # Word2Vec을 사용한 단어 간 유사도 계산
-├── sentence_similarity.py  # SBERT를 사용한 문장 간 유사도 계산
+├── __init__.py            # 패키지 초기화 파일
+├── word_similarity.py     # Word2Vec을 사용한 단어 간 유사도 계산
+├── sentence_similarity.py # SBERT를 사용한 문장 간 유사도 계산
+├── example.py             # 통합 사용 예제
 └── README.md              # 이 파일
 ```
 
@@ -29,10 +31,21 @@ numpy>=1.20.0
 
 ## 📖 사용 방법
 
+### 빠른 시작
+
+```python
+# 패키지에서 직접 import
+from similarity_calculator import Word2VecSimilarity, SBERTSimilarity
+
+# 또는 개별 모듈에서 import
+from similarity_calculator.word_similarity import Word2VecSimilarity
+from similarity_calculator.sentence_similarity import SBERTSimilarity
+```
+
 ### 1. Word2Vec - 단어 간 유사도 계산
 
 ```python
-from similarity_calculator.word_similarity import Word2VecSimilarity
+from similarity_calculator import Word2VecSimilarity
 
 # Word2VecSimilarity 객체 생성 (예제 데이터로 학습)
 similarity_calculator = Word2VecSimilarity()
@@ -53,7 +66,7 @@ print(f"사과와 유사한 단어들: {similar_words}")
 ### 2. SBERT - 문장 간 유사도 계산
 
 ```python
-from similarity_calculator.sentence_similarity import SBERTSimilarity
+from similarity_calculator import SBERTSimilarity
 
 # SBERTSimilarity 객체 생성
 similarity_calculator = SBERTSimilarity()
@@ -95,6 +108,9 @@ python similarity_calculator/word_similarity.py
 
 # SBERT 예제 실행
 python similarity_calculator/sentence_similarity.py
+
+# 통합 예제 실행
+python similarity_calculator/example.py
 ```
 
 ## 📊 유사도 측정 방법
@@ -165,8 +181,12 @@ similarity_calculator = Word2VecSimilarity(sentences=sentences)
    - Word2Vec: 매우 빠름
    - SBERT: 상대적으로 느리지만 더 정확함
 
-## 📚 참고 자료
+## 📚 문서 및 참고 자료
 
+### 프로젝트 문서
+- [상세 API 문서](../docs/similarity-calculator-api.md) - 모든 메서드의 상세한 사용법과 예제
+
+### 외부 참고 자료
 - [Word2Vec 논문](https://arxiv.org/abs/1301.3781)
 - [SBERT 논문](https://arxiv.org/abs/1908.10084)
 - [Sentence Transformers 문서](https://www.sbert.net/)

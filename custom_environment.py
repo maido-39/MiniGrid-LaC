@@ -316,6 +316,182 @@ class CustomRoomEnv(MiniGridEnv):
         
         # 5단계: Mission 설정 (공식 방법)
         self.mission = self._gen_mission()
+    
+    def render(self):
+        """
+        렌더링 메서드 오버라이드
+        에이전트 삼각형을 그리지 않고 arrow.png를 사용합니다.
+        """
+        # 기본 렌더링 수행 (에이전트 포함)
+        frame = super().render()
+        
+        if frame is None:
+            return frame
+        
+        # 에이전트 위치 및 방향 확인
+        if not hasattr(self, 'agent_pos') or not hasattr(self, 'agent_dir'):
+            return frame
+        
+        agent_x, agent_y = int(self.agent_pos[0]), int(self.agent_pos[1])
+        agent_dir = self.agent_dir
+        
+        # 타일 크기 확인
+        actual_tile_size = self.tile_size if hasattr(self, 'tile_size') else 32
+        
+        # 에이전트 타일의 픽셀 좌표 계산
+        start_x = agent_x * actual_tile_size
+        start_y = agent_y * actual_tile_size
+        end_x = start_x + actual_tile_size
+        end_y = start_y + actual_tile_size
+        
+        # 프레임 크기 확인
+        frame_h, frame_w = frame.shape[:2]
+        
+        # 좌표가 프레임 범위 내에 있는지 확인
+        if start_x < 0 or start_y < 0 or end_x > frame_w or end_y > frame_h:
+            return frame
+        
+        # arrow.png 이미지 로드 및 합성
+        try:
+            import os
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            arrow_img_path = os.path.join(script_dir, 'asset', 'arrow.png')
+            
+            if os.path.exists(arrow_img_path):
+                # 프레임을 PIL 이미지로 변환
+                pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')
+                
+                # 에이전트 타일 영역을 에이전트 없이 직접 렌더링
+                # 그리드에서 해당 셀만 가져와서 렌더링
+                cell = self.grid.get(agent_x, agent_y)
+                
+                # 타일만 렌더링 (에이전트 없이)
+                from minigrid.core.grid import Grid
+                try:
+                    # Grid.render_tile을 사용하여 타일 배경만 렌더링
+                    bg_tile_img = Grid.render_tile(
+                        cell,
+                        (agent_x, agent_y),
+                        agent_dir=None,  # 에이전트 방향 없음
+                        highlight=False,
+                        tile_size=actual_tile_size,
+                        subdivs=3
+                    )
+                    
+                    if bg_tile_img is not None:
+                        # numpy array를 PIL Image로 변환
+                        if isinstance(bg_tile_img, np.ndarray):
+                            bg_tile = Image.fromarray(bg_tile_img.astype(np.uint8)).convert('RGBA')
+                        elif hasattr(bg_tile_img, 'convert'):
+                            bg_tile = bg_tile_img.convert('RGBA')
+                        else:
+                            bg_tile = Image.fromarray(np.array(bg_tile_img)).convert('RGBA')
+                    else:
+                        # 렌더링 실패 시 프레임에서 추출하되, 빨간색 제거
+                        agent_tile = pil_frame.crop((start_x, start_y, end_x, end_y))
+                        tile_array = np.array(agent_tile)
+                        
+                        # 빨간색 픽셀 감지 및 제거
+                        red_mask = (
+                            (tile_array[:, :, 0] > 150) &
+                            (tile_array[:, :, 0] > tile_array[:, :, 1] + 50) &
+                            (tile_array[:, :, 0] > tile_array[:, :, 2] + 50) &
+                            (tile_array[:, :, 1] < 150) &
+                            (tile_array[:, :, 2] < 150)
+                        )
+                        
+                        if np.any(red_mask):
+                            # 모서리에서 배경 색상 추정
+                            corner_size = 4
+                            corners = np.concatenate([
+                                tile_array[:corner_size, :corner_size].reshape(-1, 4),
+                                tile_array[:corner_size, -corner_size:].reshape(-1, 4),
+                                tile_array[-corner_size:, :corner_size].reshape(-1, 4),
+                                tile_array[-corner_size:, -corner_size:].reshape(-1, 4)
+                            ])
+                            non_red_corners = corners[
+                                (corners[:, 0] <= 200) | (corners[:, 1] >= 100) | (corners[:, 2] >= 100)
+                            ]
+                            if len(non_red_corners) > 0:
+                                bg_color = np.mean(non_red_corners[:, :3], axis=0).astype(int)
+                                tile_array[red_mask, 0] = bg_color[0]
+                                tile_array[red_mask, 1] = bg_color[1]
+                                tile_array[red_mask, 2] = bg_color[2]
+                                tile_array[red_mask, 3] = 255
+                            
+                            bg_tile = Image.fromarray(tile_array.astype(np.uint8), 'RGBA')
+                        else:
+                            bg_tile = agent_tile
+                except Exception as e:
+                    # 렌더링 실패 시 프레임에서 추출하고 빨간색 제거
+                    agent_tile = pil_frame.crop((start_x, start_y, end_x, end_y))
+                    tile_array = np.array(agent_tile)
+                    
+                    # 빨간색 픽셀 감지 및 제거
+                    red_mask = (
+                        (tile_array[:, :, 0] > 150) &
+                        (tile_array[:, :, 0] > tile_array[:, :, 1] + 50) &
+                        (tile_array[:, :, 0] > tile_array[:, :, 2] + 50) &
+                        (tile_array[:, :, 1] < 150) &
+                        (tile_array[:, :, 2] < 150)
+                    )
+                    
+                    if np.any(red_mask):
+                        # 모서리에서 배경 색상 추정
+                        corner_size = 4
+                        corners = np.concatenate([
+                            tile_array[:corner_size, :corner_size].reshape(-1, 4),
+                            tile_array[:corner_size, -corner_size:].reshape(-1, 4),
+                            tile_array[-corner_size:, :corner_size].reshape(-1, 4),
+                            tile_array[-corner_size:, -corner_size:].reshape(-1, 4)
+                        ])
+                        non_red_corners = corners[
+                            (corners[:, 0] <= 200) | (corners[:, 1] >= 100) | (corners[:, 2] >= 100)
+                        ]
+                        if len(non_red_corners) > 0:
+                            bg_color = np.mean(non_red_corners[:, :3], axis=0).astype(int)
+                            tile_array[red_mask, 0] = bg_color[0]
+                            tile_array[red_mask, 1] = bg_color[1]
+                            tile_array[red_mask, 2] = bg_color[2]
+                            tile_array[red_mask, 3] = 255
+                        
+                        bg_tile = Image.fromarray(tile_array.astype(np.uint8), 'RGBA')
+                    else:
+                        bg_tile = agent_tile
+                
+                # arrow.png 이미지 로드 및 리사이즈
+                arrow_img = Image.open(arrow_img_path).convert('RGBA')
+                arrow_img = arrow_img.resize((actual_tile_size, actual_tile_size), Image.Resampling.LANCZOS)
+                
+                # 방향에 따라 회전
+                # MiniGrid 방향: 0=오른쪽(East), 1=아래(South), 2=왼쪽(West), 3=위(North)
+                # arrow.png가 오른쪽을 향한다고 가정
+                rotation_map = {
+                    0: 0,      # 오른쪽 (기본)
+                    1: 90,     # 아래 (시계방향 90도)
+                    2: 180,    # 왼쪽 (시계방향 180도)
+                    3: 270     # 위 (시계방향 270도)
+                }
+                rotation_angle = rotation_map.get(agent_dir, 0)
+                
+                if rotation_angle != 0:
+                    arrow_img = arrow_img.rotate(-rotation_angle, expand=False, fillcolor=(0, 0, 0, 0))
+                
+                # 배경 타일 위에 arrow 이미지 합성 (투명도 유지)
+                bg_tile.paste(arrow_img, (0, 0), arrow_img)
+                
+                # 수정된 타일을 다시 프레임에 붙이기
+                pil_frame.paste(bg_tile, (start_x, start_y))
+                
+                # RGB로 변환하여 numpy 배열로 변환
+                frame = np.array(pil_frame.convert('RGB'))
+        except Exception as e:
+            # 이미지 로드 실패 시 기본 렌더링 유지
+            print(f"Warning: 커스텀 에이전트 이미지 로드 실패 ({e}). 기본 렌더링을 사용합니다.")
+            import traceback
+            traceback.print_exc()
+        
+        return frame
 
 
 class CustomRoomWrapper:
@@ -673,6 +849,73 @@ class CustomRoomWrapper:
             'mission': self.env.mission if hasattr(self.env, 'mission') else None,
             'image': self.get_image()
         }
+    
+    def get_heading(self) -> str:
+        """
+        현재 로봇의 heading 방향을 문자열로 반환
+        
+        Returns:
+            heading: 방향 문자열
+                - "East" (오른쪽, agent_dir=0)
+                - "South" (아래, agent_dir=1)
+                - "West" (왼쪽, agent_dir=2)
+                - "North" (위, agent_dir=3)
+        """
+        if not hasattr(self.env, 'agent_dir'):
+            return "Unknown"
+        
+        agent_dir = self.env.agent_dir
+        heading_map = {
+            0: "East",   # 오른쪽
+            1: "South",  # 아래
+            2: "West",   # 왼쪽
+            3: "North"   # 위
+        }
+        return heading_map.get(agent_dir, "Unknown")
+    
+    def get_heading_short(self) -> str:
+        """
+        현재 로봇의 heading 방향을 짧은 문자열로 반환
+        
+        Returns:
+            heading: 방향 문자열
+                - "E" (East, 오른쪽, agent_dir=0)
+                - "S" (South, 아래, agent_dir=1)
+                - "W" (West, 왼쪽, agent_dir=2)
+                - "N" (North, 위, agent_dir=3)
+        """
+        if not hasattr(self.env, 'agent_dir'):
+            return "?"
+        
+        agent_dir = self.env.agent_dir
+        heading_map = {
+            0: "E",  # East (오른쪽)
+            1: "S",  # South (아래)
+            2: "W",  # West (왼쪽)
+            3: "N"   # North (위)
+        }
+        return heading_map.get(agent_dir, "?")
+    
+    def get_heading_description(self) -> str:
+        """
+        현재 로봇의 heading 방향을 상세 설명 문자열로 반환
+        
+        Returns:
+            description: 방향 설명 문자열
+                예: "facing East (right)" 또는 "facing North (up)"
+        """
+        heading = self.get_heading()
+        if heading == "Unknown":
+            return "heading direction unknown"
+        
+        direction_descriptions = {
+            "East": "right",
+            "South": "down",
+            "West": "left",
+            "North": "up"
+        }
+        direction = direction_descriptions.get(heading, "")
+        return f"facing {heading} ({direction})"
     
     def parse_grid(self) -> Dict[Tuple[int, int], str]:
         """

@@ -55,9 +55,27 @@ class PromptOrganizer:
         self.previous_action = ""
         self.current_subtask = ""
     
-    def get_system_prompt(self) -> str:
+    def get_system_prompt(self, wrapper=None) -> str:
         """전체 System Prompt 생성"""
         base = "You are a robot operating on a grid map.\n\n"
+        
+        # Current Heading 섹션 (wrapper가 제공된 경우)
+        heading_section = ""
+        if wrapper is not None:
+            try:
+                heading = wrapper.get_heading()
+                heading_desc = wrapper.get_heading_description()
+                heading_short = wrapper.get_heading_short()
+                heading_section = f"""## Current Robot Heading
+- Direction: {heading} ({heading_short})
+- Description: {heading_desc}
+
+**Important**: This is the current heading direction of the robot. All movements are relative to this heading.
+
+"""
+            except Exception:
+                # heading 정보를 가져올 수 없는 경우 무시
+                pass
         
         # Grounding 섹션
         grounding_section = ""
@@ -130,7 +148,7 @@ Respond in JSON format:
 - Use relative movements based on heading, not coordinates
 """
         
-        return base + memory_section + grounding_section + env_info
+        return base + heading_section + memory_section + grounding_section + env_info
     
     def get_feedback_system_prompt(self) -> str:
         """Feedback 생성용 System Prompt"""
@@ -634,7 +652,10 @@ Please analyze the feedback and generate concise knowledge to improve future act
         
         self.image = self.wrapper.get_image()
         self.state = self.wrapper.get_state()
-        print(f"위치: {self.state['agent_pos']}, 방향: {self.state['agent_dir']}")
+        heading = self.wrapper.get_heading()
+        heading_desc = self.wrapper.get_heading_description()
+        print(f"위치: {self.state['agent_pos']}, 방향: {self.state['agent_dir']} ({heading})")
+        print(f"현재 Heading: {heading_desc}")
         
         self.visualizer.visualize_grid_cli(self.wrapper, self.state)
         self.visualizer.display_image(self.image)
@@ -653,7 +674,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
                 feedback_text = self.user_prompt
             
             # Feedback 생성 VLM 호출
-            system_prompt = self.prompt_organizer.get_system_prompt()
+            system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper)
             self.vlm_gen_feedback(system_prompt, feedback_text)
             
             # Feedback 처리 후 일반 action 생성으로 진행하지 않고 스킵
@@ -661,7 +682,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
             return True
         
         # 일반 Action 생성
-        system_prompt = self.prompt_organizer.get_system_prompt()
+        system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper)
         self.vlm_response_parsed = self.vlm_gen_action(
             image=self.image,
             system_prompt=system_prompt,

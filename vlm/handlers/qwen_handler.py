@@ -123,9 +123,32 @@ class QwenHandler(VLMHandler):
         
         elif self.api_type == "huggingface":
             try:
-                from transformers import Qwen2VLForConditionalGeneration, AutoProcessor
                 import torch
-                
+            except ImportError:
+                raise ImportError(
+                    "torch 라이브러리가 필요합니다. "
+                    "다음 명령어로 설치하세요: pip install torch"
+                )
+            
+            try:
+                from transformers import Qwen2VLForConditionalGeneration, AutoProcessor
+            except ImportError as e:
+                error_msg = str(e)
+                if "torchvision" in error_msg.lower():
+                    raise ImportError(
+                        f"Qwen2-VL 모델을 사용하려면 torchvision이 필요합니다. "
+                        f"다음 명령어로 설치하세요: pip install torchvision\n"
+                        f"원본 오류: {e}"
+                    )
+                else:
+                    raise ImportError(
+                        f"Qwen2VLForConditionalGeneration을 import할 수 없습니다. "
+                        f"transformers 라이브러리의 최신 버전이 필요할 수 있습니다. "
+                        f"다음 명령어로 업그레이드하세요: pip install --upgrade transformers\n"
+                        f"원본 오류: {e}"
+                    )
+            
+            try:
                 self._model = Qwen2VLForConditionalGeneration.from_pretrained(
                     self.model,
                     torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
@@ -133,10 +156,11 @@ class QwenHandler(VLMHandler):
                 )
                 self.processor = AutoProcessor.from_pretrained(self.model)
                 return True
-            except ImportError:
-                raise ImportError(
-                    "transformers 라이브러리가 필요합니다. "
-                    "다음 명령어로 설치하세요: pip install transformers torch"
+            except Exception as e:
+                raise RuntimeError(
+                    f"Qwen 모델 로드 실패: {e}\n"
+                    f"모델명: {self.model}\n"
+                    f"transformers 버전을 확인하거나 모델명이 올바른지 확인하세요."
                 )
         else:
             raise ValueError(f"지원하지 않는 API 타입: {self.api_type}. 'dashscope' 또는 'huggingface'를 사용하세요.")
@@ -267,15 +291,15 @@ class QwenHandler(VLMHandler):
                     }
                 ]
                 
+                # apply_chat_template으로 텍스트 생성
                 text = self.processor.apply_chat_template(
                     messages, tokenize=False, add_generation_prompt=True
                 )
-                image_inputs, video_inputs = self.processor.process_vision_info(messages)
                 
+                # processor를 직접 호출하여 이미지와 텍스트를 함께 처리
                 inputs = self.processor(
                     text=[text],
-                    images=image_inputs,
-                    videos=video_inputs,
+                    images=[pil_image],
                     padding=True,
                     return_tensors="pt"
                 )

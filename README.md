@@ -23,6 +23,7 @@ MiniGrid 환경에서 Language-conditioned 강화학습을 위한 프로젝트�
 
 ### 사용 가이드
 - [키보드 제어 가이드](docs/keyboard-control.md) - 키보드 제어 예제 설명
+- [VLM 테스트 스크립트 가이드](docs/test-vlm-guide.md) - VLM 모델 테스트 및 비교 가이드
 
 ## 기능
 
@@ -226,6 +227,61 @@ python keyboard_control_fov.py
 - `f`: 시야 제한 토글 (켜기/끄기)
 - `+`: 시야 범위 증가
 - `-`: 시야 범위 감소
+
+---
+
+#### 4. `test_vlm.py` - VLM 모델 테스트 및 비교
+
+**설명**: 다양한 VLM(Vision Language Model) 모델을 테스트하고 비교할 수 있는 스크립트입니다. 이미지, 프롬프트, 모델을 쉽게 변경하여 테스트할 수 있습니다.
+
+**기능**:
+- 다양한 VLM 모델 지원 (OpenAI, Qwen, Gemma)
+- 유연한 이미지 입력 (URL, 로컬 파일, 자동 생성)
+- 명령줄 인터페이스로 이미지와 프롬프트 지정
+- 다중 모델 동시 테스트 및 결과 비교
+
+**실행 방법**:
+```bash
+# minigrid conda 환경 활성화 (필수)
+conda activate minigrid
+
+# 기본 이미지와 기본 프롬프트 사용
+python test_vlm.py
+
+# 로컬 이미지 파일 사용
+python test_vlm.py --image path/to/image.jpg
+
+# URL에서 이미지 다운로드
+python test_vlm.py --image https://picsum.photos/400/300
+
+# 사용자 프롬프트 지정
+python test_vlm.py --prompt "What objects are in this image?"
+
+# 시스템 프롬프트와 사용자 프롬프트 모두 지정
+python test_vlm.py --system "You are an expert image analyst." --prompt "Analyze this image in detail."
+
+# 이미지와 프롬프트 모두 지정
+python test_vlm.py -i path/to/image.jpg --command "Describe the colors in this image"
+```
+
+**명령줄 옵션**:
+- `--image`, `-i`: 이미지 파일 경로 또는 URL
+- `--system-prompt`, `--system`: 시스템 프롬프트
+- `--user-prompt`, `--prompt`, `--command`: 사용자 프롬프트/명령어
+- `--help`, `-h`: 도움말 메시지 표시
+
+**지원 모델**:
+- **OpenAI**: `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-5`
+- **Qwen (로컬)**: `Qwen/Qwen2-VL-2B-Instruct`, `Qwen/Qwen2-VL-7B-Instruct`, `Qwen/Qwen2.5-VL-32B-Instruct` 등
+- **Gemma (로컬)**: `google/gemma-2-2b-it`, `google/gemma-2-9b-it`, `google/gemma-2-27b-it`
+
+**설정**:
+- 모델 설정은 `test_vlm.py` 파일 내 `TEST_MODELS` 리스트에서 수정 가능
+- 기본 이미지 URL과 기본 프롬프트도 파일 상단에서 변경 가능
+
+**상세 가이드**: [VLM 테스트 스크립트 가이드](docs/test-vlm-guide.md)
+
+---
 
 ## 구조
 

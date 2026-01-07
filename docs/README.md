@@ -14,6 +14,7 @@
 - [CustomRoomEnv API](./custom-environment-api.md) - 커스텀 환경 클래스 API
 - [CustomRoomWrapper API](./wrapper-api.md) - Wrapper 클래스 API (VLM 연동 지원)
 - [Wrapper 메서드 가이드](./wrapper-methods.md) - CustomRoomWrapper의 모든 메서드 설명
+- [Similarity Calculator API](./similarity-calculator-api.md) - Word2Vec 및 SBERT 유사도 계산 API
 
 ### 사용 가이드
 - [키보드 제어 가이드](./keyboard-control.md) - 키보드로 환경 제어하기
@@ -24,6 +25,7 @@
 1. 환경 생성: [환경 생성 가이드](./environment-creation.md) 참고
 2. 키보드 제어: [키보드 제어 가이드](./keyboard-control.md) 참고
 3. API 사용법: [CustomRoomEnv API](./custom-environment-api.md) 참고
+4. 유사도 계산: [Similarity Calculator API](./similarity-calculator-api.md) 참고
 
 ## 참고 자료
 
