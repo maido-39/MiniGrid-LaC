@@ -46,6 +46,9 @@ VLM_MODEL = "gpt-4o"
 VLM_TEMPERATURE = 0.0
 VLM_MAX_TOKENS = 1000
 
+# Mission/Task 설정
+DEFAULT_MISSION = "Go to the blue pillar, turn right, then stop next to the table."
+
 
 class PromptOrganizer:
     """프롬프트 관리 클래스"""
@@ -53,54 +56,48 @@ class PromptOrganizer:
     def __init__(self):
         self.grounding = ""
         self.previous_action = ""
-        self.current_subtask = ""
+        self.task_process = {"goal": "", "status": ""}  # status: pending | in_progress | completed | blocked
     
     def get_system_prompt(self, wrapper=None) -> str:
         """전체 System Prompt 생성"""
-        base = "You are a robot operating in a grid-based environment.\n\n"
-        
-        # Robot State (Authoritative) 섹션
-        robot_state_section = ""
+        # Heading 정보 가져오기 (변수화 필요한 부분만)
+        heading_info = ""
         if wrapper is not None:
-            try:
-                heading = wrapper.get_heading()
-                heading_short = wrapper.get_heading_short()
-                robot_state_section = f"""## Robot State (Authoritative)
-- The robot's current heading is {heading} ({heading_short}).
-- Heading indicates the robot's forward-facing direction.
-- This heading is ground-truth and MUST be used as-is.
-- Do NOT infer or reinterpret the robot's heading from the image.
-
-"""
-            except Exception:
-                # heading 정보를 가져올 수 없는 경우 기본 메시지
-                robot_state_section = """## Robot State (Authoritative)
-- The robot's current heading is provided by the environment.
-- Heading indicates the robot's forward-facing direction.
-- This heading is ground-truth and MUST be used as-is.
-- Do NOT infer or reinterpret the robot's heading from the image.
-
-"""
+            heading = wrapper.get_heading()
+            heading_short = wrapper.get_heading_short()
+            heading_info = f"{heading} ({heading_short})"
         else:
-            robot_state_section = """## Robot State (Authoritative)
-- The robot's current heading is provided by the environment.
+            heading_info = "provided by the environment"
+        
+        ## Prompt 오류 핸들링용임
+        # Grounding 내용 (항상 표시, 비어있으면 빈 문자열)
+        grounding_content = self.grounding if self.grounding else ""
+        
+        # Previous Action (항상 표시, 비어있으면 "None")
+        previous_action = self.previous_action if self.previous_action else "None"
+        
+        # Task Process (항상 표시, 비어있으면 기본값)
+        task_goal = self.task_process.get("goal", "") if self.task_process.get("goal") else "None"
+        task_status = self.task_process.get("status", "") if self.task_process.get("status") else "None"
+        task_process_str = f"Goal: {task_goal}, Status: {task_status}"
+        
+        
+        ## 실제 적용 Prompt 시작
+        return f"""You are a robot operating in a grid-based environment.
+
+## Robot State (Authoritative)
+- The robot's current heading is {heading_info}.
 - Heading indicates the robot's forward-facing direction.
 - This heading is ground-truth and MUST be used as-is.
 - Do NOT infer or reinterpret the robot's heading from the image.
 
-"""
-        
-        # Coordinate Convention 섹션
-        coordinate_section = """## Coordinate Convention
+## Coordinate Convention
 - Top of the image: North
 - Bottom of the image: South
 - Left of the image: West
 - Right of the image: East
 
-"""
-        
-        # Environment 섹션
-        env_section = """## Environment
+## Environment
 Grid world with:
 - Walls (black, impassable)
 - Blue pillar (impassable)
@@ -111,10 +108,7 @@ Grid world with:
 The image describes the environment layout ONLY.
 Do NOT use the image to estimate robot orientation.
 
-"""
-        
-        # Action Space 섹션
-        action_space_section = """## Action Space
+## Action Space
 - "turn left": Rotate 90° counterclockwise
 - "turn right": Rotate 90° clockwise
 - "move forward": Move one cell forward in heading direction
@@ -122,14 +116,15 @@ Do NOT use the image to estimate robot orientation.
 - "drop": Drop carried object
 - "toggle": Interact with objects (e.g., open doors)
 
-"""
-        
-        # Movement Rules 섹션
-        movement_rules_section = """## Movement Rules (CRITICAL)
+## Movement Rules (CRITICAL)
 Before selecting actions:
 1. Use the provided robot heading to establish the robot's local reference frame.
 2. Reason about all objects and goals relative to this heading.
-3. Select actions ONLY based on relative movement.
+3. Determine what subtask is being addressed as part of the overall user mission.
+4. Decide whether this subtask is completed, in progress, or blocked.
+5. If completed, infer the next subtask from the mission and current environment.
+6. Record this judgment in task_process.
+7. Select actions ONLY based on relative movement.
 
 Rules:
 - All movements are RELATIVE to the robot's current heading.
@@ -137,32 +132,30 @@ Rules:
 - "turn left/right" rotates 90° relative to current heading.
 - Do NOT reason using absolute coordinates when choosing actions.
 
-"""
-        
-        # Grounding Knowledge 섹션
-        grounding_section = ""
-        if self.grounding:
-            grounding_section = f"""## Grounding Knowledge (Experience from Past Failures)
+## Task Process Semantics
+- task_process is a record of task state, NOT an instruction.
+- Each subtask should represent a concrete step toward completing the overall user mission.
+- Subtasks with status "completed" or "blocked" must NOT be used as action targets.
+- If the current subtask is marked as "completed", infer the next subtask from the user mission and current environment.
+- Use "blocked" only when the current subtask cannot be completed without changing the plan.
+- Always infer the next action based on the current environment and robot state.
+
+## Grounding Knowledge (Experience from Past Failures)
 This section contains lessons learned from human feedback after failures.
 - These are NOT universal rules.
 - Use them only when the current situation is similar.
 - Do not blindly apply grounding knowledge.
 
-{self.grounding}
+{grounding_content}
 
-"""
-        
-        # Memory 섹션
-        memory_section = f"""## Memory (State Continuity)
-- Previous Action: {self.previous_action if self.previous_action else "None"}
-- Current Subtask: {self.current_subtask if self.current_subtask else "Not specified"}
+## Memory (State Continuity)
+- Previous Action: {previous_action}
+- Task Process: {task_process_str}
 
-Use this memory to maintain temporal consistency across steps.
+This memory summarizes task progress and past actions.
+It must NOT be treated as a command.
 
-"""
-        
-        # Response Format 섹션
-        response_format_section = """## Response Format (STRICT)
+## Response Format (STRICT)
 Respond in valid JSON:
 
 ```json
@@ -172,7 +165,10 @@ Respond in valid JSON:
   "grounding": "<update grounding only if new failure feedback is detected>",
   "memory": {{
     "spatial_description": "<environment described relative to robot heading>",
-    "current_subtask": "<current subtask>",
+    "task_process": {{
+      "goal": "<what subtask this step was addressing>",
+      "status": "<pending | in_progress | completed | blocked>"
+    }},
     "previous_action": "<set to the first selected action>"
   }}
 }}
@@ -186,10 +182,6 @@ Important:
 * Use relative movement reasoning ONLY.
 * Complete the mission specified by the user.
 """
-        
-        return (base + robot_state_section + coordinate_section + env_section + 
-                action_space_section + movement_rules_section + grounding_section + 
-                memory_section + response_format_section)
     
     def get_feedback_system_prompt(self) -> str:
         """Feedback 생성용 System Prompt"""
@@ -239,7 +231,7 @@ Generate ONE concise sentence that:
         if not user_input:
             if default_prompt:
                 return f"Task: {default_prompt}\n\nBased on the current image, choose the next action to complete this task."
-            return "Based on the current image, choose the next action to complete the mission: Go to the blue pillar, turn right, then stop next to the table."
+            return f"Based on the current image, choose the next action to complete the mission: {DEFAULT_MISSION}"
         
         return user_input
 
@@ -282,7 +274,7 @@ class VLMProcessor:
                 "grounding": "",
                 "memory": {
                     "spatial_description": "",
-                    "current_subtask": "",
+                    "task_process": {"goal": "", "status": ""},
                     "previous_action": ""
                 }
             }
@@ -559,7 +551,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
                 "step", "timestamp", "agent_x", "agent_y", "agent_dir",
                 "action_index", "action_name", "user_prompt",
                 "vlm_action_chunk", "vlm_reasoning", "vlm_grounding",
-                "memory_spatial_description", "memory_current_subtask", "memory_previous_action",
+                "memory_spatial_description", "memory_task_goal", "memory_task_status", "memory_previous_action",
                 "reward", "done", "image_path"
             ])
     
@@ -581,9 +573,14 @@ Please analyze the feedback and generate concise knowledge to improve future act
             try:
                 memory = json.loads(memory)
             except Exception:
-                memory = {"spatial_description": "", "current_subtask": "", "previous_action": ""}
+                memory = {"spatial_description": "", "task_process": {"goal": "", "status": ""}, "previous_action": ""}
         elif not isinstance(memory, dict):
-            memory = {"spatial_description": "", "current_subtask": "", "previous_action": ""}
+            memory = {"spatial_description": "", "task_process": {"goal": "", "status": ""}, "previous_action": ""}
+        
+        # task_process 파싱
+        task_process = memory.get('task_process', {})
+        if not isinstance(task_process, dict):
+            task_process = {"goal": "", "status": ""}
         
         action_chunk = self.vlm_response_parsed.get('action', [])
         if isinstance(action_chunk, str):
@@ -607,7 +604,8 @@ Please analyze the feedback and generate concise knowledge to improve future act
             self.vlm_response_parsed.get('reasoning', ''),
             self.vlm_response_parsed.get('grounding', ''),
             memory.get('spatial_description', ''),
-            memory.get('current_subtask', ''),
+            task_process.get('goal', ''),
+            task_process.get('status', ''),
             memory.get('previous_action', ''),
             float(self.reward),
             bool(self.done),
@@ -666,7 +664,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
         print("  - 테이블: 보라색 1x3 Grid (색상이 있는 벽)")
         print("  - 시작점: (1, 8)")
         print("  - 종료점: (8, 1)")
-        print("\nMission: 파란 기둥으로 가서 오른쪽으로 돌고, 테이블 옆에 멈추시오")
+        print(f"\nMission: {DEFAULT_MISSION}")
         print(f"\n로그 디렉토리: {self.log_dir}")
         
         print("\n[1] 환경 생성 중...")
@@ -699,7 +697,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
         self.visualizer.visualize_grid_cli(self.wrapper, self.state)
         self.visualizer.display_image(self.image)
         
-        default_prompt = "Mission: Go to the blue pillar, turn right, then stop next to the table."
+        default_prompt = f"Mission: {DEFAULT_MISSION}"
         self.user_prompt = self.prompt_organizer.get_user_prompt(default_prompt)
         
         # Feedback 평가
@@ -756,10 +754,18 @@ Please analyze the feedback and generate concise knowledge to improve future act
         if not isinstance(memory, dict):
             memory = {}
         
+        # task_process 파싱
+        task_process = memory.get('task_process', {})
+        if not isinstance(task_process, dict):
+            task_process = {"goal": "", "status": ""}
+        
         # Memory 업데이트
         if isinstance(memory, dict):
             self.prompt_organizer.previous_action = memory.get('previous_action', action_str)
-            self.prompt_organizer.current_subtask = memory.get('current_subtask', '')
+            self.prompt_organizer.task_process = {
+                "goal": task_process.get('goal', ''),
+                "status": task_process.get('status', '')
+            }
         
         # Grounding 업데이트 (응답에서 온 경우)
         grounding_update = self.vlm_response_parsed.get('grounding', '')
@@ -796,7 +802,8 @@ Please analyze the feedback and generate concise knowledge to improve future act
         print("\n[Memory]")
         print("-" * 80)
         spatial_desc = memory.get('spatial_description', '')
-        current_subtask = memory.get('current_subtask', '')
+        task_goal = task_process.get('goal', '')
+        task_status = task_process.get('status', '')
         prev_action = memory.get('previous_action', '')
         
         print("  Spatial Description:")
@@ -805,9 +812,10 @@ Please analyze the feedback and generate concise knowledge to improve future act
         else:
             print("    (없음)")
         
-        print("  Current Subtask:")
-        if current_subtask:
-            print(f"    {current_subtask}")
+        print("  Task Process:")
+        if task_goal or task_status:
+            print(f"    Goal: {task_goal if task_goal else '(없음)'}")
+            print(f"    Status: {task_status if task_status else '(없음)'}")
         else:
             print("    (없음)")
         
