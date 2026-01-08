@@ -1,5 +1,5 @@
 """
-시나리오 2 실험 환경 테스트 스크립트 (VLM 제어 버전 - 클래스 기반)
+시나리오 2 실험 환경 테스트 스크립트 (절대 좌표 이동 버전 - 클래스 기반)
 
 시나리오 2: 파란 기둥으로 가서 오른쪽으로 돌고, 테이블 옆에 멈추시오
 
@@ -23,11 +23,12 @@
 ⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
 
 사용법:
-    python scenario2_test.py
+    python scenario2_test_absolutemove.py
 """
 
 from minigrid import register_minigrid_envs
 from custom_environment import CustomRoomWrapper
+from minigrid_vlm_interact_absolute import AbsoluteDirectionWrapper
 from vlm_wrapper import ChatGPT4oVLMWrapper
 from vlm_postprocessor import VLMResponsePostProcessor
 import numpy as np
@@ -51,7 +52,7 @@ DEFAULT_MISSION = "Go to the blue pillar, turn right, then stop next to the tabl
 
 
 class PromptOrganizer:
-    """프롬프트 관리 클래스"""
+    """프롬프트 관리 클래스 (절대 좌표 버전)"""
     
     def __init__(self):
         self.grounding = ""
@@ -59,8 +60,8 @@ class PromptOrganizer:
         self.task_process = {"goal": "", "status": ""}  # status: pending | in_progress | completed | blocked
     
     def get_system_prompt(self, wrapper=None) -> str:
-        """전체 System Prompt 생성"""
-        # Heading 정보 가져오기 (변수화 필요한 부분만)
+        """전체 System Prompt 생성 (절대 좌표 버전)"""
+        # Heading 정보 가져오기 (참고용, 절대 좌표에서는 필수 아님)
         heading_info = ""
         if wrapper is not None:
             heading = wrapper.get_heading()
@@ -82,20 +83,19 @@ class PromptOrganizer:
         task_process_str = f"Goal: {task_goal}, Status: {task_status}"
         
         
-        ## 실제 적용 Prompt 시작
+        ## 실제 적용 Prompt 시작 (절대 좌표 버전)
         return f"""You are a robot operating in a grid-based environment.
 
-## Robot State (Authoritative)
-- The robot's current heading is {heading_info}.
-- Heading indicates the robot's forward-facing direction.
-- This heading is ground-truth and MUST be used as-is.
-- Do NOT infer or reinterpret the robot's heading from the image.
+## Coordinate System (ABSOLUTE)
+- Top of the image: North (up)
+- Bottom of the image: South (down)
+- Left of the image: West (left)
+- Right of the image: East (right)
 
-## Coordinate Convention
-- Top of the image: North
-- Bottom of the image: South
-- Left of the image: West
-- Right of the image: East
+## Robot State (Reference Only)
+- The robot's current heading is {heading_info} (for reference only).
+- However, you can move in ANY direction regardless of the robot's current heading.
+- The robot will automatically rotate to face the correct direction before moving.
 
 ## Environment
 Grid world with:
@@ -105,35 +105,34 @@ Grid world with:
 - Robot (red arrow marker)
 - Goal (green marker, if present)
 
-The image describes the environment layout ONLY.
-Do NOT use the image to estimate robot orientation.
-
-## Action Space
-- "turn left": Rotate 90° counterclockwise
-- "turn right": Rotate 90° clockwise
-- "move forward": Move one cell forward in heading direction
-- "pickup": Pick up object in front
+## Action Space (Absolute Directions)
+You can move directly in absolute directions:
+- "move up" or "up" or "north" or "n": Move one cell North (upward)
+- "move down" or "down" or "south" or "s": Move one cell South (downward)
+- "move left" or "left" or "west" or "w": Move one cell West (leftward)
+- "move right" or "right" or "east" or "e": Move one cell East (rightward)
+- "pickup": Pick up object at current location
 - "drop": Drop carried object
 - "toggle": Interact with objects (e.g., open doors)
 
 ## Movement Rules (CRITICAL)
-Before selecting actions:
-1. Use the provided robot heading to establish the robot's local reference frame.
-2. Before deciding an action, explicitly classify each relevant object as being in front, left, right, or behind relative to the robot's heading.
-3. Reason about all objects and goals relative to this heading-based classification.
-4. Determine what subtask is being addressed as part of the overall user mission.
-5. Decide whether this subtask is completed, in progress, or blocked.
-6. If completed, infer the next subtask from the mission and current environment.
-7. Record this judgment in task_process.
-8. Select actions ONLY based on relative movement.
+**ALL movements are in ABSOLUTE directions (North/South/East/West).**
+- "up" = move North (upward on the image)
+- "down" = move South (downward on the image)
+- "left" = move West (leftward on the image)
+- "right" = move East (rightward on the image)
+- The robot will automatically rotate to face the correct direction before moving
+- You don't need to think about the robot's current heading - just specify the direction you want to go
+- Think in terms of the image: up=North, down=South, left=West, right=East
+- Do NOT use relative movements (turn left/right, move forward) - use absolute directions only
 
-Rules:
-- All movements are RELATIVE to the robot's current heading.
-- An object is considered "in front" only if it lies primarily along the robot's heading direction, not merely diagonally.
-- "move forward" moves one cell in the facing direction.
-- "turn left/right" rotates 90° relative to current heading.
-- Do NOT reason using absolute coordinates when choosing actions.
-- Do NOT infer object positions from image coordinates alone; always use heading-based egocentric classification.
+Before selecting actions:
+1. Identify objects and goals using absolute coordinates (North/South/East/West from the image).
+2. Determine what subtask is being addressed as part of the overall user mission.
+3. Decide whether this subtask is completed, in progress, or blocked.
+4. If completed, infer the next subtask from the mission and current environment.
+5. Record this judgment in task_process.
+6. Select actions using absolute directions (up/down/left/right).
 
 ## Task Process Semantics
 - task_process is a record of task state, NOT an instruction.
@@ -164,10 +163,10 @@ Respond in valid JSON:
 ```json
 {{
   "action": ["<action1>", "<action2>", "<action3>"],
-  "reasoning": "<why the first action is correct given the heading>",
+  "reasoning": "<why the first action is correct using absolute directions>",
   "grounding": "<update grounding only if new failure feedback is detected>",
   "memory": {{
-    "spatial_description": "<environment described relative to robot heading using explicit terms: left, right, front, behind>",
+    "spatial_description": "<environment described using absolute coordinates (North/South/East/West)>",
     "task_process": {{
       "goal": "<what subtask this step was addressing>",
       "status": "<pending | in_progress | completed | blocked>"
@@ -181,13 +180,13 @@ Important:
 
 * EXACTLY 3 actions must be provided.
 * Only the first action will be executed.
-* Actions must come from the defined action space.
-* Use relative movement reasoning ONLY.
+* Actions must come from the defined action space (absolute directions: up/down/left/right/pickup/drop/toggle).
+* Use absolute directions ONLY - do NOT use relative movements (turn left/right, move forward).
 * Complete the mission specified by the user.
 """
     
     def get_feedback_system_prompt(self) -> str:
-        """Feedback 생성용 System Prompt"""
+        """Feedback 생성용 System Prompt (절대 좌표 버전)"""
         return """You are a feedback-to-knowledge converter for a robot navigation system.
 
 Your task is to convert human feedback into a single-line behavioral heuristic.
@@ -203,7 +202,7 @@ Generate ONE concise sentence that:
 - States the correct behavior to follow next time
 
 ## Constraints
-- Use relative, heading-based terms only
+- Use absolute direction terms (North/South/East/West or up/down/left/right)
 - Do NOT reference specific map positions or episode details
 - Keep it general and reusable
 - Exactly one sentence
@@ -236,8 +235,8 @@ Generate ONE concise sentence that:
         
         if not user_input:
             if default_prompt:
-                return f"Task: {default_prompt}\n\nBased on the current image, choose the next action to complete this task."
-            return f"Based on the current image, choose the next action to complete the mission: {DEFAULT_MISSION}"
+                return f"Task: {default_prompt}\n\nBased on the current image, choose the next action to complete this task. Use absolute directions (up/down/left/right)."
+            return f"Based on the current image, choose the next action to complete the mission: {DEFAULT_MISSION}. Use absolute directions (up/down/left/right)."
         
         return user_input
 
@@ -275,7 +274,7 @@ class VLMProcessor:
         except ValueError as e:
             print(f"응답 파싱 실패: {e}")
             return {
-                "action": ["2"],
+                "action": ["0"],  # 기본값: move up
                 "reasoning": "Parsing failed",
                 "grounding": "",
                 "memory": {
@@ -298,10 +297,10 @@ class VLMProcessor:
 class Visualizer:
     """시각화 클래스"""
     
-    def __init__(self, window_name: str = "Scenario 2: VLM Control"):
+    def __init__(self, window_name: str = "Scenario 2: VLM Control (Absolute)"):
         self.window_name = window_name
     
-    def visualize_grid_cli(self, wrapper: CustomRoomWrapper, state: dict):
+    def visualize_grid_cli(self, wrapper: AbsoluteDirectionWrapper, state: dict):
         """CLI에서 그리드를 텍스트로 시각화"""
         env = wrapper.env
         size = wrapper.size
@@ -398,8 +397,8 @@ class UserInteraction:
         return input(prompt).strip()
 
 
-def create_scenario2_environment() -> CustomRoomWrapper:
-    """시나리오 2 환경 생성"""
+def create_scenario2_environment() -> AbsoluteDirectionWrapper:
+    """시나리오 2 환경 생성 (절대 좌표 버전)"""
     size = 10
     
     walls = []
@@ -427,11 +426,11 @@ def create_scenario2_environment() -> CustomRoomWrapper:
         'objects': []
     }
     
-    return CustomRoomWrapper(size=size, room_config=room_config)
+    return AbsoluteDirectionWrapper(size=size, room_config=room_config)
 
 
 class Scenario2Experiment:
-    """시나리오 2 실험 메인 클래스 (Runner)"""
+    """시나리오 2 실험 메인 클래스 (Runner) - 절대 좌표 버전"""
     
     def __init__(self, log_dir: Path = None):
         self.wrapper = None
@@ -441,7 +440,7 @@ class Scenario2Experiment:
         self.user_interaction = UserInteraction()
         
         if log_dir is None:
-            log_dir = Path("logs") / f"scenario2_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            log_dir = Path("logs") / f"scenario2_absolute_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.log_dir = log_dir
         self.log_dir.mkdir(parents=True, exist_ok=True)
         
@@ -452,8 +451,8 @@ class Scenario2Experiment:
         self.user_prompt = ""
         self.vlm_response_raw = ""
         self.vlm_response_parsed = {}
-        self.action_index = 2
-        self.action_name = "move forward"
+        self.action_index = 0  # 기본값: move up
+        self.action_name = "move up"
         self.reward = 0.0
         
         self.csv_file = None
@@ -663,7 +662,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
     def initialize(self):
         """실험 초기화"""
         print("=" * 60)
-        print("시나리오 2: VLM 제어 실험")
+        print("시나리오 2: VLM 제어 실험 (절대 좌표 이동 버전)")
         print("=" * 60)
         print("\n환경 구성:")
         print("  - 파란 기둥: 2x2 Grid (색상이 있는 벽)")
@@ -671,6 +670,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
         print("  - 시작점: (1, 8)")
         print("  - 종료점: (8, 1)")
         print(f"\nMission: {DEFAULT_MISSION}")
+        print("\n액션 공간: 상/하/좌/우로 직접 이동 가능 (절대 좌표)")
         print(f"\n로그 디렉토리: {self.log_dir}")
         
         print("\n[1] 환경 생성 중...")
@@ -680,6 +680,11 @@ Please analyze the feedback and generate concise knowledge to improve future act
         self.state = self.wrapper.get_state()
         print(f"에이전트 시작 위치: {self.state['agent_pos']}")
         print(f"에이전트 방향: {self.state['agent_dir']}")
+        
+        # 액션 공간 정보 출력
+        action_space = self.wrapper.get_absolute_action_space()
+        print(f"\n절대 방향 액션 공간:")
+        print(f"  - 사용 가능한 액션: {action_space['actions']}")
         
         print("\n[2] VLM 초기화 완료")
         print("\n" + "=" * 60)
@@ -746,7 +751,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
             action_chunk = [str(action_chunk)]
         
         if len(action_chunk) == 0:
-            action_str = '2'
+            action_str = '0'  # 기본값: move up
         else:
             action_str = str(action_chunk[0])
         
@@ -841,20 +846,25 @@ Please analyze the feedback and generate concise knowledge to improve future act
         
         print("\n[5] 액션 실행 중...")
         try:
-            self.action_index = self.wrapper.parse_action(action_str)
-            self.action_name = self.wrapper.ACTION_NAMES.get(self.action_index, f"action_{self.action_index}")
+            self.action_index = self.wrapper.parse_absolute_action(action_str)
+            self.action_name = self.wrapper.ABSOLUTE_ACTION_NAMES.get(self.action_index, f"action_{self.action_index}")
             print(f"실행할 액션: {self.action_name} (인덱스: {self.action_index})")
             
-            _, self.reward, terminated, truncated, _ = self.wrapper.step(self.action_index)
+            _, self.reward, terminated, truncated, _ = self.wrapper.step_absolute(self.action_index)
             self.done = terminated or truncated
             
             print(f"보상: {self.reward}, 종료: {self.done}")
         except Exception as e:
             print(f"액션 실행 실패: {e}")
-            self.action_index = 2
-            self.action_name = "move forward"
-            _, self.reward, terminated, truncated, _ = self.wrapper.step(2)
-            self.done = terminated or truncated
+            import traceback
+            traceback.print_exc()
+            self.action_index = 0
+            self.action_name = "move up"
+            try:
+                _, self.reward, terminated, truncated, _ = self.wrapper.step_absolute(0)
+                self.done = terminated or truncated
+            except:
+                pass
         
         # Previous action 업데이트 (실제 실행된 액션)
         self.prompt_organizer.previous_action = self.action_name
@@ -886,8 +896,6 @@ Please analyze the feedback and generate concise knowledge to improve future act
                 print("\n최대 스텝 수(100)에 도달했습니다.")
                 break
     
-        self.cleanup()
-    
     def cleanup(self):
         """리소스 정리"""
         self.visualizer.cleanup()
@@ -913,3 +921,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
