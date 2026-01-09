@@ -122,13 +122,18 @@ class EmojiObject(WorldObj):
         return self.emoji_name
 
 
+def _gen_mission_default():
+    """기본 미션 생성 함수"""
+    return "explore"
+
+
 class CustomRoomEnv(MiniGridEnv):
     """커스텀 방 구조를 가진 MiniGrid 환경 클래스"""
     
     def __init__(self, size=10, room_config=None, **kwargs):
         self.size = size
         self.room_config = room_config or {}
-        mission_space = MissionSpace(mission_func=self._gen_mission)
+        mission_space = MissionSpace(mission_func=_gen_mission_default)
         super().__init__(
             mission_space=mission_space,
             grid_size=size,
@@ -136,8 +141,7 @@ class CustomRoomEnv(MiniGridEnv):
             **kwargs
         )
     
-    @staticmethod
-    def _gen_mission():
+    def _gen_mission(self):
         return "explore"
     
     def _gen_grid(self, width, height):
@@ -238,8 +242,12 @@ class CustomRoomEnv(MiniGridEnv):
                 cell = self.grid.get(agent_x, agent_y)
                 try:
                     bg_tile_img = Grid.render_tile(
-                        cell, (agent_x, agent_y), agent_dir=None,
-                        highlight=False, tile_size=actual_tile_size, subdivs=3
+                        cell,
+                        (agent_x, agent_y),
+                        agent_dir=None,
+                        highlight=False,
+                        tile_size=actual_tile_size,
+                        subdivs=3
                     )
                     
                     if bg_tile_img is not None:
@@ -503,8 +511,6 @@ class MiniGridEmojiWrapper:
             agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
         
         agent_dir = self.env.agent_dir
-        dir_vectors = {0: (1, 0), 1: (0, 1), 2: (-1, 0), 3: (0, -1)}
-        forward_dx, forward_dy = dir_vectors[agent_dir]
         
         masked_image = image.copy()
         h, w = image.shape[:2]

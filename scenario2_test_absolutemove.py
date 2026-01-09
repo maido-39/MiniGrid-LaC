@@ -59,17 +59,8 @@ class PromptOrganizer:
         self.previous_action = ""
         self.task_process = {"goal": "", "status": ""}  # status: pending | in_progress | completed | blocked
     
-    def get_system_prompt(self, wrapper=None) -> str:
+    def get_system_prompt(self, wrapper=None, last_action_result=None) -> str:
         """전체 System Prompt 생성 (절대 좌표 버전)"""
-        # Heading 정보 가져오기 (참고용, 절대 좌표에서는 필수 아님)
-        heading_info = ""
-        if wrapper is not None:
-            heading = wrapper.get_heading()
-            heading_short = wrapper.get_heading_short()
-            heading_info = f"{heading} ({heading_short})"
-        else:
-            heading_info = "provided by the environment"
-        
         ## Prompt 오류 핸들링용임
         # Grounding 내용 (항상 표시, 비어있으면 빈 문자열)
         grounding_content = self.grounding if self.grounding else ""
@@ -82,80 +73,71 @@ class PromptOrganizer:
         task_status = self.task_process.get("status", "") if self.task_process.get("status") else "None"
         task_process_str = f"Goal: {task_goal}, Status: {task_status}"
         
+        # Last Action Result (실패 정보)
+        if last_action_result and last_action_result.get("action"):
+            action_result = last_action_result.get("action", "None")
+            result_status = "success" if last_action_result.get("success", True) else "failed"
+            failure_reason = last_action_result.get("failure_reason", "")
+            position_changed = "yes" if last_action_result.get("position_changed", True) else "no"
+            last_action_str = f"Action: {action_result}, Result: {result_status}"
+            if not last_action_result.get("success", True):
+                last_action_str += f", Failure Reason: {failure_reason}"
+            last_action_str += f", Position Changed: {position_changed}"
+        else:
+            last_action_str = "None"
+        
         
         ## 실제 적용 Prompt 시작 (절대 좌표 버전)
         return f"""You are a robot operating in a grid-based environment.
 
 ## Coordinate System (ABSOLUTE)
-- Top of the image: North (up)
-- Bottom of the image: South (down)
-- Left of the image: West (left)
-- Right of the image: East (right)
+- Top=North, Bottom=South, Left=West, Right=East
+- Use absolute directions: up/down/left/right (or north/south/east/west)
 
-## Robot State (Reference Only)
-- The robot's current heading is {heading_info} (for reference only).
-- However, you can move in ANY direction regardless of the robot's current heading.
-- The robot will automatically rotate to face the correct direction before moving.
+## Action Space
+- "move up"/"up"/"north"/"n": Move North
+- "move down"/"down"/"south"/"s": Move South
+- "move left"/"left"/"west"/"w": Move West
+- "move right"/"right"/"east"/"e": Move East
+- "pickup", "drop", "toggle"
 
-## Environment
-Grid world with:
-- Walls (black, impassable)
-- Blue pillar (impassable)
-- Purple table (impassable)
-- Robot (red arrow marker)
-- Goal (green marker, if present)
+## CRITICAL Movement Constraints
+- The robot CANNOT enter or move into colored blocks (blue, purple, green) or walls (black).
+- Attempting to move into a colored block or wall ALWAYS fails.
+- Do NOT propose actions that move into colored blocks or walls.
+- Check the image to identify impassable cells before selecting actions.
 
-## Action Space (Absolute Directions)
-You can move directly in absolute directions:
-- "move up" or "up" or "north" or "n": Move one cell North (upward)
-- "move down" or "down" or "south" or "s": Move one cell South (downward)
-- "move left" or "left" or "west" or "w": Move one cell West (leftward)
-- "move right" or "right" or "east" or "e": Move one cell East (rightward)
-- "pickup": Pick up object at current location
-- "drop": Drop carried object
-- "toggle": Interact with objects (e.g., open doors)
-
-## Movement Rules (CRITICAL)
-**ALL movements are in ABSOLUTE directions (North/South/East/West).**
-- "up" = move North (upward on the image)
-- "down" = move South (downward on the image)
-- "left" = move West (leftward on the image)
-- "right" = move East (rightward on the image)
-- The robot will automatically rotate to face the correct direction before moving
-- You don't need to think about the robot's current heading - just specify the direction you want to go
-- Think in terms of the image: up=North, down=South, left=West, right=East
-- Do NOT use relative movements (turn left/right, move forward) - use absolute directions only
+## Loop Prevention (CRITICAL)
+- If the same action is attempted twice consecutively AND the robot's position does not change, that action becomes INVALID and must not be selected again.
+- Always check the "Last Action Result" section below to avoid repeating failed actions.
 
 Before selecting actions:
-1. Identify objects and goals using absolute coordinates (North/South/East/West from the image).
-2. Determine what subtask is being addressed as part of the overall user mission.
-3. Decide whether this subtask is completed, in progress, or blocked.
-4. If completed, infer the next subtask from the mission and current environment.
-5. Record this judgment in task_process.
-6. Select actions using absolute directions (up/down/left/right).
+1. Check "Last Action Result" - if previous action failed, do NOT repeat it.
+2. Check if current subtask is completed (robot adjacent to target = completed).
+3. Check action feasibility (target cell must be passable, NOT a colored block or wall).
+4. Apply applicable grounding knowledge if situation matches.
+5. Select feasible action using absolute directions.
 
-## Task Process Semantics
-- task_process is a record of task state, NOT an instruction.
-- Each subtask should represent a concrete step toward completing the overall user mission.
-- Subtasks with status "completed" or "blocked" must NOT be used as action targets.
-- If the current subtask is marked as "completed", infer the next subtask from the user mission and current environment.
-- Use "blocked" only when the current subtask cannot be completed without changing the plan.
-- Always infer the next action based on the current environment and robot state.
 
-## Grounding Knowledge (Experience from Past Failures)
+
+## Grounding Knowledge (Experience from Past Failures) - CRITICAL
 This section contains lessons learned from human feedback after failures.
-- These are NOT universal rules.
-- Use them only when the current situation is similar.
-- Do not blindly apply grounding knowledge.
-
+**IMPORTANT**: When the current situation matches the conditions described in a grounding rule, you MUST apply that rule when selecting actions.
+- Review each grounding rule before selecting actions.
+- If a grounding rule applies to the current situation, prioritize actions that follow the rule.
+- These rules help avoid repeating past mistakes.
+- Match the situation carefully: only apply rules when the conditions are similar.
 {grounding_content}
+
+## Last Action Result (Authoritative - Ground Truth)
+This information is FACT and MUST be trusted. Do NOT infer or reinterpret.
+- Last Action: {last_action_str}
+- If result is "failed", the action did not execute successfully and position did not change.
+- If position_changed is "no", the robot is blocked and that direction is INVALID.
 
 ## Memory (State Continuity)
 - Previous Action: {previous_action}
 - Task Process: {task_process_str}
-
-This memory summarizes task progress and past actions.
-It must NOT be treated as a command.
 
 ## Response Format (STRICT)
 Respond in valid JSON:
@@ -163,25 +145,31 @@ Respond in valid JSON:
 ```json
 {{
   "action": ["<action1>", "<action2>", "<action3>"],
-  "reasoning": "<why the first action is correct using absolute directions>",
+  "reasoning": "<why the first action is correct. MUST include: (1) last action result check (if failed, explain why not repeating), (2) task completion check, (3) action feasibility (target cell is passable), (4) loop prevention check, (5) grounding rule applied if any.>",
   "grounding": "<update grounding only if new failure feedback is detected>",
   "memory": {{
     "spatial_description": "<environment described using absolute coordinates (North/South/East/West)>",
     "task_process": {{
       "goal": "<what subtask this step was addressing>",
-      "status": "<pending | in_progress | completed | blocked>"
+      "status": "<pending | in_progress | completed | blocked>",
+      "blocked_reason": "<optional: reason if status is blocked>"
     }},
-    "previous_action": "<set to the first selected action>"
+    "previous_action": "<set to the first selected action>",
+    "last_action_result": {{
+      "action": "<last attempted action>",
+      "success": true | false,
+      "failure_reason": "<if failed: blocked_by_obstacle | wall | unknown>",
+      "position_changed": true | false
+    }}
   }}
 }}
 ```
 
 Important:
-
-* EXACTLY 3 actions must be provided.
-* Only the first action will be executed.
+* EXACTLY 3 actions must be provided. Only the first action will be executed.
 * Actions must come from the defined action space (absolute directions: up/down/left/right/pickup/drop/toggle).
-* Use absolute directions ONLY - do NOT use relative movements (turn left/right, move forward).
+* Check task completion and action feasibility before selecting actions.
+* Apply applicable grounding knowledge.
 * Complete the mission specified by the user.
 """
     
@@ -210,7 +198,7 @@ Generate ONE concise sentence that:
 ## Response Format
 ```json
 {
-  "grounding_rule": "<single-line heuristic>"
+  "knowledge": "<single-line heuristic>"
 }
 ```
 """
@@ -455,6 +443,15 @@ class Scenario2Experiment:
         self.action_name = "move up"
         self.reward = 0.0
         
+        # Last action result tracking
+        self.last_action_result = {
+            "action": "",
+            "success": True,
+            "failure_reason": "",
+            "position_changed": True
+        }
+        self.previous_position = None
+        
         self.csv_file = None
         self.csv_writer = None
         self._init_csv_logging()
@@ -556,7 +553,8 @@ Please analyze the feedback and generate concise knowledge to improve future act
                 "step", "timestamp", "agent_x", "agent_y", "agent_dir",
                 "action_index", "action_name", "user_prompt",
                 "vlm_action_chunk", "vlm_reasoning", "vlm_grounding",
-                "memory_spatial_description", "memory_task_goal", "memory_task_status", "memory_previous_action",
+                "memory_spatial_description", "memory_task_goal", "memory_task_status", "memory_task_blocked_reason", "memory_previous_action",
+                "last_action_result_action", "last_action_result_success", "last_action_result_failure_reason", "last_action_result_position_changed",
                 "reward", "done", "image_path"
             ])
     
@@ -585,7 +583,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
         # task_process 파싱
         task_process = memory.get('task_process', {})
         if not isinstance(task_process, dict):
-            task_process = {"goal": "", "status": ""}
+            task_process = {"goal": "", "status": "", "blocked_reason": ""}
         
         action_chunk = self.vlm_response_parsed.get('action', [])
         if isinstance(action_chunk, str):
@@ -595,6 +593,14 @@ Please analyze the feedback and generate concise knowledge to improve future act
                 action_chunk = [action_chunk] if action_chunk else []
         if not isinstance(action_chunk, list):
             action_chunk = [str(action_chunk)]
+        
+        # last_action_result 가져오기
+        last_action_result = self.last_action_result if hasattr(self, 'last_action_result') else {
+            "action": "",
+            "success": True,
+            "failure_reason": "",
+            "position_changed": True
+        }
         
         self.csv_writer.writerow([
             self.step,
@@ -611,7 +617,12 @@ Please analyze the feedback and generate concise knowledge to improve future act
             memory.get('spatial_description', ''),
             task_process.get('goal', ''),
             task_process.get('status', ''),
+            task_process.get('blocked_reason', ''),
             memory.get('previous_action', ''),
+            last_action_result.get('action', ''),
+            bool(last_action_result.get('success', True)),
+            last_action_result.get('failure_reason', ''),
+            bool(last_action_result.get('position_changed', True)),
             float(self.reward),
             bool(self.done),
             image_path
@@ -635,6 +646,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
             "vlm_response": self.vlm_response_parsed,
             "memory": memory,
             "grounding": self.prompt_organizer.grounding,
+            "last_action_result": last_action_result,
             "reward": float(self.reward),
             "done": bool(self.done),
             "image_path": image_path
@@ -680,6 +692,20 @@ Please analyze the feedback and generate concise knowledge to improve future act
         self.state = self.wrapper.get_state()
         print(f"에이전트 시작 위치: {self.state['agent_pos']}")
         print(f"에이전트 방향: {self.state['agent_dir']}")
+        
+        # 초기 위치 저장
+        initial_pos = tuple(self.state['agent_pos'])
+        if isinstance(initial_pos, np.ndarray):
+            initial_pos = (int(initial_pos[0]), int(initial_pos[1]))
+        self.previous_position = initial_pos
+        
+        # 초기 last_action_result 설정
+        self.last_action_result = {
+            "action": "",
+            "success": True,
+            "failure_reason": "",
+            "position_changed": True
+        }
         
         # 액션 공간 정보 출력
         action_space = self.wrapper.get_absolute_action_space()
@@ -730,7 +756,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
             return True
         
         # 일반 Action 생성
-        system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper)
+        system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper, self.last_action_result)
         self.vlm_response_parsed = self.vlm_gen_action(
             image=self.image,
             system_prompt=system_prompt,
@@ -768,15 +794,27 @@ Please analyze the feedback and generate concise knowledge to improve future act
         # task_process 파싱
         task_process = memory.get('task_process', {})
         if not isinstance(task_process, dict):
-            task_process = {"goal": "", "status": ""}
+            task_process = {"goal": "", "status": "", "blocked_reason": ""}
+        
+        # last_action_result 파싱 (VLM 응답에서)
+        vlm_last_action_result = memory.get('last_action_result', {})
+        if not isinstance(vlm_last_action_result, dict):
+            vlm_last_action_result = {}
         
         # Memory 업데이트
         if isinstance(memory, dict):
             self.prompt_organizer.previous_action = memory.get('previous_action', action_str)
             self.prompt_organizer.task_process = {
                 "goal": task_process.get('goal', ''),
-                "status": task_process.get('status', '')
+                "status": task_process.get('status', ''),
+                "blocked_reason": task_process.get('blocked_reason', '')
             }
+            
+            # VLM이 blocked 상태로 설정한 경우 반영
+            if task_process.get('status') == 'blocked':
+                blocked_reason = task_process.get('blocked_reason', '')
+                if blocked_reason:
+                    print(f"\n[Memory] Task marked as blocked: {blocked_reason}")
         
         # Grounding 업데이트 (응답에서 온 경우)
         grounding_update = self.vlm_response_parsed.get('grounding', '')
@@ -845,6 +883,12 @@ Please analyze the feedback and generate concise knowledge to improve future act
         print("=" * 80)
         
         print("\n[5] 액션 실행 중...")
+        
+        # 현재 위치 저장 (액션 실행 전)
+        current_pos_before = tuple(self.state['agent_pos'])
+        if isinstance(current_pos_before, np.ndarray):
+            current_pos_before = (int(current_pos_before[0]), int(current_pos_before[1]))
+        
         try:
             self.action_index = self.wrapper.parse_absolute_action(action_str)
             self.action_name = self.wrapper.ABSOLUTE_ACTION_NAMES.get(self.action_index, f"action_{self.action_index}")
@@ -853,7 +897,38 @@ Please analyze the feedback and generate concise knowledge to improve future act
             _, self.reward, terminated, truncated, _ = self.wrapper.step_absolute(self.action_index)
             self.done = terminated or truncated
             
+            # 액션 실행 후 위치 확인
+            new_state = self.wrapper.get_state()
+            current_pos_after = tuple(new_state['agent_pos'])
+            if isinstance(current_pos_after, np.ndarray):
+                current_pos_after = (int(current_pos_after[0]), int(current_pos_after[1]))
+            
+            # 위치 변화 확인
+            position_changed = (current_pos_before != current_pos_after)
+            
+            # 액션 결과 판단
+            action_success = position_changed or self.reward > 0
+            failure_reason = ""
+            if not action_success:
+                # 실패 원인 추론 (이미지에서 확인 가능한 정보 기반)
+                if not position_changed:
+                    failure_reason = "blocked_by_obstacle"
+                else:
+                    failure_reason = "unknown"
+            
+            # Last action result 업데이트
+            self.last_action_result = {
+                "action": self.action_name,
+                "success": action_success,
+                "failure_reason": failure_reason,
+                "position_changed": position_changed
+            }
+            
             print(f"보상: {self.reward}, 종료: {self.done}")
+            print(f"액션 결과: {'성공' if action_success else '실패'} (위치 변화: {'예' if position_changed else '아니오'})")
+            if not action_success:
+                print(f"실패 원인: {failure_reason}")
+                
         except Exception as e:
             print(f"액션 실행 실패: {e}")
             import traceback
@@ -865,13 +940,25 @@ Please analyze the feedback and generate concise knowledge to improve future act
                 self.done = terminated or truncated
             except:
                 pass
+            
+            # 예외 발생 시에도 last_action_result 업데이트
+            self.last_action_result = {
+                "action": self.action_name,
+                "success": False,
+                "failure_reason": "exception",
+                "position_changed": False
+            }
         
         # Previous action 업데이트 (실제 실행된 액션)
         self.prompt_organizer.previous_action = self.action_name
         
-        new_state = self.wrapper.get_state()
+        # new_state는 이미 위에서 가져왔으므로 재사용
+        if 'new_state' not in locals():
+            new_state = self.wrapper.get_state()
+        self.state = new_state
         self.visualizer.visualize_grid_cli(self.wrapper, new_state)
         updated_image = self.wrapper.get_image()
+        self.image = updated_image
         self.visualizer.display_image(updated_image)
         
         self._log_step()
