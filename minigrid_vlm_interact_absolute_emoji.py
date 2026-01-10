@@ -253,7 +253,7 @@ def create_scenario2_environment():
             'color': 'blue',
             'can_pickup': False,
             'can_overlap': True,  # 올라설 수 있음
-            'use_emoji_color': True  # 원래 이모지 색상 사용
+            'use_emoji_color': True  # 지정한 색상(파란색) 사용
         })
     
     # 🖥️📱(desktop/workstation) 이모지: 보라색, 올라설 수 있음
@@ -264,7 +264,7 @@ def create_scenario2_environment():
         'color': 'purple',
         'can_pickup': False,
         'can_overlap': True,  # 올라설 수 있음
-        'use_emoji_color': True
+        'use_emoji_color': True  # 지정한 색상(보라색) 사용
     })
     
     objects.append({
@@ -274,14 +274,19 @@ def create_scenario2_environment():
         'color': 'purple',
         'can_pickup': False,
         'can_overlap': True,  # 올라설 수 있음
-        'use_emoji_color': True
+        'use_emoji_color': False  # 지정한 색상(보라색) 사용
     })
     
     room_config = {
         'start_pos': start_pos,
         'goal_pos': goal_pos,
         'walls': walls,
-        'objects': objects
+        'objects': objects,
+        
+        ## 로봇 마커 설정
+        'use_robot_emoji': True,  # 로봇을 🤖 이모지로 표시
+        'robot_emoji_color': 'red',  # 로봇 이모지 색상 (use_robot_emoji_color=False일 때만 사용)
+        'use_robot_emoji_color': True  # 원본 이모지 컬러 사용 (True: 원본 컬러, False: robot_emoji_color 사용)
     }
     
     return AbsoluteDirectionEmojiWrapper(size=size, room_config=room_config)

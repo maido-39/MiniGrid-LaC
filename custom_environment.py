@@ -199,17 +199,21 @@ class CustomRoomEnv(MiniGridEnv):
     내부적으로 사용되며, 외부에서는 CustomRoomWrapper를 통해 사용하는 것을 권장합니다.
     """
     
-    def __init__(self, size=10, room_config=None, **kwargs):
+    def __init__(self, size=10, room_config=None, robot_emoji=None, **kwargs):
         """
         환경 초기화
         
         Args:
             size: 환경 크기 (기본값: 10)
             room_config: 방 구조 설정 딕셔너리
+            robot_emoji: 로봇 이모지 문자 (기본값: None, None이면 arrow.png 사용)
+                - 예: '🤖' (로봇 이모지)
+                - None: arrow.png 이미지 사용
             **kwargs: MiniGridEnv의 추가 파라미터
         """
         self.size = size
         self.room_config = room_config or {}
+        self.robot_emoji = robot_emoji
         mission_space = MissionSpace(mission_func=self._gen_mission)
         super().__init__(
             mission_space=mission_space,
@@ -351,13 +355,163 @@ class CustomRoomEnv(MiniGridEnv):
         if start_x < 0 or start_y < 0 or end_x > frame_w or end_y > frame_h:
             return frame
         
-        # arrow.png 이미지 로드 및 합성
+        # 로봇 표시: 이모지 또는 arrow.png 이미지
         try:
             import os
             script_dir = os.path.dirname(os.path.abspath(__file__))
-            arrow_img_path = os.path.join(script_dir, 'asset', 'arrow.png')
             
-            if os.path.exists(arrow_img_path):
+            # 이모지 모드인 경우
+            if self.robot_emoji is not None:
+                # 프레임을 PIL 이미지로 변환
+                pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')
+                
+                # 에이전트 타일 영역을 에이전트 없이 직접 렌더링
+                cell = self.grid.get(agent_x, agent_y)
+                
+                # 타일만 렌더링 (에이전트 없이)
+                from minigrid.core.grid import Grid
+                try:
+                    bg_tile_img = Grid.render_tile(
+                        cell,
+                        (agent_x, agent_y),
+                        agent_dir=None,
+                        highlight=False,
+                        tile_size=actual_tile_size,
+                        subdivs=3
+                    )
+                    
+                    if bg_tile_img is not None:
+                        if isinstance(bg_tile_img, np.ndarray):
+                            bg_tile = Image.fromarray(bg_tile_img.astype(np.uint8)).convert('RGBA')
+                        elif hasattr(bg_tile_img, 'convert'):
+                            bg_tile = bg_tile_img.convert('RGBA')
+                        else:
+                            bg_tile = Image.fromarray(np.array(bg_tile_img)).convert('RGBA')
+                    else:
+                        agent_tile = pil_frame.crop((start_x, start_y, end_x, end_y))
+                        tile_array = np.array(agent_tile)
+                        red_mask = (
+                            (tile_array[:, :, 0] > 150) &
+                            (tile_array[:, :, 0] > tile_array[:, :, 1] + 50) &
+                            (tile_array[:, :, 0] > tile_array[:, :, 2] + 50) &
+                            (tile_array[:, :, 1] < 150) &
+                            (tile_array[:, :, 2] < 150)
+                        )
+                        
+                        if np.any(red_mask):
+                            corner_size = 4
+                            corners = np.concatenate([
+                                tile_array[:corner_size, :corner_size].reshape(-1, 4),
+                                tile_array[:corner_size, -corner_size:].reshape(-1, 4),
+                                tile_array[-corner_size:, :corner_size].reshape(-1, 4),
+                                tile_array[-corner_size:, -corner_size:].reshape(-1, 4)
+                            ])
+                            non_red_corners = corners[
+                                (corners[:, 0] <= 200) | (corners[:, 1] >= 100) | (corners[:, 2] >= 100)
+                            ]
+                            if len(non_red_corners) > 0:
+                                bg_color = np.mean(non_red_corners[:, :3], axis=0).astype(int)
+                                tile_array[red_mask, 0] = bg_color[0]
+                                tile_array[red_mask, 1] = bg_color[1]
+                                tile_array[red_mask, 2] = bg_color[2]
+                                tile_array[red_mask, 3] = 255
+                            
+                            bg_tile = Image.fromarray(tile_array.astype(np.uint8), 'RGBA')
+                        else:
+                            bg_tile = agent_tile
+                except Exception:
+                    agent_tile = pil_frame.crop((start_x, start_y, end_x, end_y))
+                    tile_array = np.array(agent_tile)
+                    red_mask = (
+                        (tile_array[:, :, 0] > 150) &
+                        (tile_array[:, :, 0] > tile_array[:, :, 1] + 50) &
+                        (tile_array[:, :, 0] > tile_array[:, :, 2] + 50) &
+                        (tile_array[:, :, 1] < 150) &
+                        (tile_array[:, :, 2] < 150)
+                    )
+                    
+                    if np.any(red_mask):
+                        corner_size = 4
+                        corners = np.concatenate([
+                            tile_array[:corner_size, :corner_size].reshape(-1, 4),
+                            tile_array[:corner_size, -corner_size:].reshape(-1, 4),
+                            tile_array[-corner_size:, :corner_size].reshape(-1, 4),
+                            tile_array[-corner_size:, -corner_size:].reshape(-1, 4)
+                        ])
+                        non_red_corners = corners[
+                            (corners[:, 0] <= 200) | (corners[:, 1] >= 100) | (corners[:, 2] >= 100)
+                        ]
+                        if len(non_red_corners) > 0:
+                            bg_color = np.mean(non_red_corners[:, :3], axis=0).astype(int)
+                            tile_array[red_mask, 0] = bg_color[0]
+                            tile_array[red_mask, 1] = bg_color[1]
+                            tile_array[red_mask, 2] = bg_color[2]
+                            tile_array[red_mask, 3] = 255
+                        
+                        bg_tile = Image.fromarray(tile_array.astype(np.uint8), 'RGBA')
+                    else:
+                        bg_tile = agent_tile
+                
+                # 이모지 렌더링
+                font_size = int(actual_tile_size * 0.8)
+                font = None
+                try:
+                    local_font_path = os.path.join(script_dir, 'fonts', 'NotoEmoji-Regular.ttf')
+                    if os.path.exists(local_font_path):
+                        font = ImageFont.truetype(local_font_path, font_size)
+                except Exception:
+                    font = None
+                
+                draw = ImageDraw.Draw(bg_tile)
+                
+                # 이모지 텍스트 크기 계산
+                if font:
+                    try:
+                        bbox = draw.textbbox((0, 0), self.robot_emoji, font=font)
+                        text_width = bbox[2] - bbox[0]
+                        text_height = bbox[3] - bbox[1]
+                    except AttributeError:
+                        try:
+                            text_width, text_height = draw.textsize(self.robot_emoji, font=font)
+                        except:
+                            text_width = font_size
+                            text_height = font_size
+                    except:
+                        text_width = font_size
+                        text_height = font_size
+                else:
+                    text_width = font_size
+                    text_height = font_size
+                
+                # 중앙에 이모지 그리기
+                x = (actual_tile_size - text_width) // 2
+                y = (actual_tile_size - text_height) // 2 - 2
+                
+                # 이모지 그리기
+                fill_color = (255, 255, 255, 255)
+                if font:
+                    try:
+                        draw.text((x, y), self.robot_emoji, font=font, fill=fill_color)
+                    except:
+                        try:
+                            draw.text((x, y), self.robot_emoji, fill=fill_color)
+                        except:
+                            pass
+                else:
+                    try:
+                        draw.text((x, y), self.robot_emoji, fill=fill_color)
+                    except:
+                        pass
+                
+                # 수정된 타일을 다시 프레임에 붙이기
+                pil_frame.paste(bg_tile, (start_x, start_y))
+                frame = np.array(pil_frame.convert('RGB'))
+            
+            # arrow.png 이미지 모드 (기본)
+            else:
+                arrow_img_path = os.path.join(script_dir, 'asset', 'arrow.png')
+                
+                if os.path.exists(arrow_img_path):
                 # 프레임을 PIL 이미지로 변환
                 pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')
                 
@@ -546,6 +700,7 @@ class CustomRoomWrapper:
         walls: Optional[List[Tuple[int, int]]] = None,
         room_config: Optional[Dict] = None,
         render_mode: str = 'rgb_array',
+        robot_emoji: Optional[str] = None,
         **kwargs
     ):
         """
@@ -563,6 +718,9 @@ class CustomRoomWrapper:
                 - walls: 벽 리스트 (위와 동일한 형태 지원)
                 - objects: 객체 리스트 [{'type': 'key', 'pos': (x, y), 'color': 'yellow'}, ...]
             render_mode: 렌더링 모드 ('rgb_array' 또는 'human') (기본값: 'rgb_array')
+            robot_emoji: 로봇 이모지 문자 (기본값: None, None이면 arrow.png 사용)
+                - 예: '🤖' (로봇 이모지)
+                - None: arrow.png 이미지 사용
             **kwargs: CustomRoomEnv의 추가 파라미터
         """
         # 입력 파라미터 저장
@@ -585,6 +743,7 @@ class CustomRoomWrapper:
             size=size,
             room_config=room_config,
             render_mode=render_mode,
+            robot_emoji=robot_emoji,
             **kwargs
         )
         

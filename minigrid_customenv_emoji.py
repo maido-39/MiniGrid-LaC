@@ -22,6 +22,7 @@ from minigrid.minigrid_env import MiniGridEnv
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Union
 from PIL import Image, ImageDraw, ImageFont
+import os
 
 # MiniGrid 환경 등록
 register_minigrid_envs()
@@ -72,14 +73,63 @@ class EmojiObject(WorldObj):
         h, w = img.shape[:2]
         font_size = int(min(h, w) * 0.8)
         
-        font = None
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # use_emoji_color=True일 때는 imagetext_py를 사용하여 컬러 이모지 렌더링
+        if self.use_emoji_color:
+            try:
+                from imagetext_py import FontDB, Writer, Paint, TextAlign
+                
+                # 폰트 로드
+                font_path = os.path.join(script_dir, 'fonts', 'NotoEmoji-Regular.ttf')
+                if os.path.exists(font_path):
+                    FontDB.LoadFromPath("NotoEmoji", font_path)
+                    font = FontDB.Query("NotoEmoji")
+                    
+                    # 기존 이미지를 PIL Image로 변환
+                    pil_img = Image.fromarray(img.astype(np.uint8)).convert('RGBA')
+                    
+                    # imagetext_py Writer를 사용하여 컬러 이모지 렌더링
+                    with Writer(pil_img) as writer:
+                        writer.draw_text_wrapped(
+                            text=emoji_char,
+                            x=w // 2,
+                            y=h // 2,
+                            ax=0.5,
+                            ay=0.5,
+                            size=font_size,
+                            width=w,
+                            font=font,
+                            fill=Paint.Color((0, 0, 0, 255)),
+                            align=TextAlign.Center,
+                            draw_emojis=True  # 컬러 이모지 렌더링 활성화
+                        )
+                    
+                    # 로봇이 위에 있으면 초록색 테두리 그리기
+                    if self.agent_on_top:
+                        draw = ImageDraw.Draw(pil_img)
+                        border_width = 3
+                        green_color = (0, 255, 0, 255)
+                        draw.rectangle([(0, 0), (w-1, h-1)], outline=green_color, width=border_width)
+                    
+                    rgb_img = pil_img.convert('RGB')
+                    img[:] = np.array(rgb_img)
+                    return
+            except ImportError:
+                # imagetext_py가 없으면 에러 발생 (폴백 제거)
+                raise ImportError("imagetext_py is required for use_emoji_color=True. Please install imagetext_py.")
+            except (OSError, IOError, ValueError) as e:
+                # 파일 관련 오류 시 에러 발생
+                raise RuntimeError(f"Failed to render emoji with imagetext_py: {e}")
+        
+        # use_emoji_color=False일 때 PIL 사용 (단색)
         try:
-            import os
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            local_font_path = os.path.join(script_dir, 'fonts', 'NotoEmoji-Regular.ttf')
-            if os.path.exists(local_font_path):
-                font = ImageFont.truetype(local_font_path, font_size)
-        except Exception:
+            regular_font_path = os.path.join(script_dir, 'fonts', 'NotoEmoji-Regular.ttf')
+            if os.path.exists(regular_font_path):
+                font = ImageFont.truetype(regular_font_path, font_size)
+            else:
+                font = None
+        except (OSError, IOError):
             font = None
         
         pil_img = Image.fromarray(img.astype(np.uint8)).convert('RGBA')
@@ -93,10 +143,10 @@ class EmojiObject(WorldObj):
             except AttributeError:
                 try:
                     text_width, text_height = draw.textsize(emoji_char, font=font)
-                except:
+                except (TypeError, ValueError):
                     text_width = font_size
                     text_height = font_size
-            except:
+            except (TypeError, ValueError):
                 text_width = font_size
                 text_height = font_size
         else:
@@ -106,41 +156,35 @@ class EmojiObject(WorldObj):
         x = (w - text_width) // 2
         y = (h - text_height) // 2 - 2
         
-        # 색상 선택
-        if self.use_emoji_color:
-            # 원래 이모지 색상 사용 (투명도 유지)
-            fill_color = (255, 255, 255, 255)
-        else:
-            # 색 있는 선으로 그리기 (색상 매핑)
-            color_map = {
-                'red': (255, 0, 0, 255),
-                'green': (0, 255, 0, 255),
-                'blue': (0, 0, 255, 255),
-                'purple': (128, 0, 128, 255),
-                'yellow': (255, 255, 0, 255),
-                'grey': (128, 128, 128, 255),
-            }
-            fill_color = color_map.get(self.color, (255, 255, 255, 255))
+        # 지정한 색상을 스트로크 색상으로 사용
+        color_map = {
+            'red': (255, 0, 0, 255),
+            'green': (0, 255, 0, 255),
+            'blue': (0, 0, 255, 255),
+            'purple': (128, 0, 128, 255),
+            'yellow': (255, 255, 0, 255),
+            'grey': (128, 128, 128, 255),
+        }
+        stroke_color = color_map.get(self.color, (255, 255, 255, 255))
         
         if font:
             try:
-                draw.text((x, y), emoji_char, font=font, fill=fill_color)
-            except:
+                draw.text((x, y), emoji_char, font=font, fill=stroke_color)
+            except (TypeError, ValueError, OSError):
                 try:
-                    draw.text((x, y), emoji_char, fill=fill_color)
-                except:
+                    draw.text((x, y), emoji_char, fill=stroke_color)
+                except (TypeError, ValueError, OSError):
                     pass
         else:
             try:
-                draw.text((x, y), emoji_char, fill=fill_color)
-            except:
+                draw.text((x, y), emoji_char, fill=stroke_color)
+            except (TypeError, ValueError, OSError):
                 pass
         
         # 로봇이 위에 있으면 초록색 테두리 그리기
         if self.agent_on_top:
             border_width = 3
             green_color = (0, 255, 0, 255)  # 초록색
-            # 테두리 그리기 (outline 사용)
             draw.rectangle([(0, 0), (w-1, h-1)], outline=green_color, width=border_width)
         
         rgb_img = pil_img.convert('RGB')
@@ -280,62 +324,34 @@ class CustomRoomEnv(MiniGridEnv):
         try:
             import os
             script_dir = os.path.dirname(os.path.abspath(__file__))
-            arrow_img_path = os.path.join(script_dir, 'asset', 'arrow.png')
             
-            if os.path.exists(arrow_img_path):
-                pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')
+            # room_config에서 use_robot_emoji 확인
+            use_robot_emoji = self.room_config.get('use_robot_emoji', False)
+            robot_emoji_char = '🤖' if use_robot_emoji else None
+            robot_emoji_color = self.room_config.get('robot_emoji_color', 'yellow')
+            use_robot_emoji_color = self.room_config.get('use_robot_emoji_color', False)
+            
+            pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')
+            
+            cell = self.grid.get(agent_x, agent_y)
+            try:
+                bg_tile_img = Grid.render_tile(
+                    cell,
+                    (agent_x, agent_y),
+                    agent_dir=None,
+                    highlight=False,
+                    tile_size=actual_tile_size,
+                    subdivs=3
+                )
                 
-                cell = self.grid.get(agent_x, agent_y)
-                try:
-                    bg_tile_img = Grid.render_tile(
-                        cell,
-                        (agent_x, agent_y),
-                        agent_dir=None,
-                        highlight=False,
-                        tile_size=actual_tile_size,
-                        subdivs=3
-                    )
-                    
-                    if bg_tile_img is not None:
-                        if isinstance(bg_tile_img, np.ndarray):
-                            bg_tile = Image.fromarray(bg_tile_img.astype(np.uint8)).convert('RGBA')
-                        elif hasattr(bg_tile_img, 'convert'):
-                            bg_tile = bg_tile_img.convert('RGBA')
-                        else:
-                            bg_tile = Image.fromarray(np.array(bg_tile_img)).convert('RGBA')
+                if bg_tile_img is not None:
+                    if isinstance(bg_tile_img, np.ndarray):
+                        bg_tile = Image.fromarray(bg_tile_img.astype(np.uint8)).convert('RGBA')
+                    elif hasattr(bg_tile_img, 'convert'):
+                        bg_tile = bg_tile_img.convert('RGBA')
                     else:
-                        agent_tile = pil_frame.crop((start_x, start_y, end_x, end_y))
-                        tile_array = np.array(agent_tile)
-                        red_mask = (
-                            (tile_array[:, :, 0] > 150) &
-                            (tile_array[:, :, 0] > tile_array[:, :, 1] + 50) &
-                            (tile_array[:, :, 0] > tile_array[:, :, 2] + 50) &
-                            (tile_array[:, :, 1] < 150) &
-                            (tile_array[:, :, 2] < 150)
-                        )
-                        
-                        if np.any(red_mask):
-                            corner_size = 4
-                            corners = np.concatenate([
-                                tile_array[:corner_size, :corner_size].reshape(-1, 4),
-                                tile_array[:corner_size, -corner_size:].reshape(-1, 4),
-                                tile_array[-corner_size:, :corner_size].reshape(-1, 4),
-                                tile_array[-corner_size:, -corner_size:].reshape(-1, 4)
-                            ])
-                            non_red_corners = corners[
-                                (corners[:, 0] <= 200) | (corners[:, 1] >= 100) | (corners[:, 2] >= 100)
-                            ]
-                            if len(non_red_corners) > 0:
-                                bg_color = np.mean(non_red_corners[:, :3], axis=0).astype(int)
-                                tile_array[red_mask, 0] = bg_color[0]
-                                tile_array[red_mask, 1] = bg_color[1]
-                                tile_array[red_mask, 2] = bg_color[2]
-                                tile_array[red_mask, 3] = 255
-                            
-                            bg_tile = Image.fromarray(tile_array.astype(np.uint8), 'RGBA')
-                        else:
-                            bg_tile = agent_tile
-                except Exception:
+                        bg_tile = Image.fromarray(np.array(bg_tile_img)).convert('RGBA')
+                else:
                     agent_tile = pil_frame.crop((start_x, start_y, end_x, end_y))
                     tile_array = np.array(agent_tile)
                     red_mask = (
@@ -367,19 +383,152 @@ class CustomRoomEnv(MiniGridEnv):
                         bg_tile = Image.fromarray(tile_array.astype(np.uint8), 'RGBA')
                     else:
                         bg_tile = agent_tile
+            except Exception:
+                agent_tile = pil_frame.crop((start_x, start_y, end_x, end_y))
+                tile_array = np.array(agent_tile)
+                red_mask = (
+                    (tile_array[:, :, 0] > 150) &
+                    (tile_array[:, :, 0] > tile_array[:, :, 1] + 50) &
+                    (tile_array[:, :, 0] > tile_array[:, :, 2] + 50) &
+                    (tile_array[:, :, 1] < 150) &
+                    (tile_array[:, :, 2] < 150)
+                )
                 
-                arrow_img = Image.open(arrow_img_path).convert('RGBA')
-                arrow_img = arrow_img.resize((actual_tile_size, actual_tile_size), Image.Resampling.LANCZOS)
+                if np.any(red_mask):
+                    corner_size = 4
+                    corners = np.concatenate([
+                        tile_array[:corner_size, :corner_size].reshape(-1, 4),
+                        tile_array[:corner_size, -corner_size:].reshape(-1, 4),
+                        tile_array[-corner_size:, :corner_size].reshape(-1, 4),
+                        tile_array[-corner_size:, -corner_size:].reshape(-1, 4)
+                    ])
+                    non_red_corners = corners[
+                        (corners[:, 0] <= 200) | (corners[:, 1] >= 100) | (corners[:, 2] >= 100)
+                    ]
+                    if len(non_red_corners) > 0:
+                        bg_color = np.mean(non_red_corners[:, :3], axis=0).astype(int)
+                        tile_array[red_mask, 0] = bg_color[0]
+                        tile_array[red_mask, 1] = bg_color[1]
+                        tile_array[red_mask, 2] = bg_color[2]
+                        tile_array[red_mask, 3] = 255
+                    
+                    bg_tile = Image.fromarray(tile_array.astype(np.uint8), 'RGBA')
+                else:
+                    bg_tile = agent_tile
+            
+            # 로봇 이모지 모드인 경우
+            if use_robot_emoji and robot_emoji_char:
+                font_size = int(actual_tile_size * 0.8)
                 
-                rotation_map = {0: 0, 1: 90, 2: 180, 3: 270}
-                rotation_angle = rotation_map.get(agent_dir, 0)
+                # use_robot_emoji_color=True일 때는 imagetext_py를 사용하여 컬러 이모지 렌더링
+                if use_robot_emoji_color:
+                    try:
+                        from imagetext_py import FontDB, Writer, Paint, TextAlign
+                        
+                        # 폰트 로드
+                        font_path = os.path.join(script_dir, 'fonts', 'NotoEmoji-Regular.ttf')
+                        if os.path.exists(font_path):
+                            FontDB.LoadFromPath("NotoEmoji", font_path)
+                            font = FontDB.Query("NotoEmoji")
+                            
+                            # imagetext_py Writer를 사용하여 컬러 이모지 렌더링
+                            with Writer(bg_tile) as writer:
+                                writer.draw_text_wrapped(
+                                    text=robot_emoji_char,
+                                    x=actual_tile_size // 2,
+                                    y=actual_tile_size // 2,
+                                    ax=0.5,
+                                    ay=0.5,
+                                    size=font_size,
+                                    width=actual_tile_size,
+                                    font=font,
+                                    fill=Paint.Color((0, 0, 0, 255)),
+                                    align=TextAlign.Center,
+                                    draw_emojis=True  # 컬러 이모지 렌더링 활성화
+                                )
+                    except ImportError:
+                        # imagetext_py가 없으면 PIL로 폴백 (단색)
+                        use_robot_emoji_color = False
+                    except (OSError, IOError, ValueError):
+                        # imagetext_py 오류 시 PIL로 폴백
+                        use_robot_emoji_color = False
                 
-                if rotation_angle != 0:
-                    arrow_img = arrow_img.rotate(-rotation_angle, expand=False, fillcolor=(0, 0, 0, 0))
+                # use_robot_emoji_color=False일 때 또는 imagetext_py 사용 실패 시 PIL 사용 (단색)
+                if not use_robot_emoji_color:
+                    font = None
+                    try:
+                        local_font_path = os.path.join(script_dir, 'fonts', 'NotoEmoji-Regular.ttf')
+                        if os.path.exists(local_font_path):
+                            font = ImageFont.truetype(local_font_path, font_size)
+                    except Exception:
+                        font = None
+                    
+                    draw = ImageDraw.Draw(bg_tile)
+                    
+                    # 이모지 텍스트 크기 계산
+                    if font:
+                        try:
+                            bbox = draw.textbbox((0, 0), robot_emoji_char, font=font)
+                            text_width = bbox[2] - bbox[0]
+                            text_height = bbox[3] - bbox[1]
+                        except AttributeError:
+                            try:
+                                text_width, text_height = draw.textsize(robot_emoji_char, font=font)
+                            except:
+                                text_width = font_size
+                                text_height = font_size
+                        except:
+                            text_width = font_size
+                            text_height = font_size
+                    else:
+                        text_width = font_size
+                        text_height = font_size
+                    
+                    # 중앙에 이모지 그리기
+                    x = (actual_tile_size - text_width) // 2
+                    y = (actual_tile_size - text_height) // 2 - 2
+                    
+                    # 색상 맵 (다른 오브젝트들과 동일한 색상 시스템 사용)
+                    color_map = {
+                        'red': (255, 0, 0, 255),
+                        'green': (0, 255, 0, 255),
+                        'blue': (0, 0, 255, 255),
+                        'purple': (128, 0, 128, 255),
+                        'yellow': (255, 255, 0, 255),
+                        'grey': (128, 128, 128, 255),
+                    }
+                    fill_color = color_map.get(robot_emoji_color, (255, 255, 255, 255))
+                    if font:
+                        try:
+                            draw.text((x, y), robot_emoji_char, font=font, fill=fill_color)
+                        except:
+                            try:
+                                draw.text((x, y), robot_emoji_char, fill=fill_color)
+                            except:
+                                pass
+                    else:
+                        try:
+                            draw.text((x, y), robot_emoji_char, fill=fill_color)
+                        except:
+                            pass
+            else:
+                # arrow.png 이미지 모드 (기본)
+                arrow_img_path = os.path.join(script_dir, 'asset', 'arrow.png')
                 
-                bg_tile.paste(arrow_img, (0, 0), arrow_img)
-                pil_frame.paste(bg_tile, (start_x, start_y))
-                frame = np.array(pil_frame.convert('RGB'))
+                if os.path.exists(arrow_img_path):
+                    arrow_img = Image.open(arrow_img_path).convert('RGBA')
+                    arrow_img = arrow_img.resize((actual_tile_size, actual_tile_size), Image.Resampling.LANCZOS)
+                    
+                    rotation_map = {0: 0, 1: 90, 2: 180, 3: 270}
+                    rotation_angle = rotation_map.get(agent_dir, 0)
+                    
+                    if rotation_angle != 0:
+                        arrow_img = arrow_img.rotate(-rotation_angle, expand=False, fillcolor=(0, 0, 0, 0))
+                    
+                    bg_tile.paste(arrow_img, (0, 0), arrow_img)
+            
+            pil_frame.paste(bg_tile, (start_x, start_y))
+            frame = np.array(pil_frame.convert('RGB'))
         except Exception:
             pass
         
