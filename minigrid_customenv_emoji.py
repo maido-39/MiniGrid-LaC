@@ -37,23 +37,29 @@ EMOJI_MAP = {
     'box': '📦',
     'chair': '🪑',
     'apple': '🍎',
+    'desktop': '🖥️',
+    'workstation': '📱',
+    'brick': '🧱',
 }
 
 
 class EmojiObject(WorldObj):
     """이모지를 표시하는 커스텀 객체"""
     
-    def __init__(self, emoji_name: str, color: str = 'yellow', can_pickup: bool = False):
+    def __init__(self, emoji_name: str, color: str = 'yellow', can_pickup: bool = False, can_overlap: bool = False, use_emoji_color: bool = True):
         super().__init__('box', color)
         self.emoji_name = emoji_name
         self._can_pickup = can_pickup
+        self._can_overlap = can_overlap
+        self.use_emoji_color = use_emoji_color  # True: 원래 이모지 색상 사용, False: 색 있는 선으로 그리기
         self.type = 'emoji'
+        self.agent_on_top = False  # 로봇이 위에 있는지 여부
     
     def can_pickup(self):
         return self._can_pickup
     
     def can_overlap(self):
-        return False
+        return self._can_overlap
     
     def encode(self):
         from minigrid.core.constants import OBJECT_TO_IDX, COLOR_TO_IDX
@@ -100,7 +106,22 @@ class EmojiObject(WorldObj):
         x = (w - text_width) // 2
         y = (h - text_height) // 2 - 2
         
-        fill_color = (255, 255, 255, 255)
+        # 색상 선택
+        if self.use_emoji_color:
+            # 원래 이모지 색상 사용 (투명도 유지)
+            fill_color = (255, 255, 255, 255)
+        else:
+            # 색 있는 선으로 그리기 (색상 매핑)
+            color_map = {
+                'red': (255, 0, 0, 255),
+                'green': (0, 255, 0, 255),
+                'blue': (0, 0, 255, 255),
+                'purple': (128, 0, 128, 255),
+                'yellow': (255, 255, 0, 255),
+                'grey': (128, 128, 128, 255),
+            }
+            fill_color = color_map.get(self.color, (255, 255, 255, 255))
+        
         if font:
             try:
                 draw.text((x, y), emoji_char, font=font, fill=fill_color)
@@ -114,6 +135,13 @@ class EmojiObject(WorldObj):
                 draw.text((x, y), emoji_char, fill=fill_color)
             except:
                 pass
+        
+        # 로봇이 위에 있으면 초록색 테두리 그리기
+        if self.agent_on_top:
+            border_width = 3
+            green_color = (0, 255, 0, 255)  # 초록색
+            # 테두리 그리기 (outline 사용)
+            draw.rectangle([(0, 0), (w-1, h-1)], outline=green_color, width=border_width)
         
         rgb_img = pil_img.convert('RGB')
         img[:] = np.array(rgb_img)
@@ -195,7 +223,15 @@ class CustomRoomEnv(MiniGridEnv):
                         elif obj_type == 'emoji':
                             emoji_name = obj_info.get('emoji_name', 'emoji')
                             can_pickup = obj_info.get('can_pickup', False)
-                            obj = EmojiObject(emoji_name=emoji_name, color=obj_color, can_pickup=can_pickup)
+                            can_overlap = obj_info.get('can_overlap', False)
+                            use_emoji_color = obj_info.get('use_emoji_color', True)
+                            obj = EmojiObject(
+                                emoji_name=emoji_name, 
+                                color=obj_color, 
+                                can_pickup=can_pickup,
+                                can_overlap=can_overlap,
+                                use_emoji_color=use_emoji_color
+                            )
                         else:
                             obj = Key(obj_color)
                         
@@ -211,6 +247,16 @@ class CustomRoomEnv(MiniGridEnv):
         self.mission = self._gen_mission()
     
     def render(self):
+        # 로봇 위치 확인 및 이모지 객체에 표시
+        if hasattr(self, 'agent_pos') and hasattr(self, 'grid'):
+            agent_x, agent_y = int(self.agent_pos[0]), int(self.agent_pos[1])
+            # 모든 이모지 객체의 agent_on_top 초기화
+            for y in range(self.grid.height):
+                for x in range(self.grid.width):
+                    cell = self.grid.get(x, y)
+                    if cell is not None and hasattr(cell, 'type') and cell.type == 'emoji':
+                        cell.agent_on_top = (x == agent_x and y == agent_y)
+        
         frame = super().render()
         if frame is None:
             return frame
