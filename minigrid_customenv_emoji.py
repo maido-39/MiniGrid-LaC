@@ -686,20 +686,32 @@ class MiniGridEmojiWrapper:
         if isinstance(action, str):
             action = self.parse_absolute_action(action)
         
+        # 이동 액션이 아닌 경우 (pickup, drop, toggle) 직접 실행
         if action >= 4:
-            return self.step(action)
+            # 상대 움직임 모드로 직접 env.step() 호출 (재귀 방지)
+            obs, reward, terminated, truncated, info = self.env.step(action)
+            self.current_obs = obs
+            self.current_info = info
+            return obs, reward, terminated, truncated, info
         
+        # 이동 액션인 경우: 현재 방향 확인 후 필요한 회전 수행
         current_dir = self.env.agent_dir
         target_dir = self._get_target_direction(action)
         
         rotation_actions = self._calculate_rotation(current_dir, target_dir)
         
+        # 회전 액션 실행 (상대 움직임 모드로 직접 env.step() 호출)
         for rot_action in rotation_actions:
-            obs, reward, terminated, truncated, info = self.step(rot_action)
+            obs, reward, terminated, truncated, info = self.env.step(rot_action)
+            self.current_obs = obs
+            self.current_info = info
             if terminated or truncated:
                 return obs, reward, terminated, truncated, info
         
-        obs, reward, terminated, truncated, info = self.step(2)  # move forward
+        # 목표 방향으로 회전 완료 후 전진 (상대 움직임 모드로 직접 env.step() 호출)
+        obs, reward, terminated, truncated, info = self.env.step(2)  # move forward
+        self.current_obs = obs
+        self.current_info = info
         return obs, reward, terminated, truncated, info
     
     def get_image(self, fov_range: Optional[int] = None, fov_width: Optional[int] = None) -> np.ndarray:
