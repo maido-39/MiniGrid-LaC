@@ -15,10 +15,6 @@ VLM(Vision Language Model)과의 연동을 고려하여 설계되었습니다.
 
 레거시 코드: 상대 움직임만 지원 (turn left/right, move forward/backward)
 새 표준: minigrid_customenv_emoji.MiniGridEmojiWrapper (절대 움직임 지원)
-
-이 파일은 하위 호환성을 위해 유지되지만, 새로운 코드에서는 사용하지 않는 것을 권장합니다.
-대신 legacy/custom_environment_relative_movement.py를 import하거나,
-더 나은 방법으로는 minigrid_customenv_emoji.MiniGridEmojiWrapper를 사용하세요.
 """
 
 from minigrid import register_minigrid_envs

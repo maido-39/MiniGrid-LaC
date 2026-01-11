@@ -9,7 +9,7 @@ VLM을 사용하여 MiniGrid 환경을 제어하고 시각화합니다.
 """
 
 from minigrid import register_minigrid_envs
-from custom_environment import CustomRoomWrapper
+from legacy.custom_environment_relative_movement import CustomRoomWrapper
 from vlm_wrapper import ChatGPT4oVLMWrapper
 from vlm_postprocessor import VLMResponsePostProcessor
 import numpy as np

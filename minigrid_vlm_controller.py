@@ -1,30 +1,28 @@
 """
-VLM을 사용하여 MiniGrid 환경을 제어하는 클래스
+MiniGrid 전용 VLM 컨트롤러 (하위 호환성 유지)
 
-이 모듈은 VLM(Vision Language Model)을 사용하여 MiniGrid 환경을 조작하기 위한
-클래스를 제공합니다. 환경 생성 및 관리는 minigrid_customenv_emoji.py에서 처리합니다.
+이 모듈은 기존 코드와의 호환성을 위해 유지되며,
+내부적으로 vlm_controller.VLMController를 사용합니다.
 
-주요 기능:
-- VLM을 사용한 액션 생성
-- 프롬프트 관리 (인스턴스화 시 편하게 조작 가능)
-- 환경 상태 시각화
-- VLM 응답 파싱 및 액션 실행
+새로운 프로젝트에서는 vlm_controller.VLMController를 직접 사용하는 것을 권장합니다.
 """
 
+from vlm_controller import VLMController
 from minigrid_customenv_emoji import MiniGridEmojiWrapper
-from vlm_wrapper import ChatGPT4oVLMWrapper
-from vlm_postprocessor import VLMResponsePostProcessor
-import numpy as np
 import cv2
-from typing import Union, Tuple, Dict, Optional
+from typing import Optional
 
 
-class MiniGridVLMController:
+class MiniGridVLMController(VLMController):
     """
-    VLM을 사용하여 MiniGrid 환경을 제어하는 클래스
+    MiniGrid 전용 VLM 컨트롤러 (하위 호환성)
+    
+    VLMController를 상속받아 MiniGrid 특정 기능을 추가합니다.
+    새로운 프로젝트에서는 VLMController를 직접 사용하는 것을 권장합니다.
     
     사용 예시:
         # 환경 생성
+        from minigrid_customenv_emoji import MiniGridEmojiWrapper
         env = MiniGridEmojiWrapper(size=10, room_config={...})
         env.reset()
         
@@ -63,174 +61,18 @@ class MiniGridVLMController:
             user_prompt_template: 사용자 프롬프트 템플릿 (None이면 기본값 사용)
             required_fields: VLM 응답 필수 필드 리스트 (기본값: ["action", "environment_info"])
         """
-        self.env = env
-        
-        self.vlm = ChatGPT4oVLMWrapper(
+        super().__init__(
+            env=env,
             model=model,
             temperature=temperature,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
+            system_prompt=system_prompt,
+            user_prompt_template=user_prompt_template,
+            required_fields=required_fields
         )
-        
-        self.postprocessor = VLMResponsePostProcessor(
-            required_fields=required_fields or ["action", "environment_info"]
-        )
-        
-        # 프롬프트 설정
-        self.system_prompt = system_prompt or self._get_default_system_prompt()
-        self.user_prompt_template = user_prompt_template or self._get_default_user_prompt_template()
+        self.minigrid_env = env  # MiniGrid 특정 기능용
     
-    def _get_default_system_prompt(self) -> str:
-        """기본 시스템 프롬프트 반환"""
-        return """You are a robot operating on a grid map.
-
-## Environment
-Grid world with walls (black), blue pillar (impassable), purple table (impassable), robot (red arrow shows heading), and goal (green marker if present).
-
-## Coordinate System
-The top of the image is North (up), and the bottom is South (down).
-The left is West (left), and the right is East (right).
-
-## Robot Orientation
-In the image, the red triangle represents the robot.
-The robot's heading direction is shown by the triangle's apex (sharp tip).
-However, you can move in ANY direction regardless of the robot's current heading.
-
-## Action Space (Absolute Directions)
-You can move directly in absolute directions:
-- "up": Move North
-- "down": Move South
-- "left": Move West
-- "right": Move East
-- "pickup": Pick up object
-- "drop": Drop object
-- "toggle": Interact with objects
-
-## Movement Rules
-**CRITICAL**: All movements are in ABSOLUTE directions (North/South/East/West).
-- "up" = move North (upward on the image)
-- "down" = move South (downward on the image)
-- "left" = move West (leftward on the image)
-- "right" = move East (rightward on the image)
-- The robot will automatically rotate to face the correct direction before moving
-- You don't need to think about the robot's current heading - just specify the direction you want to go
-
-## Response Format
-Respond in JSON format:
-```json
-{
-    "action": "<action_name_or_number>",
-    "environment_info": "<description of current state with spatial relationships in absolute coordinates (North/South/East/West)>",
-    "reasoning": "<explanation of why you chose this action>"
-}
-```
-
-**Important**: 
-- Valid JSON format required
-- Actions must be from the list above
-- Complete mission from user prompt
-- Use absolute directions (up/down/left/right), not relative to robot heading
-- Think in terms of the image: up=North, down=South, left=West, right=East
-"""
-    
-    def _get_default_user_prompt_template(self) -> str:
-        """기본 사용자 프롬프트 템플릿 반환"""
-        return "Based on the current image, choose the next action to complete the mission: {mission}. Use absolute directions (up/down/left/right)."
-    
-    def set_system_prompt(self, prompt: str):
-        """시스템 프롬프트 설정"""
-        self.system_prompt = prompt
-    
-    def set_user_prompt_template(self, template: str):
-        """사용자 프롬프트 템플릿 설정"""
-        self.user_prompt_template = template
-    
-    def get_user_prompt(self, mission: Optional[str] = None, **kwargs) -> str:
-        """
-        사용자 프롬프트 생성
-        
-        Args:
-            mission: 미션 텍스트 (None이면 환경의 미션 사용)
-            **kwargs: 템플릿에 추가할 키워드 인자
-        
-        Returns:
-            생성된 사용자 프롬프트
-        """
-        if mission is None:
-            state = self.env.get_state()
-            mission = state.get('mission', 'explore')
-        
-        return self.user_prompt_template.format(mission=mission, **kwargs)
-    
-    def generate_action(
-        self,
-        user_prompt: Optional[str] = None,
-        mission: Optional[str] = None
-    ) -> Dict:
-        """
-        VLM을 사용하여 액션 생성
-        
-        Args:
-            user_prompt: 사용자 프롬프트 (None이면 템플릿에서 생성)
-            mission: 미션 텍스트 (user_prompt가 None일 때만 사용)
-        
-        Returns:
-            파싱된 VLM 응답 딕셔너리
-        """
-        image = self.env.get_image()
-        
-        if user_prompt is None:
-            user_prompt = self.get_user_prompt(mission=mission)
-        
-        try:
-            vlm_response_raw = self.vlm.generate(
-                image=image,
-                system_prompt=self.system_prompt,
-                user_prompt=user_prompt
-            )
-        except Exception as e:
-            raise RuntimeError(f"VLM API 호출 실패: {e}")
-        
-        try:
-            vlm_response = self.postprocessor.process(vlm_response_raw, strict=True)
-            return vlm_response
-        except ValueError as e:
-            raise ValueError(f"VLM 응답 파싱 실패: {e}\n원본 응답: {vlm_response_raw[:200]}...")
-    
-    def execute_action(self, action: Union[int, str]) -> Tuple[Dict, float, bool, bool, Dict]:
-        """
-        액션 실행 (절대 좌표 이동 사용)
-        
-        Args:
-            action: 액션 (정수 인덱스 또는 액션 이름 문자열)
-        
-        Returns:
-            observation, reward, terminated, truncated, info
-        """
-        return self.env.step_absolute(action)
-    
-    def step(
-        self,
-        user_prompt: Optional[str] = None,
-        mission: Optional[str] = None
-    ) -> Tuple[Dict, float, bool, bool, Dict, Dict]:
-        """
-        VLM으로 액션 생성 후 실행 (한 번에 처리)
-        
-        Args:
-            user_prompt: 사용자 프롬프트 (None이면 템플릿에서 생성)
-            mission: 미션 텍스트 (user_prompt가 None일 때만 사용)
-        
-        Returns:
-            observation, reward, terminated, truncated, info, vlm_response
-        """
-        vlm_response = self.generate_action(user_prompt=user_prompt, mission=mission)
-        action = vlm_response.get('action', 'up')
-        
-        obs, reward, terminated, truncated, info = self.execute_action(action)
-        
-        return obs, reward, terminated, truncated, info, vlm_response
-    
-    def visualize_state(self, window_name: str = "MiniGrid VLM Control", cell_size: int = 32):
+    def visualize_state(self, window_name: str = "MiniGrid VLM Control", cell_size: int = 32):  # noqa: ARG002
         """
         현재 환경 상태를 OpenCV로 시각화
         
@@ -259,65 +101,10 @@ Respond in JSON format:
                 print(f"이미지 표시 오류: {e}")
     
     def visualize_grid_cli(self):
-        """CLI에서 그리드를 텍스트로 시각화"""
+        """CLI에서 그리드를 텍스트로 시각화 (MiniGrid 전용)"""
+        from minigrid_vlm_helpers import visualize_minigrid_grid_cli
         state = self.env.get_state()
-        env = self.env.env
-        size = self.env.size
-        
-        agent_pos = state['agent_pos']
-        if isinstance(agent_pos, np.ndarray):
-            agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
-        else:
-            agent_x, agent_y = int(agent_pos[0]), int(agent_pos[1])
-        
-        agent_dir = state['agent_dir']
-        direction_symbols = {0: '>', 1: 'v', 2: '<', 3: '^'}
-        agent_symbol = direction_symbols.get(agent_dir, 'A')
-        
-        grid_chars = []
-        for y in range(size):
-            row = []
-            for x in range(size):
-                cell = env.grid.get(x, y)
-                
-                if x == agent_x and y == agent_y:
-                    row.append(agent_symbol)
-                elif cell is not None and cell.type == 'wall':
-                    if hasattr(cell, 'color'):
-                        color_map = {
-                            'blue': '🟦',
-                            'purple': '🟪',
-                            'red': '🟥',
-                            'green': '🟩',
-                            'yellow': '🟨'
-                        }
-                        row.append(color_map.get(cell.color, '⬛'))
-                    else:
-                        row.append('⬛')
-                elif cell is not None and cell.type == 'goal':
-                    row.append('🟩')
-                elif cell is not None:
-                    if hasattr(cell, 'color'):
-                        if cell.color == 'blue':
-                            row.append('🟦')
-                        elif cell.color == 'purple':
-                            row.append('🟪')
-                        else:
-                            row.append('🟨')
-                    else:
-                        row.append('🟨')
-                else:
-                    row.append('⬜️')
-            grid_chars.append(row)
-        
-        print("\n" + "=" * 60)
-        print("Current Grid State:")
-        print("=" * 60)
-        for y in range(size):
-            print(''.join(grid_chars[y]))
-        print("=" * 60)
-        print(f"Agent Position: ({agent_x}, {agent_y}), Direction: {agent_dir} ({agent_symbol})")
-        print("=" * 60 + "\n")
+        visualize_minigrid_grid_cli(self.minigrid_env, state)
     
     def run_interactive(
         self,
@@ -358,7 +145,7 @@ Respond in JSON format:
                 user_prompt = None
             
             try:
-                obs, reward, terminated, truncated, info, vlm_response = self.step(
+                _, reward, terminated, truncated, _, vlm_response = self.step(
                     user_prompt=user_prompt,
                     mission=mission
                 )
@@ -389,60 +176,5 @@ Respond in JSON format:
         print("\n실험 완료.")
 
 
-def create_scenario2_environment():
-    """시나리오 2 환경 생성 예제"""
-    size = 10
-    
-    walls = []
-    for i in range(size):
-        walls.append((i, 0))
-        walls.append((i, size-1))
-        walls.append((0, i))
-        walls.append((size-1, i))
-    
-    blue_pillar_positions = [(3, 4), (4, 4), (3, 5), (4, 5)]
-    for pos in blue_pillar_positions:
-        walls.append((pos[0], pos[1], 'blue'))
-    
-    table_positions = [(5, 1), (6, 1), (7, 1)]
-    for pos in table_positions:
-        walls.append((pos[0], pos[1], 'purple'))
-    
-    start_pos = (1, 8)
-    goal_pos = (8, 1)
-    
-    room_config = {
-        'start_pos': start_pos,
-        'goal_pos': goal_pos,
-        'walls': walls,
-        'objects': []
-    }
-    
-    return MiniGridEmojiWrapper(size=size, room_config=room_config)
-
-
-def main():
-    """메인 함수 (예제)"""
-    print("=" * 60)
-    print("MiniGrid VLM 상호작용 (절대 좌표 이동 버전)")
-    print("=" * 60)
-    
-    env = create_scenario2_environment()
-    env.reset()
-    
-    controller = MiniGridVLMController(env=env)
-    
-    mission = "파란 기둥으로 가서 오른쪽으로 돌고, 테이블 옆에 멈추시오"
-    controller.run_interactive(mission=mission, max_steps=100)
-
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("\n\n사용자에 의해 중단되었습니다.")
-    except Exception as e:
-        print(f"\n오류 발생: {e}")
-        import traceback
-        traceback.print_exc()
-
+# 환경 생성 함수는 프로젝트별로 별도 파일에서 관리
+# 예제는 examples/ 디렉토리나 프로젝트별 파일에 위치

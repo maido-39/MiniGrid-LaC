@@ -855,7 +855,8 @@ def create_scenario2_environment():
         'objects': []
     }
     
-    return MiniGridEmojiWrapper(size=size, room_config=room_config)
+    # 절대 움직임 모드 활성화 (프롬프트에서 "up", "right" 등의 절대 방향 사용)
+    return MiniGridEmojiWrapper(size=size, room_config=room_config, use_absolute_movement=True)
 
 
 def main():

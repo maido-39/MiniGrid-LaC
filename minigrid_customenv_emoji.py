@@ -593,11 +593,19 @@ class MiniGridEmojiWrapper:
         walls: Optional[List[Tuple[int, int]]] = None,
         room_config: Optional[Dict] = None,
         render_mode: str = 'rgb_array',
+        use_absolute_movement: bool = True,
         **kwargs
     ):
+        """
+        Args:
+            use_absolute_movement: 절대 움직임 모드 활성화 여부 (기본값: True)
+                - True: step() 메서드가 절대 방향 액션을 받아 처리 (표준)
+                - False: step() 메서드가 상대 방향 액션을 받아 처리 (레거시)
+        """
         self.size = size
         self.walls = walls or []
         self.render_mode = render_mode
+        self.use_absolute_movement = use_absolute_movement
         
         if room_config is None:
             room_config = {}
@@ -621,13 +629,24 @@ class MiniGridEmojiWrapper:
         return self.current_obs, self.current_info
     
     def step(self, action: Union[int, str]) -> Tuple[Dict, float, bool, bool, Dict]:
-        if isinstance(action, str):
-            action = self.parse_action(action)
+        """
+        액션 실행
         
-        obs, reward, terminated, truncated, info = self.env.step(action)
-        self.current_obs = obs
-        self.current_info = info
-        return obs, reward, terminated, truncated, info
+        use_absolute_movement=True인 경우 절대 방향 액션으로 처리,
+        False인 경우 상대 방향 액션으로 처리합니다.
+        """
+        if self.use_absolute_movement:
+            # 절대 움직임 모드: step_absolute 사용
+            return self.step_absolute(action)
+        else:
+            # 상대 움직임 모드: 기존 방식
+            if isinstance(action, str):
+                action = self.parse_action(action)
+            
+            obs, reward, terminated, truncated, info = self.env.step(action)
+            self.current_obs = obs
+            self.current_info = info
+            return obs, reward, terminated, truncated, info
     
     def _get_target_direction(self, absolute_action: int) -> int:
         """절대 액션을 MiniGrid 방향으로 변환"""
@@ -865,6 +884,50 @@ class MiniGridEmojiWrapper:
             return cell.emoji_name
         
         return None
+    
+    def get_heading(self) -> str:
+        """
+        현재 로봇의 heading 방향을 문자열로 반환
+        
+        Returns:
+            heading: 방향 문자열
+                - "East" (오른쪽, agent_dir=0)
+                - "South" (아래, agent_dir=1)
+                - "West" (왼쪽, agent_dir=2)
+                - "North" (위, agent_dir=3)
+        """
+        if not hasattr(self.env, 'agent_dir'):
+            return "Unknown"
+        
+        agent_dir = self.env.agent_dir
+        heading_map = {
+            0: "East",   # 오른쪽
+            1: "South",  # 아래
+            2: "West",   # 왼쪽
+            3: "North"   # 위
+        }
+        return heading_map.get(agent_dir, "Unknown")
+    
+    def get_heading_description(self) -> str:
+        """
+        현재 로봇의 heading 방향을 상세 설명 문자열로 반환
+        
+        Returns:
+            description: 방향 설명 문자열
+                예: "facing East (right)" 또는 "facing North (up)"
+        """
+        heading = self.get_heading()
+        if heading == "Unknown":
+            return "heading direction unknown"
+        
+        direction_descriptions = {
+            "East": "right",
+            "South": "down",
+            "West": "left",
+            "North": "up"
+        }
+        direction = direction_descriptions.get(heading, "")
+        return f"facing {heading} ({direction})"
     
     def close(self):
         """환경 종료 및 리소스 정리"""

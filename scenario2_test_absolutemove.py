@@ -27,10 +27,12 @@
 """
 
 from minigrid import register_minigrid_envs
-from custom_environment import CustomRoomWrapper
-from minigrid_vlm_interact_absolute import AbsoluteDirectionWrapper
+from minigrid_customenv_emoji import MiniGridEmojiWrapper
+from minigrid_vlm_interact_absolute_emoji import AbsoluteDirectionEmojiWrapper
+from image_map_environment import create_image_map_environment
 from vlm_wrapper import ChatGPT4oVLMWrapper
 from vlm_postprocessor import VLMResponsePostProcessor
+from typing import Union
 import numpy as np
 import cv2
 import json
@@ -288,7 +290,7 @@ class Visualizer:
     def __init__(self, window_name: str = "Scenario 2: VLM Control (Absolute)"):
         self.window_name = window_name
     
-    def visualize_grid_cli(self, wrapper: AbsoluteDirectionWrapper, state: dict):
+    def visualize_grid_cli(self, wrapper: Union[MiniGridEmojiWrapper, AbsoluteDirectionEmojiWrapper], state: dict):
         """CLI에서 그리드를 텍스트로 시각화"""
         env = wrapper.env
         size = wrapper.size
@@ -385,8 +387,22 @@ class UserInteraction:
         return input(prompt).strip()
 
 
-def create_scenario2_environment() -> AbsoluteDirectionWrapper:
-    """시나리오 2 환경 생성 (절대 좌표 버전)"""
+def create_scenario2_environment(use_image_map: bool = False):
+    """
+    시나리오 2 환경 생성 (절대 좌표 버전)
+    
+    Args:
+        use_image_map: True면 이미지 기반 맵 사용, False면 원본 맵 사용
+    
+    Returns:
+        MiniGridEmojiWrapper 또는 AbsoluteDirectionEmojiWrapper
+        (둘 다 절대 움직임을 지원하며, use_absolute_movement=True가 기본값)
+    """
+    if use_image_map:
+        # 이미지 기반 맵 사용 (이모지)
+        return create_image_map_environment(size=14)
+    
+    # 원본 맵 사용
     size = 10
     
     walls = []
@@ -414,21 +430,29 @@ def create_scenario2_environment() -> AbsoluteDirectionWrapper:
         'objects': []
     }
     
-    return AbsoluteDirectionWrapper(size=size, room_config=room_config)
+    # 절대 움직임 모드 활성화 (표준)
+    return MiniGridEmojiWrapper(size=size, room_config=room_config, use_absolute_movement=True)
 
 
 class Scenario2Experiment:
     """시나리오 2 실험 메인 클래스 (Runner) - 절대 좌표 버전"""
     
-    def __init__(self, log_dir: Path = None):
+    def __init__(self, log_dir: Path = None, use_image_map: bool = False):
+        """
+        Args:
+            log_dir: 로그 디렉토리 경로
+            use_image_map: True면 이미지 기반 맵 사용, False면 원본 맵 사용
+        """
         self.wrapper = None
+        self.use_image_map = use_image_map
         self.prompt_organizer = PromptOrganizer()
         self.vlm_processor = VLMProcessor()
         self.visualizer = Visualizer()
         self.user_interaction = UserInteraction()
         
         if log_dir is None:
-            log_dir = Path("logs") / f"scenario2_absolute_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            map_type = "image_map" if use_image_map else "original"
+            log_dir = Path("logs") / f"scenario2_absolute_{map_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.log_dir = log_dir
         self.log_dir.mkdir(parents=True, exist_ok=True)
         
@@ -686,7 +710,9 @@ Please analyze the feedback and generate concise knowledge to improve future act
         print(f"\n로그 디렉토리: {self.log_dir}")
         
         print("\n[1] 환경 생성 중...")
-        self.wrapper = create_scenario2_environment()
+        map_type = "이미지 기반 맵 (이모지)" if self.use_image_map else "원본 맵"
+        print(f"  맵 타입: {map_type}")
+        self.wrapper = create_scenario2_environment(use_image_map=self.use_image_map)
         self.wrapper.reset()
         
         self.state = self.wrapper.get_state()
@@ -891,10 +917,12 @@ Please analyze the feedback and generate concise knowledge to improve future act
         
         try:
             self.action_index = self.wrapper.parse_absolute_action(action_str)
-            self.action_name = self.wrapper.ABSOLUTE_ACTION_NAMES.get(self.action_index, f"action_{self.action_index}")
+            action_space = self.wrapper.get_absolute_action_space()
+            self.action_name = action_space['action_mapping'].get(self.action_index, f"action_{self.action_index}")
             print(f"실행할 액션: {self.action_name} (인덱스: {self.action_index})")
             
-            _, self.reward, terminated, truncated, _ = self.wrapper.step_absolute(self.action_index)
+            # use_absolute_movement=True이므로 step()이 절대 움직임을 처리
+            _, self.reward, terminated, truncated, _ = self.wrapper.step(self.action_index)
             self.done = terminated or truncated
             
             # 액션 실행 후 위치 확인
@@ -936,7 +964,7 @@ Please analyze the feedback and generate concise knowledge to improve future act
             self.action_index = 0
             self.action_name = "move up"
             try:
-                _, self.reward, terminated, truncated, _ = self.wrapper.step_absolute(0)
+                _, self.reward, terminated, truncated, _ = self.wrapper.step(0)
                 self.done = terminated or truncated
             except:
                 pass
@@ -995,8 +1023,22 @@ Please analyze the feedback and generate concise knowledge to improve future act
 
 def main():
     """메인 함수"""
+    import sys
+    
+    # 명령줄 인자로 맵 타입 선택
+    use_image_map = False
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--image-map" or sys.argv[1] == "-i":
+            use_image_map = True
+            print("이미지 기반 맵 모드로 실행합니다.")
+        elif sys.argv[1] == "--help" or sys.argv[1] == "-h":
+            print("사용법:")
+            print("  python scenario2_test_absolutemove.py          # 원본 맵 사용")
+            print("  python scenario2_test_absolutemove.py --image-map  # 이미지 기반 맵 사용")
+            return
+    
     try:
-        experiment = Scenario2Experiment()
+        experiment = Scenario2Experiment(use_image_map=use_image_map)
         experiment.run()
     except KeyboardInterrupt:
         print("\n\n사용자에 의해 중단되었습니다.")

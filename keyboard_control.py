@@ -17,6 +17,9 @@ from minigrid import register_minigrid_envs
 import gymnasium as gym
 import cv2
 
+# Note: This file uses the standard Gymnasium MiniGrid environment (relative movement only)
+# For absolute movement support, use minigrid_customenv_emoji.MiniGridEmojiWrapper
+
 # MiniGrid 환경 등록 (필수: 환경을 사용하기 전에 등록해야 함)
 register_minigrid_envs()
 

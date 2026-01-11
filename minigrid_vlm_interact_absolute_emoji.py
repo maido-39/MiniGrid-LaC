@@ -36,130 +36,15 @@ class AbsoluteDirectionEmojiWrapper(MiniGridEmojiWrapper):
     기존 MiniGridEmojiWrapper를 확장하여 상/하/좌/우로 직접 이동할 수 있는
     액션 공간을 제공합니다. 로봇의 현재 방향과 관계없이 절대 좌표계 기준으로
     이동할 수 있습니다.
+    
+    이 클래스는 단순히 use_absolute_movement=True로 설정한 MiniGridEmojiWrapper입니다.
     """
-    
-    # 절대 방향 액션 이름과 인덱스 매핑
-    ABSOLUTE_ACTION_NAMES = {
-        0: "move up",      # North (위)
-        1: "move down",    # South (아래)
-        2: "move left",    # West (왼쪽)
-        3: "move right",   # East (오른쪽)
-        4: "pickup",
-        5: "drop",
-        6: "toggle"
-    }
-    
-    # 절대 방향 액션 별칭
-    ABSOLUTE_ACTION_ALIASES = {
-        "move up": 0, "up": 0, "north": 0, "n": 0, "move north": 0,
-        "go up": 0, "go north": 0,
-        "move down": 1, "down": 1, "south": 1, "s": 1, "move south": 1,
-        "go down": 1, "go south": 1,
-        "move left": 2, "left": 2, "west": 2, "w": 2, "move west": 2,
-        "go left": 2, "go west": 2,
-        "move right": 3, "right": 3, "east": 3, "e": 3, "move east": 3,
-        "go right": 3, "go east": 3,
-        "pickup": 4, "pick up": 4, "pick_up": 4, "grab": 4,
-        "drop": 5, "put down": 5, "put_down": 5, "release": 5,
-        "toggle": 6, "interact": 6, "use": 6, "activate": 6
-    }
     
     def __init__(self, *args, **kwargs):
         """절대 방향 Wrapper 초기화"""
+        # use_absolute_movement를 True로 강제 설정
+        kwargs['use_absolute_movement'] = True
         super().__init__(*args, **kwargs)
-    
-    def _get_target_direction(self, absolute_action: int) -> int:
-        """절대 액션을 MiniGrid 방향으로 변환"""
-        direction_map = {
-            0: 3,  # up -> North
-            1: 1,  # down -> South
-            2: 2,  # left -> West
-            3: 0   # right -> East
-        }
-        return direction_map.get(absolute_action, 0)
-    
-    def _calculate_rotation(self, current_dir: int, target_dir: int) -> list:
-        """현재 방향에서 목표 방향으로 회전하기 위한 액션 시퀀스 계산"""
-        if current_dir == target_dir:
-            return []
-        
-        diff = (target_dir - current_dir) % 4
-        
-        if diff == 1:
-            return [1]  # turn right
-        elif diff == 2:
-            return [1, 1]  # turn right twice
-        elif diff == 3:
-            return [0]  # turn left
-        
-        return []
-    
-    def step_absolute(self, action: Union[int, str]) -> Tuple[Dict, float, bool, bool, Dict]:
-        """
-        절대 방향 액션을 실행
-        
-        Args:
-            action: 절대 방향 액션 (정수 인덱스 또는 액션 이름 문자열)
-                - 0 또는 "move up": 위로 이동 (North)
-                - 1 또는 "move down": 아래로 이동 (South)
-                - 2 또는 "move left": 왼쪽으로 이동 (West)
-                - 3 또는 "move right": 오른쪽으로 이동 (East)
-                - 4 또는 "pickup": 물체 집기
-                - 5 또는 "drop": 물체 놓기
-                - 6 또는 "toggle": 상호작용
-        """
-        if isinstance(action, str):
-            action = self.parse_absolute_action(action)
-        
-        if action >= 4:
-            return self.step(action)
-        
-        current_dir = self.env.agent_dir
-        target_dir = self._get_target_direction(action)
-        
-        rotation_actions = self._calculate_rotation(current_dir, target_dir)
-        
-        for rot_action in rotation_actions:
-            obs, reward, terminated, truncated, info = self.step(rot_action)
-            if terminated or truncated:
-                return obs, reward, terminated, truncated, info
-        
-        obs, reward, terminated, truncated, info = self.step(2)  # move forward
-        return obs, reward, terminated, truncated, info
-    
-    def parse_absolute_action(self, action_str: str) -> int:
-        """절대 방향 액션 문자열을 인덱스로 변환"""
-        action_str = action_str.strip()
-        
-        try:
-            action_int = int(action_str)
-            if 0 <= action_int <= 6:
-                return action_int
-        except ValueError:
-            pass
-        
-        action_str_lower = action_str.lower()
-        
-        if action_str_lower in self.ABSOLUTE_ACTION_ALIASES:
-            return self.ABSOLUTE_ACTION_ALIASES[action_str_lower]
-        
-        for idx, name in self.ABSOLUTE_ACTION_NAMES.items():
-            if action_str_lower == name.lower():
-                return idx
-        
-        raise ValueError(
-            f"Unknown absolute action: '{action_str}'. "
-            f"Available actions: {list(self.ABSOLUTE_ACTION_ALIASES.keys())} or numbers 0-6"
-        )
-    
-    def get_absolute_action_space(self) -> Dict:
-        """절대 방향 액션 공간 정보 반환"""
-        return {
-            'n': 7,
-            'actions': list(self.ABSOLUTE_ACTION_NAMES.values()),
-            'action_mapping': self.ABSOLUTE_ACTION_NAMES,
-            'action_aliases': self.ABSOLUTE_ACTION_ALIASES
-        }
 
 
 def get_system_prompt() -> str:
@@ -511,10 +396,12 @@ def main():
         print(f"\n[5] 액션 실행 중...")
         try:
             action_index = wrapper.parse_absolute_action(action_str)
-            action_name = wrapper.ABSOLUTE_ACTION_NAMES.get(action_index, f"action_{action_index}")
+            action_space = wrapper.get_absolute_action_space()
+            action_name = action_space['action_mapping'].get(action_index, f"action_{action_index}")
             print(f"실행할 액션: {action_name} (인덱스: {action_index})")
             
-            _, reward, terminated, truncated, _ = wrapper.step_absolute(action_index)
+            # use_absolute_movement=True이므로 step()이 절대 움직임을 처리
+            _, reward, terminated, truncated, _ = wrapper.step(action_index)
             done = terminated or truncated
             
             print(f"보상: {reward}, 종료: {done}")
@@ -524,7 +411,7 @@ def main():
             traceback.print_exc()
             # 기본 액션 사용
             try:
-                _, reward, terminated, truncated, _ = wrapper.step_absolute(0)  # move up
+                _, reward, terminated, truncated, _ = wrapper.step(0)  # move up
                 done = terminated or truncated
             except:
                 break

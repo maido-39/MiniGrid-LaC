@@ -8,14 +8,10 @@ MiniGrid VLM 상호작용 스크립트 (레거시 - 상대 움직임 기반 절�
 로봇이 상/하/좌/우로 직접 이동할 수 있는 절대 좌표 기반 액션 공간을 제공합니다.
 
 사용법:
-    python minigrid_vlm_interact_absolute.py
+    python legacy/minigrid_vlm_interact_absolute_relative.py
 
 레거시 코드: CustomRoomWrapper 기반 (상대 움직임을 절대 움직임으로 변환)
 새 표준: minigrid_customenv_emoji.MiniGridEmojiWrapper (네이티브 절대 움직임 지원)
-
-이 파일은 하위 호환성을 위해 유지되지만, 새로운 코드에서는 사용하지 않는 것을 권장합니다.
-대신 legacy/minigrid_vlm_interact_absolute_relative.py를 import하거나,
-더 나은 방법으로는 minigrid_customenv_emoji.MiniGridEmojiWrapper를 사용하세요.
 """
 
 from minigrid import register_minigrid_envs
