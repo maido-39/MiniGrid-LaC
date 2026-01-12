@@ -2,6 +2,9 @@
 VLM Action Uncertainty Estimation
 
 OpenAI API의 logprobs 기능을 활용하여 action 예측의 불확실도를 측정하고 시각화합니다.
+
+
+주의 : malfunction now 
 """
 
 import json

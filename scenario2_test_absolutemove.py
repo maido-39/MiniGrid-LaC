@@ -3,36 +3,38 @@
 
 시나리오 2: 파란 기둥으로 가서 오른쪽으로 돌고, 테이블 옆에 멈추시오
 
-환경 구성:
+
+> 여기 이제 json 에서 불러와져서, 맵 바꾸려면 json 파일만 바꾸면 됨 !!!
+환경 구성: (업데이트필요)
 - 벽: 검은색 (외벽)
 - 파란 기둥: 파란색 2x2 Grid (통과불가, 색상이 있는 벽)
 - 테이블: 보라색 1x3 Grid (통과불가, 색상이 있는 벽)
 - 시작점: (1, 8)
 - 종료점: (8, 1)
 
-레이아웃 (10x10):
-⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
-⬛⬜️⬜️⬜️⬜️🟪🟪🟪🟩⬛
-⬛⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬛
-⬛⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬛
-⬛⬜️⬜️🟦🟦⬜️⬜️⬜️⬜️⬛ 
-⬛⬜️⬜️🟦🟦⬜️⬜️⬜️⬜️⬛
-⬛⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬛
-⬛⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬛
-⬛⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬛
-⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+레이아웃 (14x14): `example_map.json` 에서 정의, emoji_map_loader.py 에서 로드됨
+⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+⬛⬜️⬜️⬜️🟩🟩🟩⬜️🟦🟦🟦⬜️⬜️⬛
+⬛⬜️⬜️⬜️🟩🟩🟩⬜️🟦🟦🟦⬜️⬜️⬛
+⬛⬜️⬜️⬜️🟩🟩🟩⬜🟦🟦🟦⬜️⬜️⬛
+⬛⬜️⬜️⬜️⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
+⬛🟩🟩🟩⬜️⬜️🟩🟩🟩⬜️⬜️⬜️⬜️⬛
+⬛🟩🟩🟩⬜️⬜️🟩🟩🟩⬜️⬜️⬜️⬜️⬛
+⬛🟩🟩🟩⬜️⬜️🟩🟩🟩⬜️🟩🟩🟩⬛
+⬛⬜️⬜️⬜️⬜️⬛⬜️⬜️⬜️⬜️🟩🟩🟩⬛
+⬛⬜️⬜️⬜️⬜️⬛⬜️⬜️⬜️⬜️🟩🟩🟩⬛
+⬛⬛⬛⬛⬛⬛⬜️⬜️⬜️⬛⬛⬛⬛⬛
+⬛⬜️⬜️⬜️⬜️🟩🟩🟩⬜️⬜️⬜️⬜️⬜️⬛
+⬛⬜️🟥⬜️⬜️🟩🟩🟩⬜️⬜️⬜️⬜️⬜️⬛
+⬛⬜️⬜️⬜️⬜️🟩🟩🟩⬜️⬜️⬜️⬜️⬜️⬛
+⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛
 
 사용법:
-    python scenario2_test_absolutemove.py
+    python scenario2_test_absolutemove.py [json_map_path]
+    예: python scenario2_test_absolutemove.py example_map.json
 """
-
-from minigrid import register_minigrid_envs
-from minigrid_customenv_emoji import MiniGridEmojiWrapper
-from minigrid_vlm_interact_absolute_emoji import AbsoluteDirectionEmojiWrapper
-from image_map_environment import create_image_map_environment
-from vlm_wrapper import ChatGPT4oVLMWrapper
-from vlm_postprocessor import VLMResponsePostProcessor
-from typing import Union
+## Import common libraries
+from typing import Union  # Union은 visualize_grid_cli에서 사용
 import numpy as np
 import cv2
 import json
@@ -40,6 +42,13 @@ import csv
 from datetime import datetime
 from pathlib import Path
 from PIL import Image
+
+# Import MiniGrid and VLM related classes
+from minigrid import register_minigrid_envs
+from minigrid_customenv_emoji import MiniGridEmojiWrapper
+from emoji_map_loader import load_emoji_map_from_json
+from vlm_wrapper import ChatGPT4oVLMWrapper
+from vlm_postprocessor import VLMResponsePostProcessor
 
 # MiniGrid 환경 등록
 register_minigrid_envs()
@@ -290,7 +299,7 @@ class Visualizer:
     def __init__(self, window_name: str = "Scenario 2: VLM Control (Absolute)"):
         self.window_name = window_name
     
-    def visualize_grid_cli(self, wrapper: Union[MiniGridEmojiWrapper, AbsoluteDirectionEmojiWrapper], state: dict):
+    def visualize_grid_cli(self, wrapper: MiniGridEmojiWrapper, state: dict):
         """CLI에서 그리드를 텍스트로 시각화"""
         env = wrapper.env
         size = wrapper.size
@@ -387,72 +396,27 @@ class UserInteraction:
         return input(prompt).strip()
 
 
-def create_scenario2_environment(use_image_map: bool = False):
-    """
-    시나리오 2 환경 생성 (절대 좌표 버전)
-    
-    Args:
-        use_image_map: True면 이미지 기반 맵 사용, False면 원본 맵 사용
-    
-    Returns:
-        MiniGridEmojiWrapper 또는 AbsoluteDirectionEmojiWrapper
-        (둘 다 절대 움직임을 지원하며, use_absolute_movement=True가 기본값)
-    """
-    if use_image_map:
-        # 이미지 기반 맵 사용 (이모지)
-        return create_image_map_environment(size=14)
-    
-    # 원본 맵 사용
-    size = 10
-    
-    walls = []
-    for i in range(size):
-        walls.append((i, 0))
-        walls.append((i, size-1))
-        walls.append((0, i))
-        walls.append((size-1, i))
-    
-    blue_pillar_positions = [(3, 4), (4, 4), (3, 5), (4, 5)]
-    for pos in blue_pillar_positions:
-        walls.append((pos[0], pos[1], 'blue'))
-    
-    table_positions = [(5, 1), (6, 1), (7, 1)]
-    for pos in table_positions:
-        walls.append((pos[0], pos[1], 'purple'))
-    
-    start_pos = (1, 8)
-    goal_pos = (8, 1)
-    
-    room_config = {
-        'start_pos': start_pos,
-        'goal_pos': goal_pos,
-        'walls': walls,
-        'objects': []
-    }
-    
-    # 절대 움직임 모드 활성화 (표준)
-    return MiniGridEmojiWrapper(size=size, room_config=room_config, use_absolute_movement=True)
 
 
 class Scenario2Experiment:
     """시나리오 2 실험 메인 클래스 (Runner) - 절대 좌표 버전"""
     
-    def __init__(self, log_dir: Path = None, use_image_map: bool = False):
+    def __init__(self, log_dir: Path = None, json_map_path: str = "example_map.json"):
         """
         Args:
             log_dir: 로그 디렉토리 경로
-            use_image_map: True면 이미지 기반 맵 사용, False면 원본 맵 사용
+            json_map_path: JSON 맵 파일 경로
         """
         self.wrapper = None
-        self.use_image_map = use_image_map
+        self.json_map_path = json_map_path
         self.prompt_organizer = PromptOrganizer()
         self.vlm_processor = VLMProcessor()
         self.visualizer = Visualizer()
         self.user_interaction = UserInteraction()
         
         if log_dir is None:
-            map_type = "image_map" if use_image_map else "original"
-            log_dir = Path("logs") / f"scenario2_absolute_{map_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            map_name = Path(json_map_path).stem
+            log_dir = Path("logs") / f"scenario2_absolute_{map_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         self.log_dir = log_dir
         self.log_dir.mkdir(parents=True, exist_ok=True)
         
@@ -700,19 +664,13 @@ Please analyze the feedback and generate concise knowledge to improve future act
         print("=" * 60)
         print("시나리오 2: VLM 제어 실험 (절대 좌표 이동 버전)")
         print("=" * 60)
-        print("\n환경 구성:")
-        print("  - 파란 기둥: 2x2 Grid (색상이 있는 벽)")
-        print("  - 테이블: 보라색 1x3 Grid (색상이 있는 벽)")
-        print("  - 시작점: (1, 8)")
-        print("  - 종료점: (8, 1)")
         print(f"\nMission: {DEFAULT_MISSION}")
         print("\n액션 공간: 상/하/좌/우로 직접 이동 가능 (절대 좌표)")
         print(f"\n로그 디렉토리: {self.log_dir}")
         
         print("\n[1] 환경 생성 중...")
-        map_type = "이미지 기반 맵 (이모지)" if self.use_image_map else "원본 맵"
-        print(f"  맵 타입: {map_type}")
-        self.wrapper = create_scenario2_environment(use_image_map=self.use_image_map)
+        print(f"  맵 파일: {self.json_map_path}")
+        self.wrapper = load_emoji_map_from_json(self.json_map_path)
         self.wrapper.reset()
         
         self.state = self.wrapper.get_state()
@@ -1025,20 +983,19 @@ def main():
     """메인 함수"""
     import sys
     
-    # 명령줄 인자로 맵 타입 선택
-    use_image_map = False
+    # 명령줄 인자로 JSON 맵 파일 경로 지정
+    json_map_path = "example_map.json"
     if len(sys.argv) > 1:
-        if sys.argv[1] == "--image-map" or sys.argv[1] == "-i":
-            use_image_map = True
-            print("이미지 기반 맵 모드로 실행합니다.")
-        elif sys.argv[1] == "--help" or sys.argv[1] == "-h":
+        if sys.argv[1] == "--help" or sys.argv[1] == "-h":
             print("사용법:")
-            print("  python scenario2_test_absolutemove.py          # 원본 맵 사용")
-            print("  python scenario2_test_absolutemove.py --image-map  # 이미지 기반 맵 사용")
+            print("  python scenario2_test_absolutemove.py [json_map_path]")
+            print("  예: python scenario2_test_absolutemove.py example_map.json")
             return
+        else:
+            json_map_path = sys.argv[1]
     
     try:
-        experiment = Scenario2Experiment(use_image_map=use_image_map)
+        experiment = Scenario2Experiment(json_map_path=json_map_path)
         experiment.run()
     except KeyboardInterrupt:
         print("\n\n사용자에 의해 중단되었습니다.")
