@@ -18,12 +18,15 @@ MiniGrid 환경에서 Language-conditioned 강화학습을 위한 프로젝트�
 
 ### API 문서
 - [커스텀 환경 API](docs/custom-environment-api.md) - CustomRoomEnv API 문서
-- [Wrapper API](docs/wrapper-api.md) - CustomRoomWrapper API 문서
+- [Wrapper API](docs/wrapper-api.md) - CustomRoomWrapper API 문서 (절대 좌표 이동 포함)
 - [Wrapper 메서드 가이드](docs/wrapper-methods.md) - CustomRoomWrapper의 모든 메서드 설명
 
 ### 사용 가이드
 - [키보드 제어 가이드](docs/keyboard-control.md) - 키보드 제어 예제 설명
 - [VLM 테스트 스크립트 가이드](docs/test-vlm-guide.md) - VLM 모델 테스트 및 비교 가이드
+- [이모지 맵 JSON 로더 가이드](docs/emoji-map-loader.md) - JSON 파일에서 이모지 맵 로드하기
+- [SLAM 스타일 FOV 맵핑 가이드](docs/slam-fov-mapping.md) - 탐색 영역 추적 및 시야 제한 기능
+- [이모지 사용 가이드](docs/EMOJI_USAGE_GUIDE.md) - 이모지 객체 사용하기
 
 ## 기능
 
@@ -204,6 +207,87 @@ ACTION_PREDICTION_COUNT = 5  # VLM이 예측할 액션 개수
 
 ---
 
+#### 4. `scenario2_test_absolutemove.py` - 시나리오 2 실험 (절대 좌표 이동 버전)
+
+**설명**: 시나리오 2 실험 환경에서 절대 좌표 이동을 사용하는 VLM 제어 시스템입니다. JSON 파일에서 맵을 로드하며, 절대 좌표 이동을 통해 더 직관적인 제어가 가능합니다.
+
+**기능**:
+- JSON 파일에서 이모지 맵 로드 (`emoji_map_loader.py` 사용)
+- 절대 좌표 이동 (상/하/좌/우 직접 이동)
+- VLM을 통한 자동 에이전트 제어
+- 영구 메모리 시스템 및 Grounding 지식 시스템
+- 종합 로깅 (이미지, JSON, CSV, VLM I/O 로그)
+
+**실행 방법**:
+```bash
+# OpenAI API 키 설정 필요
+export OPENAI_API_KEY=your-api-key
+
+# 기본 맵 파일 사용
+python scenario2_test_absolutemove.py
+
+# 특정 JSON 맵 파일 지정
+python scenario2_test_absolutemove.py example_map.json
+```
+
+**설정** (코드 상단에서 변경 가능):
+```python
+VLM_MODEL = "gpt-4o"
+VLM_TEMPERATURE = 0.0
+VLM_MAX_TOKENS = 1000
+```
+
+**맵 파일 형식**: JSON 파일 (`example_map.json` 참고)
+- 이모지로 맵 레이아웃 정의
+- 각 이모지의 타입과 속성 정의
+- 시작 위치 및 목표 위치 지정
+
+**특징**:
+- **절대 좌표 이동**: 로봇 방향과 무관하게 상/하/좌/우로 직접 이동
+- **JSON 맵 로드**: 코드 수정 없이 JSON 파일만 변경하여 다양한 맵 생성
+- **이모지 지원**: 이모지 객체를 사용한 시각적 맵 표현
+
+**상세 가이드**: [이모지 맵 로더 가이드](docs/emoji-map-loader.md)
+
+---
+
+#### 5. `scenario2_keyboard_control.py` - 시나리오 2 키보드 제어 (절대 좌표 이동)
+
+**설명**: 시나리오 2 환경을 키보드로 직접 제어하는 스크립트입니다. 절대 좌표 이동을 사용하여 더 직관적인 제어가 가능합니다.
+
+**기능**:
+- JSON 파일에서 이모지 맵 로드
+- 절대 좌표 이동 (w/a/s/d 키로 상/하/좌/우 이동)
+- OpenCV 시각화
+- 실시간 상태 표시
+
+**실행 방법**:
+```bash
+# 기본 맵 파일 사용
+python scenario2_keyboard_control.py
+
+# 특정 JSON 맵 파일 지정
+python scenario2_keyboard_control.py example_map.json
+```
+
+**조작법**:
+- `w`: 위로 이동 (North)
+- `s`: 아래로 이동 (South)
+- `a`: 왼쪽으로 이동 (West)
+- `d`: 오른쪽으로 이동 (East)
+- `p`: pickup
+- `x`: drop
+- `t`: toggle
+- `r`: 환경 리셋
+- `q`: 종료
+
+**특징**:
+- 절대 좌표 이동으로 직관적인 제어
+- JSON 맵 파일로 쉽게 맵 변경
+- 이모지 객체 지원
+
+---
+
 ### 추가 스크립트
 
 #### `keyboard_control_fov.py` - 시야 제한 기능 포함
@@ -230,7 +314,29 @@ python keyboard_control_fov.py
 
 ---
 
-#### 4. `test_vlm.py` - VLM 모델 테스트 및 비교
+#### `keyboard_control_fov_mapping.py` - SLAM 스타일 FOV 맵핑
+
+키보드 제어 예제에 SLAM(Simultaneous Localization and Mapping) 스타일의 시야 제한 기능이 추가된 버전입니다.
+
+**실행 방법**:
+```bash
+python keyboard_control_fov_mapping.py
+```
+
+**주요 기능**:
+- 탐색한 영역 추적
+- 현재 시야 범위 내: 밝게 표시
+- 탐색했던 곳 (시야 밖): 어둡게(반투명하게) 표시
+- 중요한 객체(열쇠, 문, 목표)가 있는 곳: 탐색했어도 밝게 유지
+- 아직 탐색하지 않은 곳: 검은색으로 표시
+
+**조작법**: `keyboard_control_fov.py`와 동일
+
+**상세 가이드**: [SLAM 스타일 FOV 맵핑 가이드](docs/slam-fov-mapping.md)
+
+---
+
+#### 6. `test_vlm.py` - VLM 모델 테스트 및 비교
 
 **설명**: 다양한 VLM(Vision Language Model) 모델을 테스트하고 비교할 수 있는 스크립트입니다. 이미지, 프롬프트, 모델을 쉽게 변경하여 테스트할 수 있습니다.
 

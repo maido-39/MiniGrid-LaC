@@ -12,20 +12,25 @@
 
 ### API 문서
 - [CustomRoomEnv API](./custom-environment-api.md) - 커스텀 환경 클래스 API
-- [CustomRoomWrapper API](./wrapper-api.md) - Wrapper 클래스 API (VLM 연동 지원)
+- [CustomRoomWrapper API](./wrapper-api.md) - Wrapper 클래스 API (VLM 연동 지원, 절대 좌표 이동 포함)
 - [Wrapper 메서드 가이드](./wrapper-methods.md) - CustomRoomWrapper의 모든 메서드 설명
 - [Similarity Calculator API](./similarity-calculator-api.md) - Word2Vec 및 SBERT 유사도 계산 API
 
 ### 사용 가이드
 - [키보드 제어 가이드](./keyboard-control.md) - 키보드로 환경 제어하기
 - [VLM 핸들러 시스템 가이드](./vlm-handlers.md) - 다양한 VLM 모델 사용하기 (OpenAI, Qwen, Gemma)
+- [이모지 맵 JSON 로더 가이드](./emoji-map-loader.md) - JSON 파일에서 이모지 맵 로드하기
+- [SLAM 스타일 FOV 맵핑 가이드](./slam-fov-mapping.md) - 탐색 영역 추적 및 시야 제한 기능
+- [이모지 사용 가이드](./EMOJI_USAGE_GUIDE.md) - 이모지 객체 사용하기
 
 ## 빠른 시작
 
 1. 환경 생성: [환경 생성 가이드](./environment-creation.md) 참고
 2. 키보드 제어: [키보드 제어 가이드](./keyboard-control.md) 참고
 3. API 사용법: [CustomRoomEnv API](./custom-environment-api.md) 참고
-4. 유사도 계산: [Similarity Calculator API](./similarity-calculator-api.md) 참고
+4. 이모지 맵 사용: [이모지 맵 JSON 로더 가이드](./emoji-map-loader.md) 참고
+5. 절대 좌표 이동: [Wrapper API](./wrapper-api.md)의 절대 좌표 이동 섹션 참고
+6. 유사도 계산: [Similarity Calculator API](./similarity-calculator-api.md) 참고
 
 ## 참고 자료
 

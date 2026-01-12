@@ -277,9 +277,136 @@ MiniGrid의 표준 액션 공간은 7개의 이산적(discrete) 액션으로 구
 - 모든 액션은 로봇의 현재 heading 방향을 기준으로 작동합니다 (상대적 이동).
 - 문자열 액션 이름은 대소문자를 구분하지 않으며, 다양한 동의어를 지원합니다 (예: "move forward", "forward", "go forward", "move_forward", "w" 모두 액션 2로 매핑됨).
 
+## 절대 좌표 이동 (Absolute Movement)
+
+**참고**: `MiniGridEmojiWrapper`는 절대 좌표 이동을 지원합니다. 이 기능은 `CustomRoomWrapper`의 확장 기능입니다.
+
+### use_absolute_movement 파라미터
+
+`MiniGridEmojiWrapper`는 `use_absolute_movement` 파라미터를 통해 절대 좌표 이동 모드를 활성화할 수 있습니다.
+
+```python
+from minigrid_customenv_emoji import MiniGridEmojiWrapper
+
+# 절대 좌표 이동 모드 활성화 (기본값: True)
+wrapper = MiniGridEmojiWrapper(
+    size=10,
+    use_absolute_movement=True
+)
+
+# 상대 좌표 이동 모드 (레거시)
+wrapper = MiniGridEmojiWrapper(
+    size=10,
+    use_absolute_movement=False
+)
+```
+
+### 절대 좌표 액션
+
+절대 좌표 이동 모드에서는 로봇의 현재 방향과 무관하게 절대 방향(상/하/좌/우)으로 이동할 수 있습니다.
+
+```python
+# 절대 좌표 이동 모드에서
+wrapper.step("up")      # 위로 이동 (North)
+wrapper.step("down")    # 아래로 이동 (South)
+wrapper.step("left")    # 왼쪽으로 이동 (West)
+wrapper.step("right")   # 오른쪽으로 이동 (East)
+```
+
+**절대 좌표 액션 인덱스:**
+
+| 인덱스 | 액션 이름 | 설명 |
+|--------|----------|------|
+| 0 | move up | 위로 이동 (North) |
+| 1 | move down | 아래로 이동 (South) |
+| 2 | move left | 왼쪽으로 이동 (West) |
+| 3 | move right | 오른쪽으로 이동 (East) |
+| 4 | pickup | 물체 집기 |
+| 5 | drop | 물체 놓기 |
+| 6 | toggle | 상호작용 |
+
+**지원하는 액션 별칭:**
+- `"up"`, `"move up"`, `"north"`, `"n"`, `"go up"`, `"go north"` → 0
+- `"down"`, `"move down"`, `"south"`, `"s"`, `"go down"`, `"go south"` → 1
+- `"left"`, `"move left"`, `"west"`, `"w"`, `"go left"`, `"go west"` → 2
+- `"right"`, `"move right"`, `"east"`, `"e"`, `"go right"`, `"go east"` → 3
+
+### step_absolute() 메서드
+
+절대 좌표 액션을 직접 실행할 수 있습니다.
+
+```python
+# 절대 좌표 액션 실행
+obs, reward, terminated, truncated, info = wrapper.step_absolute("up")
+obs, reward, terminated, truncated, info = wrapper.step_absolute(0)  # 인덱스로도 가능
+```
+
+**참고**: `use_absolute_movement=True`일 때는 `step()` 메서드가 자동으로 절대 좌표 액션을 처리합니다.
+
+### get_absolute_action_space() 메서드
+
+절대 좌표 액션 공간 정보를 반환합니다.
+
+```python
+action_space = wrapper.get_absolute_action_space()
+```
+
+**Returns:**
+```python
+{
+    'n': 7,  # 액션 개수
+    'actions': ['move up', 'move down', 'move left', 'move right', 'pickup', 'drop', 'toggle'],
+    'action_mapping': {0: 'move up', 1: 'move down', ...},
+    'action_aliases': {'up': 0, 'down': 1, ...}
+}
+```
+
+### parse_absolute_action() 메서드
+
+절대 좌표 액션 문자열을 인덱스로 변환합니다.
+
+```python
+action = wrapper.parse_absolute_action("up")      # 0 반환
+action = wrapper.parse_absolute_action("north")   # 0 반환
+action = wrapper.parse_absolute_action("right")   # 3 반환
+```
+
+### 절대 좌표 이동의 장점
+
+1. **직관적인 제어**: 로봇의 현재 방향을 고려할 필요 없이 절대 방향으로 이동 가능
+2. **VLM 친화적**: VLM이 이미지를 보고 "위로 이동", "오른쪽으로 이동" 등으로 직접 제어 가능
+3. **자동 회전**: 목표 방향으로 이동하기 위해 필요한 회전을 자동으로 수행
+
+### 사용 예시
+
+```python
+from minigrid_customenv_emoji import MiniGridEmojiWrapper
+
+# 절대 좌표 이동 모드로 환경 생성
+wrapper = MiniGridEmojiWrapper(
+    size=10,
+    room_config={
+        'start_pos': (1, 1),
+        'goal_pos': (8, 8)
+    },
+    use_absolute_movement=True  # 기본값
+)
+
+# 환경 초기화
+obs, info = wrapper.reset()
+
+# 절대 좌표로 이동 (로봇 방향과 무관)
+obs, reward, terminated, truncated, info = wrapper.step("up")     # 위로
+obs, reward, terminated, truncated, info = wrapper.step("right")   # 오른쪽으로
+obs, reward, terminated, truncated, info = wrapper.step("down")    # 아래로
+obs, reward, terminated, truncated, info = wrapper.step("left")     # 왼쪽으로
+```
+
 ## 참고
 
 - [환경 생성 가이드](./environment-creation.md)
 - [베스트 프랙티스](./best-practices.md)
+- [이모지 맵 로더 가이드](./emoji-map-loader.md)
+- [이모지 사용 가이드](./EMOJI_USAGE_GUIDE.md)
 - [VLM 연동 가이드](./vlm-integration.md) (추후 작성 예정)
 
