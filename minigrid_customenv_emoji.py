@@ -205,6 +205,8 @@ class CustomRoomEnv(MiniGridEnv):
     def __init__(self, size=10, room_config=None, **kwargs):
         self.size = size
         self.room_config = room_config or {}
+        # 바닥 타일 정보 저장 (위치별 색상)
+        self.floor_tiles = {}  # {(x, y): color}
         mission_space = MissionSpace(mission_func=_gen_mission_default)
         super().__init__(
             mission_space=mission_space,
@@ -280,6 +282,36 @@ class CustomRoomEnv(MiniGridEnv):
                             obj = Key(obj_color)
                         
                         self.put_obj(obj, obj_x, obj_y)
+            
+            # 바닥 타일 정보 저장 (특정 위치의 바닥 색상)
+            # floor_tiles는 딕셔너리 형태로 전달됨: {(x, y): color}
+            if 'floor_tiles' in self.room_config:
+                floor_tiles_data = self.room_config['floor_tiles']
+                if isinstance(floor_tiles_data, dict):
+                    # 딕셔너리 형태: {(x, y): color}
+                    for (floor_x, floor_y), floor_color in floor_tiles_data.items():
+                        if 0 <= floor_x < width and 0 <= floor_y < height:
+                            self.floor_tiles[(floor_x, floor_y)] = floor_color
+                elif isinstance(floor_tiles_data, list):
+                    # 리스트 형태 (하위 호환성): [{'pos': (x, y), 'color': 'blue'}, ...]
+                    for floor_info in floor_tiles_data:
+                        if isinstance(floor_info, tuple):
+                            if len(floor_info) == 2:
+                                floor_x, floor_y = floor_info
+                                floor_color = 'grey'
+                            elif len(floor_info) == 3:
+                                floor_x, floor_y, floor_color = floor_info
+                            else:
+                                continue
+                        elif isinstance(floor_info, dict):
+                            floor_pos = floor_info.get('pos', (0, 0))
+                            floor_x, floor_y = floor_pos
+                            floor_color = floor_info.get('color', 'grey')
+                        else:
+                            continue
+                        
+                        if 0 <= floor_x < width and 0 <= floor_y < height:
+                            self.floor_tiles[(floor_x, floor_y)] = floor_color
         
         if self.room_config and 'start_pos' in self.room_config:
             start_x, start_y = self.room_config['start_pos']
@@ -304,6 +336,11 @@ class CustomRoomEnv(MiniGridEnv):
         frame = super().render()
         if frame is None:
             return frame
+        
+        # 바닥 색상 적용 (로봇 렌더링 전에 수행)
+        floor_color = self.room_config.get('floor_color', None)
+        if floor_color is not None or hasattr(self, 'floor_tiles'):
+            frame = self._apply_floor_colors(frame, floor_color, apply_robot_glow=False)
         
         if not hasattr(self, 'agent_pos') or not hasattr(self, 'agent_dir'):
             return frame
@@ -532,7 +569,127 @@ class CustomRoomEnv(MiniGridEnv):
         except Exception:
             pass
         
+        # 로봇 위치 바닥 빛나게 처리 (로봇 렌더링 후)
+        if hasattr(self, 'agent_pos'):
+            frame = self._apply_robot_floor_glow(frame)
+        
         return frame
+    
+    def _apply_floor_colors(self, frame: np.ndarray, floor_color: Optional[str] = None, apply_robot_glow: bool = False) -> np.ndarray:
+        """
+        바닥 색상 변경 처리 (로봇 렌더링 전에 호출)
+        
+        Args:
+            frame: 원본 프레임
+            floor_color: 전체 바닥 색상 (None이면 기본 색상 유지)
+                        특정 위치의 바닥 색상은 floor_tiles에서 가져옴
+            apply_robot_glow: 로봇 위치 초록색 테두리 적용 여부 (기본값: False)
+        
+        Returns:
+            수정된 프레임
+        """
+        if not hasattr(self, 'grid'):
+            return frame
+        
+        agent_x, agent_y = None, None
+        if apply_robot_glow and hasattr(self, 'agent_pos'):
+            agent_x, agent_y = int(self.agent_pos[0]), int(self.agent_pos[1])
+        
+        actual_tile_size = self.tile_size if hasattr(self, 'tile_size') else 32
+        
+        # 색상 맵
+        color_map = {
+            'red': (200, 100, 100),
+            'green': (100, 200, 100),
+            'blue': (100, 100, 200),
+            'purple': (150, 100, 150),
+            'yellow': (200, 200, 100),
+            'grey': (128, 128, 128),
+            'white': (240, 240, 240),
+            'black': (50, 50, 50),
+        }
+        
+        # 기본 바닥 색상 (회색)
+        default_floor_color = (128, 128, 128)
+        global_floor_color = color_map.get(floor_color, default_floor_color) if floor_color else None
+        
+        pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')
+        draw = ImageDraw.Draw(pil_frame)
+        
+        # 모든 타일 순회
+        for y in range(self.grid.height):
+            for x in range(self.grid.width):
+                cell = self.grid.get(x, y)
+                
+                # 빈 타일(바닥)이거나 통과 가능한 이모지 객체인 경우
+                is_floor = (cell is None) or (
+                    hasattr(cell, 'type') and 
+                    cell.type == 'emoji' and 
+                    hasattr(cell, 'can_overlap') and 
+                    cell.can_overlap
+                )
+                
+                if is_floor:
+                    tile_x = x * actual_tile_size
+                    tile_y = y * actual_tile_size
+                    tile_end_x = tile_x + actual_tile_size
+                    tile_end_y = tile_y + actual_tile_size
+                    
+                    # 로봇 위치는 바닥 색상 적용하지 않음 (로봇이 그려진 후에 초록색 테두리만 추가)
+                    if apply_robot_glow and agent_x is not None and agent_y is not None and x == agent_x and y == agent_y:
+                        continue
+                    
+                    # 특정 위치의 바닥 색상 (우선순위 높음)
+                    tile_floor_color = None
+                    if hasattr(self, 'floor_tiles') and (x, y) in self.floor_tiles:
+                        tile_floor_color = color_map.get(self.floor_tiles[(x, y)], default_floor_color)
+                    # 전체 바닥 색상 (특정 위치가 없을 때만 적용)
+                    elif global_floor_color is not None:
+                        tile_floor_color = global_floor_color
+                    
+                    # 바닥 색상 적용
+                    if tile_floor_color is not None:
+                        draw.rectangle(
+                            [(tile_x, tile_y), (tile_end_x - 1, tile_end_y - 1)],
+                            fill=tile_floor_color + (255,)
+                        )
+        
+        return np.array(pil_frame.convert('RGB'))
+    
+    def _apply_robot_floor_glow(self, frame: np.ndarray) -> np.ndarray:
+        """
+        로봇 위치 바닥에 초록색 테두리 추가 (로봇 렌더링 후에 호출)
+        
+        Args:
+            frame: 로봇이 렌더링된 프레임
+        
+        Returns:
+            수정된 프레임
+        """
+        if not hasattr(self, 'agent_pos') or not hasattr(self, 'grid'):
+            return frame
+        
+        agent_x, agent_y = int(self.agent_pos[0]), int(self.agent_pos[1])
+        actual_tile_size = self.tile_size if hasattr(self, 'tile_size') else 32
+        
+        pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')
+        draw = ImageDraw.Draw(pil_frame)
+        
+        tile_x = agent_x * actual_tile_size
+        tile_y = agent_y * actual_tile_size
+        tile_end_x = tile_x + actual_tile_size
+        tile_end_y = tile_y + actual_tile_size
+        
+        # 로봇이 있는 위치의 바닥에 초록색 테두리 그리기 (이모지처럼 빛나게)
+        border_width = 3
+        green_color = (0, 255, 0, 255)  # 초록색 테두리
+        draw.rectangle(
+            [(tile_x, tile_y), (tile_end_x - 1, tile_end_y - 1)],
+            outline=green_color,
+            width=border_width
+        )
+        
+        return np.array(pil_frame.convert('RGB'))
 
 
 class MiniGridEmojiWrapper:

@@ -211,15 +211,16 @@ class EmojiMapLoader:
         self.start_pos = tuple(self.map_data.get('start_pos', [1, 1]))
         self.goal_pos = tuple(self.map_data.get('goal_pos', [self.size - 2, self.size - 2]))
     
-    def _parse_emoji_map(self) -> Tuple[List, List]:
+    def _parse_emoji_map(self) -> Tuple[List, List, Dict]:
         """
-        이모지 맵을 파싱하여 walls와 objects 리스트 생성
+        이모지 맵을 파싱하여 walls, objects, floor_tiles 리스트 생성
         
         Returns:
-            (walls, objects): 벽 리스트와 객체 리스트
+            (walls, objects, floor_tiles): 벽 리스트, 객체 리스트, 바닥 타일 딕셔너리
         """
         walls = []
         objects = []
+        floor_tiles = {}  # {(x, y): color}
         
         for y, row in enumerate(self.emoji_render):
             for x, emoji in enumerate(row):
@@ -262,11 +263,16 @@ class EmojiMapLoader:
                     if 0 < x < self.size - 1 and 0 < y < self.size - 1:
                         objects.append(obj_config)
                 
+                elif obj_type == 'floor':
+                    # 바닥 타일: color 속성만 받음
+                    color = emoji_def.get('color', 'grey')
+                    floor_tiles[(x, y)] = color
+                
                 elif obj_type == 'empty' or obj_type == 'space':
                     # 빈 공간은 아무것도 하지 않음
                     pass
         
-        return walls, objects
+        return walls, objects, floor_tiles
     
     def create_room_config(self) -> Dict:
         """
@@ -275,7 +281,7 @@ class EmojiMapLoader:
         Returns:
             room_config 딕셔너리
         """
-        walls, objects = self._parse_emoji_map()
+        walls, objects, floor_tiles = self._parse_emoji_map()
         
         # CustomRoomEnv는 자동으로 외벽을 생성하므로 외벽은 추가하지 않음
         # 하지만 emoji_render에 외벽이 명시적으로 표시되어 있으면 추가
@@ -288,6 +294,10 @@ class EmojiMapLoader:
             'objects': objects,
             **self.robot_config  # 로봇 설정 병합
         }
+        
+        # 바닥 타일이 있으면 추가
+        if floor_tiles:
+            room_config['floor_tiles'] = floor_tiles
         
         return room_config
     
