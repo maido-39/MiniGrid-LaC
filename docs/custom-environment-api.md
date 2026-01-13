@@ -102,7 +102,8 @@ room_config = {
 ### 기본 사용
 
 ```python
-from custom_environment import CustomRoomEnv
+# Actual path: legacy.relative_movement.custom_environment
+from legacy.relative_movement.custom_environment import CustomRoomEnv
 
 env = CustomRoomEnv(size=10)
 obs, info = env.reset()
@@ -129,7 +130,8 @@ env = CustomRoomEnv(size=10, room_config=room_config)
 ### 사전 정의된 환경 사용
 
 ```python
-from custom_environment import create_house_environment, create_simple_room
+# Actual path: legacy.relative_movement.custom_environment
+from legacy.relative_movement.custom_environment import create_house_environment, create_simple_room
 
 # 실내 집 환경
 house_env = create_house_environment()
