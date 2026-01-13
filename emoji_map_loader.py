@@ -313,10 +313,10 @@ class EmojiMapLoader:
     
     def _parse_emoji_map(self) -> Tuple[List, List, Dict]:
         """
-        이모지 맵을 파싱하여 walls, objects, floor_tiles 리스트 생성
+        Parse emoji map to create walls, objects, floor_tiles lists
         
         Returns:
-            (walls, objects, floor_tiles): 벽 리스트, 객체 리스트, 바닥 타일 딕셔너리
+            (walls, objects, floor_tiles): wall list, object list, floor tile dictionary
         """
         walls = []
         objects = []
@@ -324,29 +324,29 @@ class EmojiMapLoader:
         
         for y, row in enumerate(self.emoji_render):
             for x, emoji in enumerate(row):
-                # 🤖와 🎯는 이미 _parse_map_data에서 ⬜️로 교체되었으므로 여기서는 처리하지 않음
+                # 🤖 and 🎯 are already replaced with ⬜️ in _parse_map_data, so skip here
                 if emoji == '🤖' or emoji == '🎯':
-                    # 이미 처리되었어야 하지만, 혹시 모를 경우를 대비해 빈 공간으로 처리
+                    # Should already be processed, but treat as empty space just in case
                     continue
                 
-                # 이모지 정의 확인
+                # Check emoji definition
                 if emoji not in self.emoji_objects:
-                    # 정의되지 않은 이모지는 경고 후 무시
-                    print(f"경고: 정의되지 않은 이모지 '{emoji}'가 맵에 있습니다 (위치: ({x}, {y})). 무시됩니다.")
+                    # Undefined emoji: warn and ignore
+                    print(f"Warning: Undefined emoji '{emoji}' found in map (position: ({x}, {y})). Ignored.")
                     continue
                 
                 emoji_def = self.emoji_objects[emoji]
                 obj_type = emoji_def.get('type', 'wall')
                 
-                # 벽 추가 (외벽 포함, CustomRoomEnv가 자동으로 외벽을 생성하지만
-                # emoji_render에 명시된 외벽도 처리하여 색상 등을 반영)
+                # Add walls (including outer walls, CustomRoomEnv automatically creates outer walls
+                # but we also process explicitly specified outer walls in emoji_render to reflect colors, etc.)
                 if obj_type == 'wall':
                     color = emoji_def.get('color', 'grey')
-                    # 모든 벽 추가 (외벽 포함)
+                    # Add all walls (including outer walls)
                     walls.append((x, y, color))
                 
                 elif obj_type == 'emoji':
-                    # 이모지 객체 생성
+                    # Create emoji object
                     obj_config = {
                         'type': 'emoji',
                         'pos': (x, y),
@@ -356,48 +356,48 @@ class EmojiMapLoader:
                         'can_overlap': emoji_def.get('can_overlap', False),
                         'use_emoji_color': emoji_def.get('use_emoji_color', True)
                     }
-                    # 외벽이 아닌 경우만 추가
+                    # Only add if not outer wall
                     if 0 < x < self.size - 1 and 0 < y < self.size - 1:
                         objects.append(obj_config)
                 
                 elif obj_type == 'floor':
-                    # 바닥 타일: color 속성만 받음
+                    # Floor tile: only receives color attribute
                     color = emoji_def.get('color', 'grey')
                     floor_tiles[(x, y)] = color
                 
                 elif obj_type == 'goal':
-                    # 목표 타일: goal_pos로 이미 설정되었으므로 빈 공간으로 처리
-                    # (goal은 CustomRoomEnv에서 goal_pos로 자동 배치됨)
+                    # Goal tile: already set as goal_pos, so treat as empty space
+                    # (goal is automatically placed at goal_pos by CustomRoomEnv)
                     pass
                 
                 elif obj_type == 'empty' or obj_type == 'space':
-                    # 빈 공간은 아무것도 하지 않음
+                    # Empty space: do nothing
                     pass
         
         return walls, objects, floor_tiles
     
     def create_room_config(self) -> Dict:
         """
-        room_config 생성
+        Create room_config
         
         Returns:
-            room_config 딕셔너리
+            room_config dictionary
         """
         walls, objects, floor_tiles = self._parse_emoji_map()
         
-        # CustomRoomEnv는 자동으로 외벽을 생성하므로 외벽은 추가하지 않음
-        # 하지만 emoji_render에 외벽이 명시적으로 표시되어 있으면 추가
-        # (외벽 위치의 벽은 이미 _parse_emoji_map에서 처리됨)
+        # CustomRoomEnv automatically creates outer walls, so we don't add them
+        # But if outer walls are explicitly specified in emoji_render, we add them
+        # (outer wall positions are already processed in _parse_emoji_map)
         
         room_config = {
             'start_pos': self.start_pos,
             'goal_pos': self.goal_pos,
             'walls': walls,
             'objects': objects,
-            **self.robot_config  # 로봇 설정 병합
+            **self.robot_config  # Merge robot configuration
         }
         
-        # 바닥 타일이 있으면 추가
+        # Add floor tiles if present
         if floor_tiles:
             room_config['floor_tiles'] = floor_tiles
         
@@ -405,10 +405,10 @@ class EmojiMapLoader:
     
     def create_wrapper(self) -> MiniGridEmojiWrapper:
         """
-        MiniGridEmojiWrapper 생성 (절대 움직임 모드 활성화)
+        Create MiniGridEmojiWrapper (absolute movement mode enabled)
         
         Returns:
-            MiniGridEmojiWrapper 인스턴스 (use_absolute_movement=True)
+            MiniGridEmojiWrapper instance (use_absolute_movement=True)
         """
         room_config = self.create_room_config()
         return MiniGridEmojiWrapper(size=self.size, room_config=room_config, use_absolute_movement=True)
@@ -416,38 +416,38 @@ class EmojiMapLoader:
 
 def load_emoji_map_from_json(json_path: str) -> MiniGridEmojiWrapper:
     """
-    JSON 파일에서 이모지 맵을 로드하여 환경 생성
+    Load emoji map from JSON file and create environment
     
     Args:
-        json_path: JSON 파일 경로
+        json_path: Path to JSON file
     
     Returns:
-        MiniGridEmojiWrapper: 생성된 환경 (절대 움직임 모드 활성화)
+        MiniGridEmojiWrapper: Created environment (absolute movement mode enabled)
     """
     loader = EmojiMapLoader(json_path)
     return loader.create_wrapper()
 
 
 if __name__ == "__main__":
-    # 사용 예제
+    # Usage example
     import sys
     
     if len(sys.argv) < 2:
-        print("사용법: python emoji_map_loader.py <json_file_path>")
-        print("예제: python emoji_map_loader.py example_map.json")
+        print("Usage: python emoji_map_loader.py <json_file_path>")
+        print("Example: python emoji_map_loader.py example_map.json")
         sys.exit(1)
     
     json_path = sys.argv[1]
     
-    print(f"JSON 파일에서 맵 로드 중: {json_path}")
+    print(f"Loading map from JSON file: {json_path}")
     wrapper = load_emoji_map_from_json(json_path)
     
-    print("환경 초기화 중...")
+    print("Initializing environment...")
     wrapper.reset()
     
     state = wrapper.get_state()
-    print(f"에이전트 위치: {state['agent_pos']}")
-    print(f"에이전트 방향: {state['agent_dir']}")
+    print(f"Agent position: {state['agent_pos']}")
+    print(f"Agent direction: {state['agent_dir']}")
     
-    print("\n맵이 성공적으로 로드되었습니다!")
+    print("\nMap loaded successfully!")
 
