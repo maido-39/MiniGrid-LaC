@@ -1,19 +1,19 @@
 """
-이모지 맵 JSON 로더 및 변환 모듈
+Emoji Map JSON Loader and Converter Module
 
-JSON 파일에서 이모지 맵을 읽어서 minigrid 환경으로 변환합니다.
+Reads emoji maps from JSON files and converts them to minigrid environments.
 
-JSON 구조:
+JSON Structure:
 {
   "map": {
     "emoji_render": "⬛⬛⬛⬛⬛...\n⬛⬜️⬜️⬜️...\n..." 
-    또는
+    or
     "emoji_render": [
       "⬛⬛⬛⬛⬛...",
       "⬛⬜️⬜️⬜️...",
       ...
     ]
-    또는
+    or
     "emoji_render": [
       ["⬛", "⬛", "⬛", ...],
       ["⬛", "⬜️", "⬜️", ...],
@@ -52,14 +52,55 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 from minigrid_customenv_emoji import MiniGridEmojiWrapper
 
+# Default emoji object definitions for text file support
+DEFAULT_EMOJI_OBJECTS = {
+    "⬛": {
+        "type": "wall",
+        "color": "grey",
+        "can_pickup": False,
+        "can_overlap": False
+    },
+    "⬜️": {
+        "type": "empty",
+        "can_pickup": False,
+        "can_overlap": True
+    },
+    "🟦": {
+        "type": "floor",
+        "color": "blue"
+    },
+    "🟪": {
+        "type": "floor",
+        "color": "purple"
+    },
+    "🟨": {
+        "type": "floor",
+        "color": "yellow"
+    },
+    "🟩": {
+        "type": "floor",
+        "color": "green"
+    },
+    "🤖": {
+        "type": "empty",
+        "can_pickup": False,
+        "can_overlap": True
+    },
+    "🎯": {
+        "type": "goal",
+        "can_pickup": False,
+        "can_overlap": False
+    }
+}
+
 
 class EmojiMapLoader:
-    """이모지 맵 JSON 로더 및 변환 클래스"""
+    """Emoji map JSON loader and converter class"""
     
     def __init__(self, json_path: str):
         """
         Args:
-            json_path: JSON 파일 경로
+            json_path: Path to JSON file
         """
         self.json_path = Path(json_path)
         self.map_data = None
@@ -76,34 +117,34 @@ class EmojiMapLoader:
         self._parse_map_data()
     
     def _load_json(self):
-        """JSON 파일 로드"""
+        """Load JSON file"""
         if not self.json_path.exists():
-            raise FileNotFoundError(f"JSON 파일을 찾을 수 없습니다: {self.json_path}")
+            raise FileNotFoundError(f"JSON file not found: {self.json_path}")
         
         with open(self.json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
         if 'map' not in data:
-            raise ValueError("JSON 파일에 'map' 키가 없습니다.")
+            raise ValueError("JSON file does not contain 'map' key.")
         
         self.map_data = data['map']
     
     def _parse_emoji_text(self, text: str) -> List[List[str]]:
         """
-        텍스트 형태의 이모지 맵을 2D 배열로 파싱
+        Parse text-based emoji map into 2D array
         
         Args:
-            text: 줄바꿈으로 구분된 이모지 맵 텍스트
+            text: Emoji map text separated by newlines
         
         Returns:
-            2D 배열 (행 리스트의 리스트)
+            2D array (list of row lists)
         """
         lines = text.strip().split('\n')
-        # 빈 줄 제거
+        # Remove empty lines
         lines = [line.strip() for line in lines if line.strip()]
         
         if len(lines) == 0:
-            raise ValueError("이모지 맵 텍스트가 비어있습니다.")
+            raise ValueError("Emoji map text is empty.")
         
         result = []
         for line in lines:
@@ -111,21 +152,21 @@ class EmojiMapLoader:
             i = 0
             while i < len(line):
                 char = line[i]
-                # Variation Selector (U+FE0F)나 Zero Width Joiner (U+200D)는 이전 문자와 함께 묶음
+                # Variation Selector (U+FE0F) or Zero Width Joiner (U+200D) should be grouped with previous character
                 if ord(char) in [0xFE0F, 0x200D]:
-                    # 이전 이모지에 추가 (이미 추가된 경우)
+                    # Append to previous emoji (if already added)
                     if emojis:
                         emojis[-1] += char
                     i += 1
                     continue
                 
-                # 다음 문자가 Variation Selector나 Zero Width Joiner인지 확인
+                # Check if next character is Variation Selector or Zero Width Joiner
                 if i + 1 < len(line):
                     next_char = line[i + 1]
                     if ord(next_char) in [0xFE0F, 0x200D]:
-                        # Variation Selector나 Zero Width Joiner가 있으면 함께 묶음
+                        # Group with Variation Selector or Zero Width Joiner
                         if i + 2 < len(line) and ord(line[i + 2]) in [0xFE0F, 0x200D]:
-                            # 두 개의 조합 문자가 있는 경우 (드물지만 가능)
+                            # Two combining characters (rare but possible)
                             emojis.append(line[i:i+3])
                             i += 3
                         else:
@@ -138,7 +179,7 @@ class EmojiMapLoader:
                     emojis.append(char)
                     i += 1
             
-            # 빈 문자열이나 공백만 있는 항목 제거
+            # Remove empty strings or whitespace-only items
             emojis = [e for e in emojis if e.strip()]
             if emojis:
                 result.append(emojis)
@@ -146,86 +187,129 @@ class EmojiMapLoader:
         return result
     
     def _parse_map_data(self):
-        """맵 데이터 파싱"""
-        # 이모지 렌더 맵
+        """Parse map data"""
+        # Emoji render map
         if 'emoji_render' not in self.map_data:
-            raise ValueError("JSON 파일에 'emoji_render' 키가 없습니다.")
+            raise ValueError("JSON file does not contain 'emoji_render' key.")
         
         emoji_render_raw = self.map_data['emoji_render']
         
-        # 텍스트 형태인지 확인 (문자열 또는 문자열 배열)
+        # Check if text format (string or string array)
         if isinstance(emoji_render_raw, str):
-            # 단일 문자열: 줄바꿈으로 구분
+            # Single string: separated by newlines
             self.emoji_render = self._parse_emoji_text(emoji_render_raw)
         elif isinstance(emoji_render_raw, list) and len(emoji_render_raw) > 0:
-            # 첫 번째 요소가 문자열이면 텍스트 배열 형태
+            # If first element is string, it's a text array format
             if isinstance(emoji_render_raw[0], str):
-                # 문자열 배열: 각 줄이 문자열
+                # String array: each line is a string
                 text = '\n'.join(emoji_render_raw)
                 self.emoji_render = self._parse_emoji_text(text)
             else:
-                # 2D 배열 형태 (기존 방식)
+                # 2D array format (legacy format)
                 self.emoji_render = emoji_render_raw
         else:
-            raise ValueError("'emoji_render'는 문자열, 문자열 배열, 또는 2D 배열이어야 합니다.")
+            raise ValueError("'emoji_render' must be a string, string array, or 2D array.")
         
-        # 맵 크기 확인
+        # Check map size
         if not isinstance(self.emoji_render, list) or len(self.emoji_render) == 0:
-            raise ValueError("'emoji_render' 파싱 결과가 비어있습니다.")
+            raise ValueError("'emoji_render' parsing result is empty.")
         
-        # 행 수와 열 수를 이모지 리스트에서 가져옴
+        # Get row and column counts from emoji list
         self.num_rows = len(self.emoji_render)
         row_lengths = [len(row) for row in self.emoji_render]
         
-        # 모든 행의 길이가 같아야 함
+        # All rows must have the same length (validate parsing result)
         if not all(length == row_lengths[0] for length in row_lengths):
+            inconsistent_rows = [i for i, length in enumerate(row_lengths) 
+                               if length != row_lengths[0]]
             raise ValueError(
-                f"맵의 모든 행은 같은 길이여야 합니다. "
-                f"행 수: {self.num_rows}, 각 행의 길이: {row_lengths}"
+                f"All rows in the map must have the same length. "
+                f"Expected length: {row_lengths[0]}, "
+                f"Problem row numbers: {inconsistent_rows} "
+                f"(row lengths: {[row_lengths[i] for i in inconsistent_rows]})"
             )
         
         self.num_cols = row_lengths[0]
         
-        # MiniGrid는 정사각형 그리드를 사용하므로, 행 수와 열 수 중 더 큰 값을 사용
-        self.size = max(self.num_rows, self.num_cols)
-        
-        # 행 수와 열 수가 다르면 경고
+        # Error if row and column counts differ (square map required)
         if self.num_rows != self.num_cols:
-            print(f"경고: 맵이 정사각형이 아닙니다. 행 수: {self.num_rows}, 열 수: {self.num_cols}, "
-                  f"그리드 크기: {self.size}x{self.size}로 설정됩니다.")
+            raise ValueError(
+                f"Map must be square. "
+                f"Row count: {self.num_rows}, Column count: {self.num_cols} "
+                f"(Row and column counts do not match.)"
+            )
         
-        # 이모지 객체 정의
-        if 'emoji_objects' not in self.map_data:
-            raise ValueError("JSON 파일에 'emoji_objects' 키가 없습니다.")
+        self.size = self.num_rows  # Square map: row count = column count = size
         
-        self.emoji_objects = self.map_data['emoji_objects']
+        # Emoji object definitions (merge defaults with JSON settings, JSON takes precedence)
+        json_emoji_objects = self.map_data.get('emoji_objects', {})
+        # Copy default emoji definitions and override with JSON settings
+        self.emoji_objects = DEFAULT_EMOJI_OBJECTS.copy()
+        self.emoji_objects.update(json_emoji_objects)  # JSON settings safely override default settings
         
-        # 로봇 설정
+        # Robot configuration
         self.robot_config = self.map_data.get('robot_config', {
             'use_robot_emoji': True,
             'robot_emoji_color': 'red',
             'use_robot_emoji_color': True
         })
         
-        # 🟥 마커를 찾아서 start_pos 설정 (JSON의 start_pos보다 우선)
+        # Find 🤖 marker and set start_pos (takes precedence over JSON start_pos)
         robot_marker_found = False
         for y, row in enumerate(self.emoji_render):
             for x, emoji in enumerate(row):
-                if emoji == '🟥':
+                if emoji == '🤖':
                     self.start_pos = (x, y)
                     robot_marker_found = True
-                    # 🟥를 ⬜️로 교체 (빈 공간으로 처리)
+                    # Replace 🤖 with ⬜️ (treat as empty space)
                     self.emoji_render[y][x] = '⬜️'
                     break
             if robot_marker_found:
                 break
         
-        # 🟥 마커가 없으면 JSON의 start_pos 사용 (또는 기본값)
+        # Find 🎯 marker and set goal_pos (takes precedence over JSON goal_pos)
+        goal_marker_found = False
+        for y, row in enumerate(self.emoji_render):
+            for x, emoji in enumerate(row):
+                if emoji == '🎯':
+                    self.goal_pos = (x, y)
+                    goal_marker_found = True
+                    # Replace 🎯 with ⬜️ (treat as empty space)
+                    self.emoji_render[y][x] = '⬜️'
+                    break
+            if goal_marker_found:
+                break
+        
+        # If 🤖 marker not found, use JSON start_pos (or default)
         if not robot_marker_found:
             self.start_pos = tuple(self.map_data.get('start_pos', [1, 1]))
+        else:
+            # Warning if 🤖 marker found but JSON also has start_pos
+            if 'start_pos' in self.map_data:
+                print(f"Warning: Found 🤖 marker and set start_pos to ({self.start_pos[0]}, {self.start_pos[1]}). "
+                      f"JSON start_pos is ignored.")
         
-        # 종료점
-        self.goal_pos = tuple(self.map_data.get('goal_pos', [self.size - 2, self.size - 2]))
+        # If 🎯 marker not found, use JSON goal_pos (or default)
+        if not goal_marker_found:
+            self.goal_pos = tuple(self.map_data.get('goal_pos', [self.size - 2, self.size - 2]))
+        else:
+            # Warning if 🎯 marker found but JSON also has goal_pos
+            if 'goal_pos' in self.map_data:
+                print(f"Warning: Found 🎯 marker and set goal_pos to ({self.goal_pos[0]}, {self.goal_pos[1]}). "
+                      f"JSON goal_pos is ignored.")
+        
+        # Clear error messages: if start or goal position is not set
+        if self.start_pos is None:
+            raise ValueError(
+                "Robot start position not found. "
+                "Place 🤖 emoji on the map or specify 'start_pos' in JSON."
+            )
+        
+        if self.goal_pos is None:
+            raise ValueError(
+                "Goal position not found. "
+                "Place 🎯 emoji on the map or specify 'goal_pos' in JSON."
+            )
     
     def _parse_emoji_map(self) -> Tuple[List, List, Dict]:
         """
@@ -240,15 +324,15 @@ class EmojiMapLoader:
         
         for y, row in enumerate(self.emoji_render):
             for x, emoji in enumerate(row):
-                # 이모지 정의 확인
-                if emoji not in self.emoji_objects:
-                    # 정의되지 않은 이모지는 무시 (또는 경고)
+                # 🤖와 🎯는 이미 _parse_map_data에서 ⬜️로 교체되었으므로 여기서는 처리하지 않음
+                if emoji == '🤖' or emoji == '🎯':
+                    # 이미 처리되었어야 하지만, 혹시 모를 경우를 대비해 빈 공간으로 처리
                     continue
                 
-                # 🟥는 이미 _parse_map_data에서 ⬜️로 교체되었으므로 여기서는 처리하지 않음
-                # (하지만 혹시 모를 경우를 대비해 체크)
-                if emoji == '🟥':
-                    # 이미 처리되었어야 하지만, 혹시 모를 경우를 대비해 빈 공간으로 처리
+                # 이모지 정의 확인
+                if emoji not in self.emoji_objects:
+                    # 정의되지 않은 이모지는 경고 후 무시
+                    print(f"경고: 정의되지 않은 이모지 '{emoji}'가 맵에 있습니다 (위치: ({x}, {y})). 무시됩니다.")
                     continue
                 
                 emoji_def = self.emoji_objects[emoji]
@@ -280,6 +364,11 @@ class EmojiMapLoader:
                     # 바닥 타일: color 속성만 받음
                     color = emoji_def.get('color', 'grey')
                     floor_tiles[(x, y)] = color
+                
+                elif obj_type == 'goal':
+                    # 목표 타일: goal_pos로 이미 설정되었으므로 빈 공간으로 처리
+                    # (goal은 CustomRoomEnv에서 goal_pos로 자동 배치됨)
+                    pass
                 
                 elif obj_type == 'empty' or obj_type == 'space':
                     # 빈 공간은 아무것도 하지 않음
