@@ -318,20 +318,15 @@ def build_room_from_txt_map(txt_path):
             if symbol == "⬛":
                 walls.append((x, y))
             elif symbol == "🟦":
-                pass
-            #    rooms.append((x, y, "blue"))
+                walls.append((x, y, "blue"))
             elif symbol == "🟪":
-                pass
-            #    rooms.append((x, y, "purple"))
+                walls.append((x, y, "purple"))
             elif symbol == "🟥":
-                pass
-            #    rooms.append((x, y, "red"))
+                walls.append((x, y, "red"))
             elif symbol == "🟩":
-                pass
-            #    rooms.append((x, y, "green"))
+                walls.append((x, y, "green"))
             elif symbol == "🟨":
-                pass
-            #    rooms.append((x, y, "yellow"))
+                walls.append((x, y, "yellow"))
             elif symbol == "🎯":
                 goal_pos = (x, y)
             elif symbol == "🤖":
@@ -442,29 +437,18 @@ def visualize_grid_cli(wrapper: AbsoluteDirectionWrapper, state: dict):
                     row.append('⬛')  # No color
             elif cell is not None and cell.type == 'goal':
                 row.append('🎯')
-            #elif cell is not None:
-            #    if hasattr(cell, 'color'):
-            #        if cell.color == 'blue':
-            #            row.append('🟦')
-            #        elif cell.color == 'purple':
-            #            row.append('🟪')
-            #        elif cell.color == 'red':
-            #            row.append('🟥')
-            #        elif cell.color == 'green':
-            #            row.append('🟩')
-            #        else:
-            #            row.append('🟨')
-            #    else:
-            #        row.append('🟨')
-            elif hasattr(cell, 'color'):
-                if cell.color == 'blue':
-                    row.append('🟦')
-                elif cell.color == 'purple':
-                    row.append('🟪')
-                elif cell.color == 'red':
-                    row.append('🟥')
-                elif cell.color == 'green':
-                    row.append('🟩')
+            elif cell is not None:
+                if hasattr(cell, 'color'):
+                    if cell.color == 'blue':
+                        row.append('🟦')
+                    elif cell.color == 'purple':
+                        row.append('🟪')
+                    elif cell.color == 'red':
+                        row.append('🟥')
+                    elif cell.color == 'green':
+                        row.append('🟩')
+                    else:
+                        row.append('🟨')
                 else:
                     row.append('🟨')
             else:
