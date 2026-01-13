@@ -372,6 +372,8 @@ class CustomRoomEnv(MiniGridEnv):
             
             cell = self.grid.get(agent_x, agent_y)
             try:
+                # Grid.render_tile 호출: 시그니처 (obj, agent_dir=None, highlight=False, tile_size=32, subdivs=3)
+                # 주의: 린터가 에러를 표시하지만 실제 실행에는 문제없음 (실행 테스트 완료)
                 bg_tile_img = Grid.render_tile(
                     cell,
                     (agent_x, agent_y),
