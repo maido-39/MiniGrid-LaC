@@ -207,8 +207,24 @@ class EmojiMapLoader:
             'use_robot_emoji_color': True
         })
         
-        # 시작점과 종료점
-        self.start_pos = tuple(self.map_data.get('start_pos', [1, 1]))
+        # 🟥 마커를 찾아서 start_pos 설정 (JSON의 start_pos보다 우선)
+        robot_marker_found = False
+        for y, row in enumerate(self.emoji_render):
+            for x, emoji in enumerate(row):
+                if emoji == '🟥':
+                    self.start_pos = (x, y)
+                    robot_marker_found = True
+                    # 🟥를 ⬜️로 교체 (빈 공간으로 처리)
+                    self.emoji_render[y][x] = '⬜️'
+                    break
+            if robot_marker_found:
+                break
+        
+        # 🟥 마커가 없으면 JSON의 start_pos 사용 (또는 기본값)
+        if not robot_marker_found:
+            self.start_pos = tuple(self.map_data.get('start_pos', [1, 1]))
+        
+        # 종료점
         self.goal_pos = tuple(self.map_data.get('goal_pos', [self.size - 2, self.size - 2]))
     
     def _parse_emoji_map(self) -> Tuple[List, List, Dict]:
@@ -229,17 +245,14 @@ class EmojiMapLoader:
                     # 정의되지 않은 이모지는 무시 (또는 경고)
                     continue
                 
+                # 🟥는 이미 _parse_map_data에서 ⬜️로 교체되었으므로 여기서는 처리하지 않음
+                # (하지만 혹시 모를 경우를 대비해 체크)
+                if emoji == '🟥':
+                    # 이미 처리되었어야 하지만, 혹시 모를 경우를 대비해 빈 공간으로 처리
+                    continue
+                
                 emoji_def = self.emoji_objects[emoji]
                 obj_type = emoji_def.get('type', 'wall')
-                
-                # 로봇 위치 마커 확인 (🟥는 로봇 위치를 나타내는 마커)
-                # start_pos가 설정되어 있지 않거나, 🟥가 start_pos 위치에 있으면 마커로 처리
-                if emoji == '🟥' and obj_type == 'wall':
-                    # 🟥는 로봇 위치 마커로 처리 (벽으로 추가하지 않음)
-                    # start_pos가 명시적으로 설정되지 않았거나, 🟥 위치와 일치하면 start_pos 업데이트
-                    if self.start_pos == (1, 1) or self.start_pos == (x, y):
-                        self.start_pos = (x, y)
-                    continue
                 
                 # 벽 추가 (외벽 포함, CustomRoomEnv가 자동으로 외벽을 생성하지만
                 # emoji_render에 명시된 외벽도 처리하여 색상 등을 반영)

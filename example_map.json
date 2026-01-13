@@ -1,6 +1,6 @@
 
 {
-  "Pallete": {"pallette":["🟥🟧🟨🟩🟦🟪⬛⬜️"]},
+  "Pallete": {"pallette":["🟥🟧🟨🟩🟦🟪⬛⬜️🟫🟤🔴🟠🟡🟢🔵🟣⚫⚪🔶🔷🔸🔹🟰🟱🟲"]},
   "map": {
     "emoji_render": [
       "⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛",
@@ -20,10 +20,12 @@
     ],
     "emoji_objects": {
       "⬛": {
-        "type": "wall",
+        "type": "emoji",
+        "emoji_name": "brick",
         "color": "grey",
         "can_pickup": false,
-        "can_overlap": false
+        "can_overlap": false,
+        "use_emoji_color": false
       },
       "⬜️": {
         "type": "empty",
@@ -31,10 +33,8 @@
         "can_overlap": true
       },
       "🟦": {
-        "type": "wall",
-        "color": "blue",
-        "can_pickup": false,
-        "can_overlap": true
+        "type": "floor",
+        "color": "blue"
       },
       "🟥": {
         "type": "wall",
