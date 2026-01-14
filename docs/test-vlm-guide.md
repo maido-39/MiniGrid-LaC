@@ -47,7 +47,9 @@ pip install transformers torch
 가장 간단한 사용법입니다. 기본 URL에서 이미지를 다운로드하고 기본 프롬프트를 사용합니다.
 
 ```bash
-python test_vlm.py
+cd src
+python test_script/etc/test_vlm.py
+```
 ```
 
 ### 2. 로컬 이미지 파일 사용
@@ -55,7 +57,9 @@ python test_vlm.py
 로컬에 있는 이미지 파일을 사용하려면 `--image` 또는 `-i` 옵션을 사용합니다.
 
 ```bash
-python test_vlm.py --image path/to/image.jpg
+cd src
+python test_script/etc/test_vlm.py
+``` --image path/to/image.jpg
 python test_vlm.py -i logs/scenario2_20260107_103053/step_0001.png
 ```
 
@@ -64,7 +68,9 @@ python test_vlm.py -i logs/scenario2_20260107_103053/step_0001.png
 이미지 URL을 직접 지정할 수 있습니다.
 
 ```bash
-python test_vlm.py --image https://picsum.photos/400/300
+cd src
+python test_script/etc/test_vlm.py
+``` --image https://picsum.photos/400/300
 python test_vlm.py -i https://example.com/image.jpg
 ```
 
@@ -73,7 +79,9 @@ python test_vlm.py -i https://example.com/image.jpg
 사용자 프롬프트를 명령줄 인자로 지정할 수 있습니다.
 
 ```bash
-python test_vlm.py --prompt "What objects are in this image?"
+cd src
+python test_script/etc/test_vlm.py
+``` --prompt "What objects are in this image?"
 python test_vlm.py --command "Describe the colors in this image"
 ```
 
@@ -82,7 +90,9 @@ python test_vlm.py --command "Describe the colors in this image"
 시스템 프롬프트를 지정하여 VLM의 역할을 변경할 수 있습니다.
 
 ```bash
-python test_vlm.py --system "You are an expert image analyst."
+cd src
+python test_script/etc/test_vlm.py
+``` --system "You are an expert image analyst."
 ```
 
 ### 6. 모든 옵션 조합
@@ -90,7 +100,9 @@ python test_vlm.py --system "You are an expert image analyst."
 이미지, 시스템 프롬프트, 사용자 프롬프트를 모두 지정할 수 있습니다.
 
 ```bash
-python test_vlm.py \
+cd src
+python test_script/etc/test_vlm.py
+``` \
   --image path/to/image.jpg \
   --system "You are a color expert." \
   --prompt "List all the colors you see in this image, one per line."

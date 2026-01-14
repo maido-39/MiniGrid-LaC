@@ -35,7 +35,8 @@
 ### 예제
 
 ```python
-from minigrid_customenv_emoji import MiniGridEmojiWrapper
+# Actual path: lib.map_manager.minigrid_customenv_emoji
+from lib import MiniGridEmojiWrapper
 
 room_config = {
     'start_pos': (1, 1),
@@ -357,7 +358,8 @@ room_config = {
 ### 예제 1: 기본 이모지 배치
 
 ```python
-from minigrid_customenv_emoji import MiniGridEmojiWrapper
+# Actual path: lib.map_manager.minigrid_customenv_emoji
+from lib import MiniGridEmojiWrapper
 
 room_config = {
     'start_pos': (1, 1),

@@ -181,7 +181,8 @@ wrapper.close()
 ### 기본 사용
 
 ```python
-from custom_environment import CustomRoomWrapper
+# Actual path: legacy.relative_movement.custom_environment
+from legacy import CustomRoomWrapper
 
 # 환경 생성
 wrapper = CustomRoomWrapper(size=10)
@@ -202,7 +203,8 @@ wrapper.close()
 ### VLM 연동 예시
 
 ```python
-from custom_environment import CustomRoomWrapper
+# Actual path: legacy.relative_movement.custom_environment
+from legacy import CustomRoomWrapper
 
 # 환경 생성
 wrapper = CustomRoomWrapper(size=15)
@@ -286,7 +288,8 @@ MiniGrid의 표준 액션 공간은 7개의 이산적(discrete) 액션으로 구
 `MiniGridEmojiWrapper`는 `use_absolute_movement` 파라미터를 통해 절대 좌표 이동 모드를 활성화할 수 있습니다.
 
 ```python
-from minigrid_customenv_emoji import MiniGridEmojiWrapper
+# Actual path: lib.map_manager.minigrid_customenv_emoji
+from lib import MiniGridEmojiWrapper
 
 # 절대 좌표 이동 모드 활성화 (기본값: True)
 wrapper = MiniGridEmojiWrapper(
@@ -380,7 +383,8 @@ action = wrapper.parse_absolute_action("right")   # 3 반환
 ### 사용 예시
 
 ```python
-from minigrid_customenv_emoji import MiniGridEmojiWrapper
+# Actual path: lib.map_manager.minigrid_customenv_emoji
+from lib import MiniGridEmojiWrapper
 
 # 절대 좌표 이동 모드로 환경 생성
 wrapper = MiniGridEmojiWrapper(

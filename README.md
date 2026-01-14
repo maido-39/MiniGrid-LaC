@@ -6,6 +6,104 @@ MiniGrid 환경에서 Language-conditioned 강화학습을 위한 프로젝트�
 
 이 프로젝트는 MiniGrid 환경에서 언어 지시(language instruction)를 활용한 강화학습 에이전트를 구현합니다.
 
+## Project Structure
+
+```
+multigrid-LaC/
+├── src/                          # Source code directory
+│   ├── lib/                      # Core library modules
+│   │   ├── map_manager/          # Map and environment management
+│   │   │   ├── minigrid_customenv_emoji.py    # Main environment wrapper (emoji support, absolute movement)
+│   │   │   └── emoji_map_loader.py            # JSON map loader for emoji-based maps
+│   │   └── vlm/                  # Vision Language Model modules
+│   │       ├── vlm_wrapper.py                 # VLM API wrapper (OpenAI GPT-4o)
+│   │       ├── vlm_postprocessor.py          # VLM response parser and validator
+│   │       ├── vlm_controller.py             # Generic VLM controller for environment control
+│   │       ├── vlm_manager.py                 # VLM handler manager (multi-provider support)
+│   │       └── handlers/                      # VLM provider handlers (OpenAI, Qwen, Gemma, etc.)
+│   ├── legacy/                   # Legacy code (maintained for backward compatibility)
+│   │   ├── relative_movement/    # Relative movement-based control (deprecated)
+│   │   │   └── custom_environment.py          # Legacy environment wrapper
+│   │   └── vlm_rels/             # Legacy VLM-related modules
+│   │       ├── minigrid_vlm_controller.py     # Legacy MiniGrid-specific VLM controller
+│   │       └── minigrid_vlm_helpers.py        # Legacy visualization helpers
+│   ├── dev-*/                    # Development branches (experimental features)
+│   │   ├── dev-scenario_2/       # Scenario 2 development
+│   │   └── dev-action_uncertainty/ # Action uncertainty estimation experiments
+│   ├── test_script/              # Test and example scripts
+│   │   ├── emoji_test/           # Emoji rendering tests
+│   │   ├── keyboard_control/    # Keyboard control examples
+│   │   ├── etc/                  # Miscellaneous test scripts
+│   │   └── similarity_calculator/ # Text similarity utilities
+│   ├── asset/                    # Resource files
+│   │   ├── arrow.png             # Robot arrow marker image
+│   │   └── fonts/                # Font files for emoji rendering
+│   ├── config/                   # Configuration files (moved from root)
+│   │   └── example_map.json      # Example emoji map configuration
+│   ├── scenario2_test_absolutemove.py  # Main experiment script (absolute movement)
+│   └── VLM_interact_minigrid-(absolute,emoji).py  # VLM interaction example
+├── config/                        # Configuration files
+│   └── example_map.json          # Example emoji map (JSON format)
+├── logs/                         # Experiment logs (generated at runtime)
+├── docs/                          # Documentation
+└── requirements.txt              # Python dependencies
+```
+
+### Directory Purposes
+
+- **`src/lib/`**: Core reusable library modules
+  - **`map_manager/`**: Environment creation and map loading utilities
+  - **`vlm/`**: VLM integration modules for robot control
+
+- **`src/legacy/`**: Legacy code maintained for backward compatibility
+  - **`relative_movement/`**: Old relative movement-based control (use `lib.map_manager` instead)
+  - **`vlm_rels/`**: Legacy VLM modules (use `lib.vlm` instead)
+
+- **`src/dev-*/`**: Experimental development branches
+  - Active development features that may be merged into main library later
+
+- **`src/test_script/`**: Test and example scripts
+  - Various test scripts, examples, and utility scripts
+
+- **`src/asset/`**: Static resource files
+  - Images, fonts, and other assets used by the environment
+
+- **`config/`**: Configuration files
+  - JSON map files and other configuration data
+
+### Import Usage
+
+All modules can be imported using simplified paths thanks to `__init__.py`:
+
+```python
+# Simplified imports (recommended)
+from lib import MiniGridEmojiWrapper, load_emoji_map_from_json
+from lib import ChatGPT4oVLMWrapper, VLMResponsePostProcessor, VLMController
+from legacy import CustomRoomWrapper, MiniGridVLMController
+
+# Full paths are also available if needed
+# from lib.map_manager.minigrid_customenv_emoji import MiniGridEmojiWrapper
+# from lib.vlm.vlm_wrapper import ChatGPT4oVLMWrapper
+```
+
+### IDE Support
+
+All major methods in `lib/` have comprehensive docstrings following Google-style conventions. When you hover over a function name in your IDE, you'll see:
+- Detailed description of the method's purpose
+- Complete parameter documentation with types and defaults
+- Return value descriptions
+- Usage examples
+- Notes and important information
+
+Example:
+```python
+from lib import MiniGridEmojiWrapper
+
+# Hover over get_image() to see full documentation
+wrapper = MiniGridEmojiWrapper(size=10)
+image = wrapper.get_image()  # ← Hover here for detailed docs
+```
+
 ## 문서
 
 프로젝트의 상세한 문서는 [`docs/`](docs/) 폴더에서 확인할 수 있습니다:
@@ -20,6 +118,12 @@ MiniGrid 환경에서 Language-conditioned 강화학습을 위한 프로젝트�
 - [커스텀 환경 API](docs/custom-environment-api.md) - CustomRoomEnv API 문서
 - [Wrapper API](docs/wrapper-api.md) - CustomRoomWrapper API 문서 (절대 좌표 이동 포함)
 - [Wrapper 메서드 가이드](docs/wrapper-methods.md) - CustomRoomWrapper의 모든 메서드 설명
+
+**Note**: All major methods in `lib/` have comprehensive docstrings. Hover over any method name in your IDE to see detailed documentation including:
+- Parameter descriptions with types and defaults
+- Return value documentation
+- Usage examples
+- Important notes and warnings
 
 ### 사용 가이드
 - [키보드 제어 가이드](docs/keyboard-control.md) - 키보드 제어 예제 설명
@@ -91,11 +195,31 @@ python -c "import minigrid; import gymnasium; import openai; import cv2; print('
 
 ## 사용법
 
+### 실행 전 준비
+
+모든 스크립트는 `src/` 디렉토리에서 실행하거나, 프로젝트 루트에서 `PYTHONPATH`를 설정해야 합니다:
+
+```bash
+# 방법 1: src/ 디렉토리에서 실행 (권장)
+cd src
+python scenario2_test_absolutemove.py
+
+# 방법 2: 프로젝트 루트에서 PYTHONPATH 설정
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/src"
+python src/scenario2_test_absolutemove.py
+
+# 방법 3: Python 코드에서 sys.path 설정
+# 스크립트 내부에 다음 코드 추가:
+# import sys
+# from pathlib import Path
+# sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+```
+
 ### 예제 스크립트
 
 이 프로젝트는 MiniGrid 환경에서 VLM(Vision Language Model)을 활용한 언어 기반 제어를 위한 여러 예제 스크립트를 제공합니다.
 
-#### 1. `keyboard_control.py` - 키보드 제어 예제
+#### 1. `test_script/keyboard_control/keyboard_control.py` - 키보드 제어 예제
 
 **설명**: MiniGrid 환경을 키보드로 직접 제어하는 간단한 예제 스크립트입니다. 환경의 기본 동작을 이해하고 테스트하기에 적합합니다.
 
@@ -106,7 +230,8 @@ python -c "import minigrid; import gymnasium; import openai; import cv2; print('
 
 **실행 방법**:
 ```bash
-python keyboard_control.py
+cd src
+python test_script/keyboard_control/keyboard_control.py
 ```
 
 **조작법**:
@@ -121,22 +246,23 @@ python keyboard_control.py
 
 ---
 
-#### 2. `minigrid_vlm_interact.py` - VLM 상호작용 (간소화 버전)
+#### 2. `VLM_interact_minigrid-(absolute,emoji).py` - VLM 상호작용 예제
 
-**설명**: VLM을 사용하여 MiniGrid 환경을 제어하는 간소화된 버전입니다. 로깅, 메모리, Grounding 등 복잡한 기능은 제거하고 핵심 기능만 포함하여 VLM 제어의 기본 동작을 이해하기 쉽게 구성되었습니다.
+**설명**: VLM을 사용하여 MiniGrid 환경을 제어하는 예제입니다. 절대 좌표 이동과 이모지 맵을 지원합니다.
 
 **기능**:
 - VLM을 통한 자동 에이전트 제어
-- 시나리오 2 환경 (파란 기둥, 보라색 테이블)
+- 절대 좌표 이동 (상/하/좌/우 직접 이동)
+- 이모지 맵 지원
 - CLI 및 OpenCV 시각화
-- 사용자 프롬프트 입력
 
 **실행 방법**:
 ```bash
 # OpenAI API 키 설정 필요
 export OPENAI_API_KEY=your-api-key
 
-python minigrid_vlm_interact.py
+cd src
+python VLM_interact_minigrid-\(absolute,emoji\).py
 ```
 
 **설정**:
@@ -150,9 +276,9 @@ python minigrid_vlm_interact.py
 
 ---
 
-#### 3. `scenario2_test.py` - 시나리오 2 실험 (전체 기능)
+#### 3. `legacy/relative_movement/scenario2_test.py` - 시나리오 2 실험 (전체 기능, Legacy)
 
-**주의 : 현재 VLM 동작 불안정함!!!!, Grounding,VLM 기능 에러는 안나는데 의도적으로 동작하지 않음!!!**
+**주의**: 이 스크립트는 Legacy 코드입니다. 새로운 프로젝트는 `scenario2_test_absolutemove.py`를 사용하세요.
 
 **설명**: 시나리오 2 실험 환경에서 VLM을 통한 완전한 제어 시스템입니다. 로깅, 영구 메모리, Grounding 지식, 예측 경로 시각화 등 모든 기능이 포함된 완전한 실험 스크립트입니다.
 
@@ -170,7 +296,8 @@ python minigrid_vlm_interact.py
 # OpenAI API 키 설정 필요
 export OPENAI_API_KEY=your-api-key
 
-python scenario2_test.py
+cd src
+python legacy/relative_movement/scenario2_test.py
 ```
 
 **설정** (코드 상단에서 변경 가능):
@@ -207,12 +334,12 @@ ACTION_PREDICTION_COUNT = 5  # VLM이 예측할 액션 개수
 
 ---
 
-#### 4. `scenario2_test_absolutemove.py` - 시나리오 2 실험 (절대 좌표 이동 버전)
+#### 4. `scenario2_test_absolutemove.py` - 시나리오 2 실험 (절대 좌표 이동 버전) ⭐ **권장**
 
 **설명**: 시나리오 2 실험 환경에서 절대 좌표 이동을 사용하는 VLM 제어 시스템입니다. JSON 파일에서 맵을 로드하며, 절대 좌표 이동을 통해 더 직관적인 제어가 가능합니다.
 
 **기능**:
-- JSON 파일에서 이모지 맵 로드 (`emoji_map_loader.py` 사용)
+- JSON 파일에서 이모지 맵 로드 (`lib.map_manager.emoji_map_loader` 사용)
 - 절대 좌표 이동 (상/하/좌/우 직접 이동)
 - VLM을 통한 자동 에이전트 제어
 - 영구 메모리 시스템 및 Grounding 지식 시스템
@@ -223,11 +350,12 @@ ACTION_PREDICTION_COUNT = 5  # VLM이 예측할 액션 개수
 # OpenAI API 키 설정 필요
 export OPENAI_API_KEY=your-api-key
 
-# 기본 맵 파일 사용
+cd src
+# 기본 맵 파일 사용 (config/example_map.json)
 python scenario2_test_absolutemove.py
 
 # 특정 JSON 맵 파일 지정
-python scenario2_test_absolutemove.py example_map.json
+python scenario2_test_absolutemove.py ../config/example_map.json
 ```
 
 **설정** (코드 상단에서 변경 가능):
@@ -251,7 +379,7 @@ VLM_MAX_TOKENS = 1000
 
 ---
 
-#### 5. `scenario2_keyboard_control.py` - 시나리오 2 키보드 제어 (절대 좌표 이동)
+#### 5. `dev-scenario_2/scenario2_keyboard_control.py` - 시나리오 2 키보드 제어 (절대 좌표 이동)
 
 **설명**: 시나리오 2 환경을 키보드로 직접 제어하는 스크립트입니다. 절대 좌표 이동을 사용하여 더 직관적인 제어가 가능합니다.
 
@@ -263,11 +391,12 @@ VLM_MAX_TOKENS = 1000
 
 **실행 방법**:
 ```bash
+cd src
 # 기본 맵 파일 사용
-python scenario2_keyboard_control.py
+python dev-scenario_2/scenario2_keyboard_control.py
 
 # 특정 JSON 맵 파일 지정
-python scenario2_keyboard_control.py example_map.json
+python dev-scenario_2/scenario2_keyboard_control.py ../../config/example_map.json
 ```
 
 **조작법**:
@@ -290,13 +419,14 @@ python scenario2_keyboard_control.py example_map.json
 
 ### 추가 스크립트
 
-#### `keyboard_control_fov.py` - 시야 제한 기능 포함
+#### `test_script/keyboard_control/keyboard_control_fov.py` - 시야 제한 기능 포함
 
 키보드 제어 예제에 시야 제한(FOV, Field of View) 기능이 추가된 버전입니다. MiniGrid 내장 환경을 선택할 수 있습니다.
 
 **실행 방법**:
 ```bash
-python keyboard_control_fov.py
+cd src
+python test_script/keyboard_control/keyboard_control_fov.py
 ```
 
 **선택 가능한 환경**:
@@ -314,13 +444,14 @@ python keyboard_control_fov.py
 
 ---
 
-#### `keyboard_control_fov_mapping.py` - SLAM 스타일 FOV 맵핑
+#### `test_script/keyboard_control/keyboard_control_fov_mapping.py` - SLAM 스타일 FOV 맵핑
 
 키보드 제어 예제에 SLAM(Simultaneous Localization and Mapping) 스타일의 시야 제한 기능이 추가된 버전입니다.
 
 **실행 방법**:
 ```bash
-python keyboard_control_fov_mapping.py
+cd src
+python test_script/keyboard_control/keyboard_control_fov_mapping.py
 ```
 
 **주요 기능**:
@@ -336,7 +467,7 @@ python keyboard_control_fov_mapping.py
 
 ---
 
-#### 6. `test_vlm.py` - VLM 모델 테스트 및 비교
+#### 6. `test_script/etc/test_vlm.py` - VLM 모델 테스트 및 비교
 
 **설명**: 다양한 VLM(Vision Language Model) 모델을 테스트하고 비교할 수 있는 스크립트입니다. 이미지, 프롬프트, 모델을 쉽게 변경하여 테스트할 수 있습니다.
 
@@ -351,23 +482,24 @@ python keyboard_control_fov_mapping.py
 # minigrid conda 환경 활성화 (필수)
 conda activate minigrid
 
+cd src
 # 기본 이미지와 기본 프롬프트 사용
-python test_vlm.py
+python test_script/etc/test_vlm.py
 
 # 로컬 이미지 파일 사용
-python test_vlm.py --image path/to/image.jpg
+python test_script/etc/test_vlm.py --image path/to/image.jpg
 
 # URL에서 이미지 다운로드
-python test_vlm.py --image https://picsum.photos/400/300
+python test_script/etc/test_vlm.py --image https://picsum.photos/400/300
 
 # 사용자 프롬프트 지정
-python test_vlm.py --prompt "What objects are in this image?"
+python test_script/etc/test_vlm.py --prompt "What objects are in this image?"
 
 # 시스템 프롬프트와 사용자 프롬프트 모두 지정
-python test_vlm.py --system "You are an expert image analyst." --prompt "Analyze this image in detail."
+python test_script/etc/test_vlm.py --system "You are an expert image analyst." --prompt "Analyze this image in detail."
 
 # 이미지와 프롬프트 모두 지정
-python test_vlm.py -i path/to/image.jpg --command "Describe the colors in this image"
+python test_script/etc/test_vlm.py -i path/to/image.jpg --command "Describe the colors in this image"
 ```
 
 **명령줄 옵션**:
@@ -389,15 +521,138 @@ python test_vlm.py -i path/to/image.jpg --command "Describe the colors in this i
 
 ---
 
-## 구조
+## 빠른 시작 예제
 
+### 간단한 환경 생성 및 제어
+
+```python
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent / 'src'))
+
+from minigrid import register_minigrid_envs
+from lib import MiniGridEmojiWrapper, load_emoji_map_from_json
+
+# MiniGrid 환경 등록
+register_minigrid_envs()
+
+# JSON 맵 파일에서 환경 로드
+wrapper = load_emoji_map_from_json('../config/example_map.json')
+
+# 환경 리셋
+obs, info = wrapper.reset()
+
+# 절대 좌표 이동 (상/하/좌/우)
+obs, reward, done, truncated, info = wrapper.step_absolute('move up')    # 위로 이동
+obs, reward, done, truncated, info = wrapper.step_absolute('move right') # 오른쪽으로 이동
+obs, reward, done, truncated, info = wrapper.step_absolute(0)            # 위로 이동 (인덱스)
+obs, reward, done, truncated, info = wrapper.step_absolute('north')       # 위로 이동 (별칭)
+
+# 현재 상태 확인
+state = wrapper.get_state()
+print(f"Agent position: {state['agent_pos']}")
+print(f"Agent direction: {state['agent_dir']}")
+
+# 환경 이미지 가져오기 (VLM 입력용)
+image = wrapper.get_image()
+print(f"Image shape: {image.shape}")  # (height, width, 3)
 ```
-.
-├── README.md
-├── requirements.txt
-├── train.py
-├── eval.py
-└── ...
+
+### VLM을 사용한 자동 제어
+
+```python
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent / 'src'))
+
+from lib import (
+    MiniGridEmojiWrapper, 
+    ChatGPT4oVLMWrapper, 
+    VLMResponsePostProcessor,
+    VLMController
+)
+
+# 방법 1: VLMController 사용 (권장 - 가장 간단)
+from lib import VLMController
+
+# 환경 생성
+wrapper = load_emoji_map_from_json('../config/example_map.json')
+wrapper.reset()
+
+# VLM 컨트롤러 생성
+controller = VLMController(
+    env=wrapper,
+    model="gpt-4o",
+    temperature=0.0
+)
+
+# VLM으로 액션 생성 및 실행 (한 번에)
+obs, reward, done, truncated, info, vlm_response = controller.step(
+    mission="Go to the blue pillar"
+)
+
+print(f"Action: {vlm_response['action']}")
+print(f"Reasoning: {vlm_response.get('reasoning', 'N/A')}")
+
+# 방법 2: 개별 컴포넌트 사용 (더 세밀한 제어)
+wrapper = MiniGridEmojiWrapper(size=10)
+wrapper.reset()
+
+vlm = ChatGPT4oVLMWrapper(model="gpt-4o")
+postprocessor = VLMResponsePostProcessor(required_fields=["action", "reasoning"])
+
+# 현재 환경 이미지 가져오기
+image = wrapper.get_image()
+
+# VLM으로 액션 생성
+response_raw = vlm.generate(
+    image=image,
+    system_prompt="You are a robot controller. Use absolute directions.",
+    user_prompt="Move to the goal."
+)
+
+# 응답 파싱
+response = postprocessor.process(response_raw)
+action_str = response['action']
+
+# 액션 실행
+obs, reward, done, truncated, info = wrapper.step_absolute(action_str)
+```
+
+### 주요 API 사용법
+
+모든 주요 메서드는 IDE에서 hover하면 상세한 문서를 볼 수 있습니다:
+
+```python
+from lib import MiniGridEmojiWrapper, VLMController, load_emoji_map_from_json
+
+# 환경 생성
+wrapper = load_emoji_map_from_json('../config/example_map.json')
+# ↑ Hover to see: Loads emoji map from JSON and creates environment
+
+# 환경 리셋
+obs, info = wrapper.reset()
+# ↑ Hover to see: Reset environment to initial state
+
+# 절대 방향 이동
+obs, reward, done, truncated, info = wrapper.step_absolute("move up")
+# ↑ Hover to see: Execute absolute direction action with detailed parameter docs
+
+# 이미지 가져오기
+image = wrapper.get_image(fov_range=3, fov_width=2)
+# ↑ Hover to see: Get environment image with optional FOV limitations
+
+# 상태 정보
+state = wrapper.get_state()
+# ↑ Hover to see: Get current environment state information
+
+# VLM 컨트롤러
+controller = VLMController(env=wrapper)
+# ↑ Hover to see: Initialize VLM controller with detailed parameter docs
+
+# 액션 생성 및 실행
+response = controller.generate_action(mission="Reach the goal")
+# ↑ Hover to see: Generate action using VLM with examples
 ```
 
 ## 라이선스
