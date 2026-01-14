@@ -68,8 +68,7 @@ vlm/
 ### 방법 1: 기존 ChatGPT4oVLMWrapper 사용 (호환성 유지)
 
 ```python
-# Actual path: lib.vlm.vlm_wrapper
-from lib import ChatGPT4oVLMWrapper
+from vlm_wrapper import ChatGPT4oVLMWrapper
 
 # 기존 방식 그대로 사용 가능
 wrapper = ChatGPT4oVLMWrapper(

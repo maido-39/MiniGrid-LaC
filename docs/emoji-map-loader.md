@@ -159,11 +159,10 @@
 ### 기본 사용법
 
 ```python
-# Actual path: lib.map_manager.emoji_map_loader
-from lib import load_emoji_map_from_json
+from emoji_map_loader import load_emoji_map_from_json
 
 # JSON 파일에서 맵 로드
-wrapper = load_emoji_map_from_json("config/example_map.json")
+wrapper = load_emoji_map_from_json("example_map.json")
 
 # 환경 초기화
 obs, info = wrapper.reset()
@@ -177,11 +176,10 @@ print(f"에이전트 방향: {state['agent_dir']}")
 ### EmojiMapLoader 클래스 직접 사용
 
 ```python
-# Actual path: lib.map_manager.emoji_map_loader
-from lib.map_manager.emoji_map_loader import EmojiMapLoader
+from emoji_map_loader import EmojiMapLoader
 
 # 로더 생성
-loader = EmojiMapLoader("config/example_map.json")
+loader = EmojiMapLoader("example_map.json")
 
 # 맵 정보 확인
 print(f"맵 크기: {loader.size}")
@@ -266,11 +264,10 @@ wrapper = loader.create_wrapper()
 ### Python 코드
 
 ```python
-# Actual path: lib.map_manager.emoji_map_loader
-from lib import load_emoji_map_from_json
+from emoji_map_loader import load_emoji_map_from_json
 
 # 맵 로드
-wrapper = load_emoji_map_from_json("config/example_map.json")
+wrapper = load_emoji_map_from_json("example_map.json")
 
 # 환경 초기화
 obs, info = wrapper.reset()

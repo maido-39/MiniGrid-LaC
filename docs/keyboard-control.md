@@ -6,8 +6,7 @@
 
 ```bash
 conda activate minigrid
-cd src
-python test_script/keyboard_control/keyboard_control.py
+python keyboard_control.py
 ```
 
 ## 조작법
@@ -86,8 +85,7 @@ OpenCV 창에 다음 정보가 표시됩니다:
 
 ```python
 # 다른 환경 사용 예시
-# Actual path: legacy.relative_movement.custom_environment
-from legacy.relative_movement.custom_environment import create_simple_room
+from custom_environment import create_simple_room
 
 env = create_simple_room()
 env.render_mode = 'rgb_array'

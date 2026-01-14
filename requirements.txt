@@ -1,53 +1,24 @@
 # MiniGrid-LaC 프로젝트 필수 패키지
-# 
-# 설치 방법:
-#   pip install -r requirements.txt
-#
-# 또는 conda 환경에서:
-#   conda create -n minigrid python=3.9
-#   conda activate minigrid
-#   pip install -r requirements.txt
 
-# ============================================================================
-# Core Dependencies (Required)
-# ============================================================================
-
-# MiniGrid environment
+# MiniGrid 환경
 minigrid>=3.0.0
 gymnasium>=1.1.0
 
-# Image processing
-numpy>=2.0.0  # Note: NumPy 2.0+ may have compatibility issues with some packages
-pillow>=11.0.0  # PIL (Python Imaging Library)
-opencv-python>=4.12.0  # OpenCV for image processing
+# 이미지 처리
+numpy>=2.0.0
+pillow>=11.0.0
+opencv-python>=4.12.0
 
-# Visualization
+# 시각화
 matplotlib>=3.9.0
 
-# Environment variables
-python-dotenv>=1.0.0  # Load .env files for API keys
+# VLM (Vision Language Model) 관련
+openai>=1.0.0
+python-dotenv>=1.0.0
+dashscope>=1.0.0  # Qwen VLM (DashScope API)
+transformers>=4.0.0  # Qwen/Gemma VLM (Hugging Face)
+torch>=2.0.0  # Qwen/Gemma VLM (PyTorch)
 
-# HTTP requests
-requests>=2.31.0  # For downloading images and API calls
-
-# ============================================================================
-# VLM (Vision Language Model) Dependencies
-# ============================================================================
-
-# OpenAI VLM (Primary)
-openai>=1.0.0  # GPT-4o Vision API
-
-# Qwen VLM (Optional - via DashScope API)
-dashscope>=1.0.0  # Alibaba DashScope API for Qwen models
-
-# Qwen/Gemma VLM (Optional - via HuggingFace)
-transformers>=4.0.0  # HuggingFace Transformers library
-torch>=2.0.0  # PyTorch (required for local model inference)
-torchvision>=0.15.0  # Required for Qwen2-VL models via HuggingFace
-
-# ============================================================================
-# Similarity Calculation (Optional)
-# ============================================================================
-
-gensim>=4.0.0  # Word2Vec for word similarity
-sentence-transformers>=2.0.0  # SBERT for sentence similarity
+# 유사도 계산 관련
+gensim>=4.0.0
+sentence-transformers>=2.0.0

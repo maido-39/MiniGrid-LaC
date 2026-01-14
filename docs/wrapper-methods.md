@@ -249,8 +249,7 @@ action = wrapper.parse_action("pick up")  # pickup
 ### 기본 사용
 
 ```python
-# Actual path: legacy.relative_movement.custom_environment
-from legacy import CustomRoomWrapper
+from custom_environment import CustomRoomWrapper
 
 # 환경 생성
 wrapper = CustomRoomWrapper(size=10)
