@@ -1,6 +1,7 @@
 ######################################################
 #                                                    #
-# HEADER TO DO
+#                      MiniGrid-LaC                  #
+#                        PROGRAM                     #
 #                                                    #
 ######################################################
 
@@ -10,7 +11,7 @@ Colored and formatted terminal printing utilities.
 
 This module provides a helper function `cprint` that allows printing
 text to the terminal with colors and text styles such as:
-- bold/bright
+- bold
 - dim
 - underline
 - italic
@@ -51,7 +52,7 @@ from colorama import Fore, Style, init
 
 # Initialize colorama.
 # autoreset=True ensures styles do not "leak" to subsequent prints.
-init(autoreset = True)
+init(autoreset=True)
 
 # ------------------------------------------------------------
 # ANSI escape codes (not directly provided by colorama)
@@ -61,6 +62,24 @@ init(autoreset = True)
 ANSI_UNDERLINE = "\033[4m"   # Underlined text
 ANSI_ITALIC = "\033[3m"      # Italic text (not supported everywhere)
 ANSI_REVERSE = "\033[7m"     # Reverse foreground/background colors
+
+# Colors that can be used
+WHITE = Fore.WHITE
+LIGHT_WHITE = Fore.LIGHTWHITE_EX
+BLACK = Fore.BLACK
+LIGHT_BLACK = Fore.LIGHTBLACK_EX
+BLUE = Fore.BLUE
+LIGHT_BLUE = Fore.LIGHTBLUE_EX
+RED = Fore.RED
+LIGHT_RED = Fore.LIGHTRED_EX
+GREEN = Fore.GREEN
+LIGHT_GREEN = Fore.LIGHTGREEN_EX
+YELLOW = Fore.YELLOW
+LIGHT_YELLOW = Fore.LIGHTYELLOW_EX
+MAGENTA = Fore.MAGENTA
+LIGHT_MAGENTA = Fore.LIGHTMAGENTA_EX
+CYAN = Fore.CYAN
+LIGHT_CYAN = Fore.LIGHTCYAN_EX
 
 
 
@@ -79,6 +98,7 @@ def cprint(text: str,
            underline: bool = False,
            italic: bool = False,
            reverse: bool = False,
+           indent: int = 0,
            ):
     """
     Print formatted and colored text to the terminal.
@@ -105,6 +125,9 @@ def cprint(text: str,
 
     reverse : bool
         If True, reverse foreground and background colors.
+    
+    indent : int
+        The amount of indentation we want for our text.
 
     Notes
     -----
@@ -129,21 +152,26 @@ def cprint(text: str,
 
     if reverse:
         style += ANSI_REVERSE     # Reverse video
+    
+    indent_str = " " * indent
 
     # Print the final formatted message
     # Style.RESET_ALL ensures formatting stops after this print
-    print(f"{style}{color}{text}{Style.RESET_ALL}")
+    print(f"{indent_str}{style}{color}{text}{Style.RESET_ALL}")
 
 
 
 
 ######################################################
 #                                                    #
-#                      TESTING                       #
+#                       TESTING                      #
 #                                                    #
 ######################################################
 
 
+# ------------------------------------------------------------
+# Test / demo code (runs only when executed directly)
+# ------------------------------------------------------------
 def _demo():
     """Demonstrate available styles and colors."""
     cprint("INFO message", Fore.CYAN)
