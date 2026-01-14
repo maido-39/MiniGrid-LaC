@@ -20,12 +20,10 @@
       ],
       "emoji_objects": {
         "⬛": {
-          "type": "emoji",
+          "type": "wall",
           "color": "grey",
-          "emoji_name": "brick",
           "can_pickup": false,
-          "can_overlap": false,
-          "use_emoji_color": true
+          "can_overlap": false
         },
         "⬜️": {
           "type": "empty",
@@ -58,14 +56,14 @@
         "🟪": {
           "type": "emoji",
           "color": "purple",
-          "emoji_name": "brick",
+          "emoji_name": "workstation",
           "can_pickup": false,
           "can_overlap": true,
           "use_emoji_color": true
         },
         "🟩": {
           "type": "emoji",
-          "emoji_name": "chair",
+          "emoji_name": "cat",
           "color": "green",
           "can_pickup": false,
           "can_overlap": true,
@@ -73,8 +71,7 @@
         },
         "a":{
           "type": "emoji",
-          "color": "grey",
-          "emoji_name": "tree",
+          "emoji_name": "grass",
           "can_pickup": false,
           "can_overlap": true,
           "use_emoji_color": true
