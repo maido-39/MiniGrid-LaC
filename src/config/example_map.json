@@ -25,7 +25,7 @@
         "color": "grey",
         "can_pickup": false,
         "can_overlap": false,
-        "use_emoji_color": true
+        "use_emoji_color": false
       },
       "⬜️": {
         "type": "empty",
@@ -41,8 +41,12 @@
         "color": "purple"
       },
       "🟩": {
-        "type": "floor",
-        "color": "green"
+        "type": "emoji",
+        "emoji_name": "brick",
+        "color": "green",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
       }
     },
     "robot_config": {
