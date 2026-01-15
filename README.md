@@ -6,7 +6,7 @@ MiniGrid 환경에서 Language-conditioned 강화학습을 위한 프로젝트�
 
 이 프로젝트는 MiniGrid 환경에서 언어 지시(language instruction)를 활용한 강화학습 에이전트를 구현합니다.
 
-## Project Structure
+## Project Structure (TO BE UPDATED)
 
 ```
 multigrid-LaC/
