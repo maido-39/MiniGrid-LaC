@@ -80,9 +80,18 @@ class EmojiObject(WorldObj):
     
     def encode(self):
         from minigrid.core.constants import OBJECT_TO_IDX, COLOR_TO_IDX
+        import hashlib
+        
         obj_type_idx = OBJECT_TO_IDX['box']
-        color_idx = COLOR_TO_IDX[self.color]
-        return (obj_type_idx, color_idx, 0)
+        color_idx = COLOR_TO_IDX.get(self.color, COLOR_TO_IDX['grey'])
+        
+        # Use emoji_name hash to create unique state value
+        # This ensures different emojis with same color get different encodings
+        # This prevents rendering issues when multiple emojis share the same color
+        emoji_hash = int(hashlib.md5(self.emoji_name.encode()).hexdigest()[:8], 16)
+        state = emoji_hash % 256  # Keep within 0-255 range for minigrid compatibility
+        
+        return (obj_type_idx, color_idx, state)
     
     def render(self, img):
         emoji_char = EMOJI_MAP.get(self.emoji_name, '❓')
