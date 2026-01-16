@@ -29,6 +29,25 @@ import hashlib
 # Register MiniGrid environments
 register_minigrid_envs()
 
+# Extend COLOR_TO_IDX with additional colors for emoji objects
+# This allows using more than the default 6 minigrid colors
+_base_color_count = len(COLOR_TO_IDX)
+EXTENDED_COLORS = {
+    'orange': _base_color_count,
+    'brown': _base_color_count + 1,
+    'pink': _base_color_count + 2,
+    'cyan': _base_color_count + 3,
+    'lime': _base_color_count + 4,
+    'navy': _base_color_count + 5,
+    'teal': _base_color_count + 6,
+    'magenta': _base_color_count + 7,
+    'olive': _base_color_count + 8,
+    'maroon': _base_color_count + 9,
+    'white': _base_color_count + 10,
+    'black': _base_color_count + 11,
+}
+COLOR_TO_IDX.update(EXTENDED_COLORS)
+
 # Emoji name to actual emoji character mapping
 EMOJI_MAP = {
     'tree': '🌲',
@@ -190,6 +209,18 @@ class EmojiObject(WorldObj):
             'purple': (128, 0, 128, 255),
             'yellow': (255, 255, 0, 255),
             'grey': (128, 128, 128, 255),
+            'orange': (255, 165, 0, 255),
+            'brown': (165, 42, 42, 255),
+            'pink': (255, 192, 203, 255),
+            'cyan': (0, 255, 255, 255),
+            'lime': (50, 205, 50, 255),
+            'navy': (0, 0, 128, 255),
+            'teal': (0, 128, 128, 255),
+            'magenta': (255, 0, 255, 255),
+            'olive': (128, 128, 0, 255),
+            'maroon': (128, 0, 0, 255),
+            'white': (255, 255, 255, 255),
+            'black': (0, 0, 0, 255),
         }
         stroke_color = color_map.get(self.color, (255, 255, 255, 255))
         
@@ -635,6 +666,16 @@ class CustomRoomEnv(MiniGridEnv):
             'purple': (150, 100, 150),
             'yellow': (200, 200, 100),
             'grey': (128, 128, 128),
+            'orange': (255, 165, 0),
+            'brown': (165, 42, 42),
+            'pink': (255, 192, 203),
+            'cyan': (0, 255, 255),
+            'lime': (50, 205, 50),
+            'navy': (0, 0, 128),
+            'teal': (0, 128, 128),
+            'magenta': (255, 0, 255),
+            'olive': (128, 128, 0),
+            'maroon': (128, 0, 0),
             'white': (240, 240, 240),
             'black': (50, 50, 50),
         }
