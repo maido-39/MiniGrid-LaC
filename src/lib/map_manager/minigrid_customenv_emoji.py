@@ -41,6 +41,14 @@ EMOJI_MAP = {
     'desktop': '🖥️',
     'workstation': '📱',
     'brick': '🧱',
+    'restroom' : '🚻',
+    'storage' : '🗄️',
+    'preperation' : '🧑‍🍳',
+    'kitchen' : '🍳',
+    'plating' : '🍽️',
+    'dining' : '🍴',
+    'water' : '💦',
+    'broom' : '🧹',
 }
 
 
@@ -61,6 +69,14 @@ class EmojiObject(WorldObj):
     
     def can_overlap(self):
         return self._can_overlap
+    
+    @property
+    def cache_key(self):
+        """
+        A cache key used for rendering.
+        Includes the object's ID to ensure absolute uniqueness.
+        """
+        return (self.type, self.emoji_name, self.color, id(self))
     
     def encode(self):
         from minigrid.core.constants import OBJECT_TO_IDX, COLOR_TO_IDX
