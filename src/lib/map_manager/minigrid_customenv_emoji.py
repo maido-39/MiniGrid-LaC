@@ -18,11 +18,13 @@ from minigrid import register_minigrid_envs
 from minigrid.core.grid import Grid
 from minigrid.core.world_object import Wall, Goal, Key, Ball, Box, Door, WorldObj
 from minigrid.core.mission import MissionSpace
+from minigrid.core.constants import OBJECT_TO_IDX, COLOR_TO_IDX
 from minigrid.minigrid_env import MiniGridEnv
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Union
 from PIL import Image, ImageDraw, ImageFont
 import os
+import hashlib
 
 # Register MiniGrid environments
 register_minigrid_envs()
@@ -79,9 +81,6 @@ class EmojiObject(WorldObj):
         return (self.type, self.emoji_name, self.color, id(self))
     
     def encode(self):
-        from minigrid.core.constants import OBJECT_TO_IDX, COLOR_TO_IDX
-        import hashlib
-        
         obj_type_idx = OBJECT_TO_IDX['box']
         color_idx = COLOR_TO_IDX.get(self.color, COLOR_TO_IDX['grey'])
         
