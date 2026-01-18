@@ -14,7 +14,7 @@ Usage:
 
 from minigrid import register_minigrid_envs
 # Actual path: lib.map_manager.minigrid_customenv_emoji
-from lib import MiniGridEmojiWrapper
+from lib import MiniGridEmojiWrapper, load_emoji_map_from_json
 # Actual paths: lib.vlm.vlm_wrapper, lib.vlm.vlm_postprocessor
 from lib import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
 import numpy as np
@@ -52,44 +52,30 @@ def get_system_prompt() -> str:
     return """You are a robot operating on a grid map.
 
 ## Environment
-Grid world with walls (black), blue brick emoji 🧱 (passable, you can step on it), purple desktop/workstation emoji 🖥️📱 (passable, you can step on it), robot (red arrow shows heading), and goal (green marker if present).
+Grid world with walls which must step on and detour (black, brick emoji 🧱)
+robot is represented as emoji 🤖, which is your avatar.
+you can move in ANY direction regardless of the robot's current heading.
 
-## Coordinate System
-The top of the image is North (up), and the bottom is South (down).
-The left is West (left), and the right is East (right).
-
-## Robot Orientation
-In the image, the red triangle represents the robot.
-The robot's heading direction is shown by the triangle's apex (sharp tip).
-However, you can move in ANY direction regardless of the robot's current heading.
-
-## Action Space (Absolute Directions)
-You can move directly in absolute directions:
-- "up": Move North
-- "down": Move South
-- "left": Move West
-- "right": Move East
+## Action Space, Coordinate System
+**CRITICAL**: All movements are in ABSOLUTE directions (UP/DOWN/LEFT/RIGHT).
+- "up": Move UP (upward on the image)
+- "down": Move DOWN (downward on the image)
+- "left": Move LEFT (leftward on the image)
+- "right" :Move RIGHT (rightward on the image)
 - "pickup": Pick up object
 - "drop": Drop object
 - "toggle": Interact with objects
 
 ## Movement Rules
-**CRITICAL**: All movements are in ABSOLUTE directions (North/South/East/West).
-- "up" = move North (upward on the image)
-- "down" = move South (downward on the image)
-- "left" = move West (leftward on the image)
-- "right" = move East (rightward on the image)
-- The robot will automatically rotate to face the correct direction before moving
-- You don't need to think about the robot's current heading - just specify the direction you want to go
-- You can step on emoji objects (🧱 brick, 🖥️ desktop, 📱 workstation)
+- You cannot step on some objects, you should detour around it.
 - When you step on an emoji object, the block will glow green
 
 ## Response Format
 Respond in JSON format:
 ```json
 {
-    "action": "<action_name_or_number>",
-    "environment_info": "<description of current state with spatial relationships in absolute coordinates (North/South/East/West)>",
+    "environment_info": "<description of current state with spatial relationships in relative to robot(🤖)'s position (UP/DOWN/LEFT/RIGHT)>",
+    "action": "<action_name>",
     "reasoning": "<explanation of why you chose this action>"
 }
 ```
@@ -98,8 +84,7 @@ Respond in JSON format:
 - Valid JSON format required
 - Actions must be from the list above
 - Complete mission from user prompt
-- Use absolute directions (up/down/left/right), not relative to robot heading
-- Think in terms of the image: up=North, down=South, left=West, right=East
+- Use absolute directions (up/down/left/right)
 """
 
 
@@ -274,9 +259,9 @@ def display_image(img, window_name="MiniGrid VLM Control (Absolute Emoji)", cell
             
             # Resize image
             height, width = img_bgr.shape[:2]
-            max_size = 800
+            max_size = 1200  # Increased from 800 to 1200 for larger window
             if height < max_size and width < max_size:
-                scale = min(max_size // height, max_size // width, 4)
+                scale = min(max_size // height, max_size // width, 6)  # Increased max scale from 4 to 6
                 if scale > 1:
                     new_width = width * scale
                     new_height = height * scale
@@ -290,20 +275,57 @@ def display_image(img, window_name="MiniGrid VLM Control (Absolute Emoji)", cell
 
 def main():
     """Main function"""
+    import sys
+    from pathlib import Path
+    
+    # Get script directory for relative path resolution
+    script_dir = Path(__file__).parent.resolve()
+    
+    # JSON map file path via command line argument
+    json_map_path = None
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--help" or sys.argv[1] == "-h":
+            print("Usage:")
+            print("  python VLM_interact_minigrid-absolute_emoji.py [json_map_path]")
+            print("  Example: python VLM_interact_minigrid-absolute_emoji.py ./config/example_map.json")
+            print("  Example: python VLM_interact_minigrid-absolute_emoji.py ../config/example_map.json")
+            print("\nIf no JSON path is provided, uses hardcoded scenario2 environment.")
+            return
+        else:
+            # Resolve path
+            user_path = Path(sys.argv[1])
+            if user_path.is_absolute():
+                json_map_path = str(user_path)
+            else:
+                # Try relative to script directory first, then relative to current working directory
+                script_relative = script_dir / user_path
+                cwd_relative = Path.cwd() / user_path
+                if script_relative.exists():
+                    json_map_path = str(script_relative.resolve())
+                elif cwd_relative.exists():
+                    json_map_path = str(cwd_relative.resolve())
+                else:
+                    json_map_path = str(user_path)
+    
     print("=" * 60)
     print("MiniGrid VLM Interaction (Absolute Movement Version - Emoji Environment)")
     print("=" * 60)
-    print("\nEnvironment configuration:")
-    print("  - 🧱(brick) emoji: 2x2 Grid, blue, can step on")
-    print("  - 🖥️📱(desktop/workstation) emoji: 1x2 Grid, purple, can step on")
-    print("  - Start position: (1, 8)")
-    print("  - Goal position: (8, 1)")
-    print("\nMission: Go to the blue pillar(🧱), turn right, then stop next to the table(🖥️📱)")
-    print("\nAction space: Direct movement up/down/left/right (absolute coordinates)")
     
     # Create environment
     print("\n[1] Creating environment...")
-    wrapper = create_scenario2_environment()
+    if json_map_path:
+        print(f"  Loading map from: {json_map_path}")
+        wrapper = load_emoji_map_from_json(json_map_path)
+    else:
+        print("  Using hardcoded scenario2 environment")
+        print("  - 🧱(brick) emoji: 2x2 Grid, blue, can step on")
+        print("  - 🖥️📱(desktop/workstation) emoji: 1x2 Grid, purple, can step on")
+        print("  - Start position: (1, 8)")
+        print("  - Goal position: (8, 1)")
+        print("\nMission: Go to the blue pillar(🧱), turn right, then stop next to the table(🖥️📱)")
+        wrapper = create_scenario2_environment()
+    
+    print("\nAction space: Direct movement up/down/left/right (absolute coordinates)")
     wrapper.reset()
     
     state = wrapper.get_state()

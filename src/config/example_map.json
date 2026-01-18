@@ -22,10 +22,10 @@
       "⬛": {
         "type": "emoji",
         "emoji_name": "brick",
-        "color": "grey",
+        "color": "red",
         "can_pickup": false,
         "can_overlap": false,
-        "use_emoji_color": true
+        "use_emoji_color": false
       },
       "⬜️": {
         "type": "empty",
