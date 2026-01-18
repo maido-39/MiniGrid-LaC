@@ -25,6 +25,7 @@ from typing import Dict, List, Tuple, Optional, Union
 from PIL import Image, ImageDraw, ImageFont
 import os
 import hashlib
+from imagetext_py import FontDB, Writer, Paint, TextAlign
 
 # Register MiniGrid environments
 register_minigrid_envs()
@@ -122,50 +123,41 @@ class EmojiObject(WorldObj):
         
         # When use_emoji_color=True, use imagetext_py for color emoji rendering
         if self.use_emoji_color:
-            try:
-                from imagetext_py import FontDB, Writer, Paint, TextAlign
+            # Load font from src/asset/fonts/
+            font_path = os.path.join(src_dir, 'asset', 'fonts', 'NotoEmoji-Regular.ttf')
+            if os.path.exists(font_path):
+                FontDB.LoadFromPath("NotoEmoji", font_path)
+                font = FontDB.Query("NotoEmoji")
                 
-                # Load font from src/asset/fonts/
-                font_path = os.path.join(src_dir, 'asset', 'fonts', 'NotoEmoji-Regular.ttf')
-                if os.path.exists(font_path):
-                    FontDB.LoadFromPath("NotoEmoji", font_path)
-                    font = FontDB.Query("NotoEmoji")
-                    
-                    # Convert existing image to PIL Image
-                    pil_img = Image.fromarray(img.astype(np.uint8)).convert('RGBA')
-                    
-                    # Render color emoji using imagetext_py Writer
-                    with Writer(pil_img) as writer:
-                        writer.draw_text_wrapped(
-                            text=emoji_char,
-                            x=w // 2,
-                            y=h // 2,
-                            ax=0.5,
-                            ay=0.5,
-                            size=font_size,
-                            width=w,
-                            font=font,
-                            fill=Paint.Color((0, 0, 0, 255)),
-                            align=TextAlign.Center,
-                            draw_emojis=True  # Enable color emoji rendering
-                        )
-                    
-                    # Draw green border if robot is on top
-                    if self.agent_on_top:
-                        draw = ImageDraw.Draw(pil_img)
-                        border_width = 3
-                        green_color = (0, 255, 0, 255)
-                        draw.rectangle([(0, 0), (w-1, h-1)], outline=green_color, width=border_width)
-                    
-                    rgb_img = pil_img.convert('RGB')
-                    img[:] = np.array(rgb_img)
-                    return
-            except ImportError:
-                # Raise error if imagetext_py is not available (fallback removed)
-                raise ImportError("imagetext_py is required for use_emoji_color=True. Please install imagetext_py.")
-            except (OSError, IOError, ValueError) as e:
-                # Raise error on file-related errors
-                raise RuntimeError(f"Failed to render emoji with imagetext_py: {e}")
+                # Convert existing image to PIL Image
+                pil_img = Image.fromarray(img.astype(np.uint8)).convert('RGBA')
+                
+                # Render color emoji using imagetext_py Writer
+                with Writer(pil_img) as writer:
+                    writer.draw_text_wrapped(
+                        text=emoji_char,
+                        x=w // 2,
+                        y=h // 2,
+                        ax=0.5,
+                        ay=0.5,
+                        size=font_size,
+                        width=w,
+                        font=font,
+                        fill=Paint.Color((0, 0, 0, 255)),
+                        align=TextAlign.Center,
+                        draw_emojis=True  # Enable color emoji rendering
+                    )
+                
+                # Draw green border if robot is on top
+                if self.agent_on_top:
+                    draw = ImageDraw.Draw(pil_img)
+                    border_width = 3
+                    green_color = (0, 255, 0, 255)
+                    draw.rectangle([(0, 0), (w-1, h-1)], outline=green_color, width=border_width)
+                
+                rgb_img = pil_img.convert('RGB')
+                img[:] = np.array(rgb_img)
+                return
         
         # Use PIL when use_emoji_color=False (monochrome)
         try:
@@ -520,36 +512,27 @@ class CustomRoomEnv(MiniGridEnv):
                 
                 # When use_robot_emoji_color=True, use imagetext_py for color emoji rendering
                 if use_robot_emoji_color:
-                    try:
-                        from imagetext_py import FontDB, Writer, Paint, TextAlign
+                    # Load font from src/asset/fonts/
+                    font_path = os.path.join(src_dir, 'asset', 'fonts', 'NotoEmoji-Regular.ttf')
+                    if os.path.exists(font_path):
+                        FontDB.LoadFromPath("NotoEmoji", font_path)
+                        font = FontDB.Query("NotoEmoji")
                         
-                        # Load font from src/asset/fonts/
-                        font_path = os.path.join(src_dir, 'asset', 'fonts', 'NotoEmoji-Regular.ttf')
-                        if os.path.exists(font_path):
-                            FontDB.LoadFromPath("NotoEmoji", font_path)
-                            font = FontDB.Query("NotoEmoji")
-                            
-                            # Render color emoji using imagetext_py Writer
-                            with Writer(bg_tile) as writer:
-                                writer.draw_text_wrapped(
-                                    text=robot_emoji_char,
-                                    x=actual_tile_size // 2,
-                                    y=actual_tile_size // 2,
-                                    ax=0.5,
-                                    ay=0.5,
-                                    size=font_size,
-                                    width=actual_tile_size,
-                                    font=font,
-                                    fill=Paint.Color((0, 0, 0, 255)),
-                                    align=TextAlign.Center,
-                                    draw_emojis=True  # Enable color emoji rendering
-                                )
-                    except ImportError:
-                        # Fallback to PIL (monochrome) if imagetext_py is not available
-                        use_robot_emoji_color = False
-                    except (OSError, IOError, ValueError):
-                        # Fallback to PIL on imagetext_py error
-                        use_robot_emoji_color = False
+                        # Render color emoji using imagetext_py Writer
+                        with Writer(bg_tile) as writer:
+                            writer.draw_text_wrapped(
+                                text=robot_emoji_char,
+                                x=actual_tile_size // 2,
+                                y=actual_tile_size // 2,
+                                ax=0.5,
+                                ay=0.5,
+                                size=font_size,
+                                width=actual_tile_size,
+                                font=font,
+                                fill=Paint.Color((0, 0, 0, 255)),
+                                align=TextAlign.Center,
+                                draw_emojis=True  # Enable color emoji rendering
+                            )
                 
                 # Use PIL (monochrome) when use_robot_emoji_color=False or imagetext_py usage failed
                 if not use_robot_emoji_color:

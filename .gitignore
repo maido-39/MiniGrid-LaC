@@ -45,6 +45,8 @@ Thumbs.db
 # 기타
 *.log
 *.tmp
+temp/
+tmp/
 
 # 로그 폴더
 logs/
