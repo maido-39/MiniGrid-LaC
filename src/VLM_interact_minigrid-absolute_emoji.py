@@ -5,7 +5,7 @@ Controls and visualizes MiniGrid environments using VLM.
 Provides absolute coordinate-based action space where robots can move directly up/down/left/right.
 
 Environment configuration:
-- 🧱(brick) emoji: 2x2 Grid, blue, can step on
+- 🧱(brick) emoji: 2x2 Grid, blue, cannot step on
 - 🖥️📱(desktop/workstation) emoji: 1x2 Grid, purple, can step on
 
 Usage:
@@ -28,6 +28,9 @@ register_minigrid_envs()
 VLM_MODEL = "gpt-4o"
 VLM_TEMPERATURE = 0.0
 VLM_MAX_TOKENS = 1000
+
+# Display configuration
+DISPLAY_MAX_SIZE = 1000  # Maximum window size for image display
 
 
 class AbsoluteDirectionEmojiWrapper(MiniGridEmojiWrapper):
@@ -259,9 +262,8 @@ def display_image(img, window_name="MiniGrid VLM Control (Absolute Emoji)", cell
             
             # Resize image
             height, width = img_bgr.shape[:2]
-            max_size = 1200  # Increased from 800 to 1200 for larger window
-            if height < max_size and width < max_size:
-                scale = min(max_size // height, max_size // width, 6)  # Increased max scale from 4 to 6
+            if height < DISPLAY_MAX_SIZE and width < DISPLAY_MAX_SIZE:
+                scale = min(DISPLAY_MAX_SIZE // height, DISPLAY_MAX_SIZE // width)
                 if scale > 1:
                     new_width = width * scale
                     new_height = height * scale
