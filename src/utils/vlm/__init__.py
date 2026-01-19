@@ -12,10 +12,13 @@ from .vlm_wrapper import ChatGPT4oVLMWrapper
 from .vlm_postprocessor import VLMResponsePostProcessor
 # Actual path: utils.vlm.vlm_controller
 from .vlm_controller import VLMController
+# Actual path: utils.vlm.vlm_processor
+from .vlm_processor import VLMProcessor
 
 __all__ = [
     "VLMManager",
     "ChatGPT4oVLMWrapper",
     "VLMResponsePostProcessor",
     "VLMController",
+    "VLMProcessor",
 ]

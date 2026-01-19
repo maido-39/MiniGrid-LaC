@@ -22,8 +22,8 @@ import numpy as np
 
 from utils.prompt_manager.prompt_interp import *
 import utils.prompt_manager.terminal_formatting_utils as tfu
-from utils.vlm_manager.vlm_wrapper import ChatGPT4oVLMWrapper
-from utils.vlm_manager.vlm_postprocessor import VLMResponsePostProcessor
+from utils.vlm.vlm_wrapper import ChatGPT4oVLMWrapper
+from utils.vlm.vlm_postprocessor import VLMResponsePostProcessor
 
 from utils.miscellaneous.global_variables import VLM_MAX_TOKENS, VLM_MODEL, VLM_TEMPERATURE
 

@@ -28,7 +28,7 @@ from typing import Union            # Union is used in visualize_grid_cli
 from datetime import datetime
 
 from utils.miscellaneous.visualizer import Visualizer
-from utils.vlm_manager.vlm_processor import VLMProcessor
+from utils.vlm.vlm_processor import VLMProcessor
 from utils.user_manager.user_interact import UserInteraction
 import utils.prompt_manager.terminal_formatting_utils as tfu
 from utils.prompt_manager.prompt_organizer import PromptOrganizer
@@ -409,8 +409,10 @@ class ScenarioExperiment:
             tfu.cprint("[Warning] No user prompt provided. Using empty prompt.", tfu.LIGHT_RED)
             self.user_prompt = default_prompt
         
-        # Feedback Evaluation
-        has_feedback = self._evaluate_feedback(self.user_prompt)
+        # Feedback Evaluation - use raw user input, not template-processed prompt
+        # This avoids false positives from template text (e.g., "don't" in task_prompt.txt)
+        raw_user_input = getattr(self.prompt_organizer, '_raw_user_input', '')
+        has_feedback = self._evaluate_feedback(raw_user_input)
         
         if has_feedback:
             # Feedback processing: If it starts with “feedback : ”

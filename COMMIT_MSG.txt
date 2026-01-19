@@ -1,0 +1,35 @@
+feat: Merge Stan commit features into src/ directory
+
+## Main Changes
+
+### Stan Commit Merge
+- Merged features from Stan commit into src/ directory structure
+- Reorganized codebase with modularized components
+
+### New Modularized Script
+- Add `src/scenario2_test_absolutemove_modularized.py`
+  - Modularized version using ScenarioExperiment class
+  - Similar structure to minigrid_lac.py
+  - Simplified main() function (79 lines vs 1091 lines)
+  - Uses utils.miscellaneous.scenario_runner.ScenarioExperiment
+
+### Bug Fixes
+- Fix false positive feedback detection in scenario_runner.py
+  - Problem: task_prompt.txt contains "don't" keyword, causing normal commands
+    like "move toward grey cabinet" to be detected as feedback
+  - Solution: Store raw user input and use it for feedback detection instead
+    of template-processed prompt
+  - Modified files:
+    * src/utils/prompt_manager/prompt_organizer.py
+      - Store raw user input in _raw_user_input attribute
+    * src/utils/miscellaneous/scenario_runner.py
+      - Use raw_user_input for _evaluate_feedback() instead of processed prompt
+
+### Technical Details
+- Feedback detection now checks original user input before template processing
+- Prevents false positives from template text (e.g., "don't" in task_prompt.txt)
+- Maintains backward compatibility with existing feedback keywords
+
+## Testing
+- Verified "move toward grey cabinet" is correctly identified as normal command
+- Feedback keywords still properly detected in user input

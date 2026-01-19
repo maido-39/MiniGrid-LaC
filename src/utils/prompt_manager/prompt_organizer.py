@@ -101,6 +101,7 @@ class PromptOrganizer:
     def get_user_prompt(self, default_prompt: str = None, init_step: bool = False) -> str:
         """
         Receive user prompt input (mission) either from terminal input or from a .txt file
+        Returns tuple: (processed_prompt, raw_input) if called with return_raw=True
         """
         
         # Default prompt determination (if no default_prompt is specified, use DEFAULT_MISSION)
@@ -120,6 +121,9 @@ class PromptOrganizer:
         tfu.cprint(f"(Example >> {actual_default})\n", tfu.LIGHT_BLACK, italic=True)
         
         user_input = input("> ").strip()
+        
+        # Store raw input for feedback detection
+        self._raw_user_input = user_input
         
         return mission_input_interp(user_input, actual_default)
 
