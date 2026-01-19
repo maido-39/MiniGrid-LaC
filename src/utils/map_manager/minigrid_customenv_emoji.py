@@ -117,7 +117,7 @@ class EmojiObject(WorldObj):
         h, w = img.shape[:2]
         font_size = int(min(h, w) * 0.8)
         
-        # Find src/ directory (go up from lib/map_manager to find src/)
+        # Find src/ directory (go up from utils/map_manager to find src/)
         current_file = os.path.abspath(__file__)
         src_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))  # src/ directory
         
@@ -409,7 +409,7 @@ class CustomRoomEnv(MiniGridEnv):
         
         try:
             import os
-            # Find src/ directory path (go up from lib/map_manager to find src/)
+            # Find src/ directory path (go up from utils/map_manager to find src/)
             current_file = os.path.abspath(__file__)
             src_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))  # src/ directory
             

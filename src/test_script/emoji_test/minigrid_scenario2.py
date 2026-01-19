@@ -4,8 +4,8 @@ MiniGrid 시나리오 2 환경 생성 예제
 프로젝트별 환경 생성 함수를 별도 파일로 관리하는 예제입니다.
 """
 
-# Actual path: lib.map_manager.minigrid_customenv_emoji
-from lib import MiniGridEmojiWrapper
+# Actual path: utils.map_manager.minigrid_customenv_emoji
+from utils import MiniGridEmojiWrapper
 from typing import Dict
 
 

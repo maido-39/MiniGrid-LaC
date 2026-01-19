@@ -1,7 +1,7 @@
 """
 Multigrid LaC Source Package
 
-This package makes the src/ directory a Python package to easily import lib/ modules.
+This package makes the src/ directory a Python package to easily import utils/ modules.
 """
 
 import sys

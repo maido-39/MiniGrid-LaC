@@ -117,7 +117,7 @@ class VLMController:
                 Defaults to ["action", "environment_info"].
         
         Examples:
-            >>> from lib import MiniGridEmojiWrapper, VLMController
+            >>> from utils import MiniGridEmojiWrapper, VLMController
             >>> 
             >>> # Create environment
             >>> env = MiniGridEmojiWrapper(size=10)
@@ -272,8 +272,8 @@ Respond in JSON format:
                 required fields.
         
         Examples:
-            >>> from lib import MiniGridEmojiWrapper
-            >>> from lib import VLMController
+            >>> from utils import MiniGridEmojiWrapper
+            >>> from utils import VLMController
             >>> 
             >>> # Create environment and controller
             >>> env = MiniGridEmojiWrapper(size=10)
@@ -377,7 +377,7 @@ Respond in JSON format:
             Exception: If action execution fails (depends on environment).
         
         Examples:
-            >>> from lib import MiniGridEmojiWrapper, VLMController
+            >>> from utils import MiniGridEmojiWrapper, VLMController
             >>> 
             >>> # Create environment and controller
             >>> env = MiniGridEmojiWrapper(size=10)

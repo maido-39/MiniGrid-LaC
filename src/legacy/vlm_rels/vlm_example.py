@@ -6,8 +6,8 @@ vlm_wrapper의 입력과 출력만 테스트하는 간단한 예제입니다.
 
 import numpy as np
 from PIL import Image
-# Actual path: lib.vlm.vlm_wrapper
-from lib import ChatGPT4oVLMWrapper
+# Actual path: utils.vlm.vlm_wrapper
+from utils import ChatGPT4oVLMWrapper
 
 
 def example_with_numpy_image():

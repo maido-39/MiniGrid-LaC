@@ -29,8 +29,8 @@
 from minigrid import register_minigrid_envs
 # Actual path: legacy.relative_movement.custom_environment
 from legacy import CustomRoomWrapper
-# Actual paths: lib.vlm.vlm_wrapper, lib.vlm.vlm_postprocessor
-from lib import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
+# Actual paths: utils.vlm.vlm_wrapper, utils.vlm.vlm_postprocessor
+from utils import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
 import numpy as np
 import cv2
 import json

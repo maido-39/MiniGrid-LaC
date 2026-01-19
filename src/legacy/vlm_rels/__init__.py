@@ -2,7 +2,7 @@
 Legacy VLM Relations Package
 
 Legacy VLM-related modules maintained for backward compatibility.
-New projects should use lib.vlm modules instead.
+New projects should use utils.vlm modules instead.
 """
 
 # Actual path: legacy.vlm_rels.minigrid_vlm_controller

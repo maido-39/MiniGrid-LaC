@@ -1,36 +1,55 @@
 """
-MiniGrid 환경을 위한 Gym Wrapper (이모지 및 절대좌표 이동 지원)
+Gym Wrapper for MiniGrid Environment (Emoji and Absolute Coordinate Movement Support)
 
-이 모듈은 MiniGrid 환경을 쉽게 생성하고 제어할 수 있는 Wrapper 클래스를 제공합니다.
-- 이모지 객체 지원 (emojiworld.py 기반)
-- 절대 좌표 이동 지원 (상/하/좌/우 직접 이동)
-- VLM(Vision Language Model)과의 연동을 고려하여 설계
+This module provides a Wrapper class for easily creating and controlling MiniGrid environments.
+- Emoji object support (based on emojiworld.py)
+- Absolute coordinate movement support (direct up/down/left/right movement)
+- Designed with VLM (Vision Language Model) integration in mind
 
-주요 기능:
-- 환경 초기화 시 size, walls, room_config 등을 지정
-- 이모지 객체 배치 및 파싱
-- 절대 방향 이동 (로봇 방향과 무관하게 상/하/좌/우 이동)
-- 현재 환경 이미지 반환 (VLM 입력용)
-- 액션 공간 제어 API
+Key features:
+- Specify size, walls, room_config, etc. during environment initialization
+- Emoji object placement and parsing
+- Absolute direction movement (up/down/left/right movement regardless of robot direction)
+- Return current environment image (for VLM input)
+- Action space control API
 """
 
 from minigrid import register_minigrid_envs
 from minigrid.core.grid import Grid
 from minigrid.core.world_object import Wall, Goal, Key, Ball, Box, Door, WorldObj
 from minigrid.core.mission import MissionSpace
+from minigrid.core.constants import OBJECT_TO_IDX, COLOR_TO_IDX
 from minigrid.minigrid_env import MiniGridEnv
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Union
 from PIL import Image, ImageDraw, ImageFont
 import os
+import hashlib
+from imagetext_py import FontDB, Writer, Paint, TextAlign
 
+# Register MiniGrid environments
+register_minigrid_envs()
 
-from gymnasium.envs.registration import registry, register
-# MiniGrid 환경 등록
-if "MiniGrid-Empty-8x8-v0" not in registry:
-    register_minigrid_envs()
+# Extend COLOR_TO_IDX with additional colors for emoji objects
+# This allows using more than the default 6 minigrid colors
+_base_color_count = len(COLOR_TO_IDX)
+EXTENDED_COLORS = {
+    'orange': _base_color_count,
+    'brown': _base_color_count + 1,
+    'pink': _base_color_count + 2,
+    'cyan': _base_color_count + 3,
+    'lime': _base_color_count + 4,
+    'navy': _base_color_count + 5,
+    'teal': _base_color_count + 6,
+    'magenta': _base_color_count + 7,
+    'olive': _base_color_count + 8,
+    'maroon': _base_color_count + 9,
+    'white': _base_color_count + 10,
+    'black': _base_color_count + 11,
+}
+COLOR_TO_IDX.update(EXTENDED_COLORS)
 
-# 이모지 이름과 실제 이모지 문자 매핑
+# Emoji name to actual emoji character mapping
 EMOJI_MAP = {
     'tree': '🌲',
     'mushroom': '🍄',
@@ -44,20 +63,28 @@ EMOJI_MAP = {
     'desktop': '🖥️',
     'workstation': '📱',
     'brick': '🧱',
+    'restroom' : '🚻',
+    'storage' : '🗄️',
+    'preperation' : '🧑‍🍳',
+    'kitchen' : '🍳',
+    'plating' : '🍽️',
+    'dining' : '🍴',
+    'water' : '💦',
+    'broom' : '🧹',
 }
 
 
 class EmojiObject(WorldObj):
-    """이모지를 표시하는 커스텀 객체"""
+    """Custom object that displays emoji"""
     
     def __init__(self, emoji_name: str, color: str = 'yellow', can_pickup: bool = False, can_overlap: bool = False, use_emoji_color: bool = True):
         super().__init__('box', color)
         self.emoji_name = emoji_name
         self._can_pickup = can_pickup
         self._can_overlap = can_overlap
-        self.use_emoji_color = use_emoji_color  # True: 원래 이모지 색상 사용, False: 색 있는 선으로 그리기
+        self.use_emoji_color = use_emoji_color  # True: use original emoji color, False: draw with colored stroke
         self.type = 'emoji'
-        self.agent_on_top = False  # 로봇이 위에 있는지 여부
+        self.agent_on_top = False  # Whether robot is on top
     
     def can_pickup(self):
         return self._can_pickup
@@ -65,69 +92,76 @@ class EmojiObject(WorldObj):
     def can_overlap(self):
         return self._can_overlap
     
+    @property
+    def cache_key(self):
+        """
+        A cache key used for rendering.
+        Includes the object's ID to ensure absolute uniqueness.
+        """
+        return (self.type, self.emoji_name, self.color, id(self))
+    
     def encode(self):
-        from minigrid.core.constants import OBJECT_TO_IDX, COLOR_TO_IDX
         obj_type_idx = OBJECT_TO_IDX['box']
-        color_idx = COLOR_TO_IDX[self.color]
-        return (obj_type_idx, color_idx, 0)
+        color_idx = COLOR_TO_IDX.get(self.color, COLOR_TO_IDX['grey'])
+        
+        # Use emoji_name hash to create unique state value
+        # This ensures different emojis with same color get different encodings
+        # This prevents rendering issues when multiple emojis share the same color
+        emoji_hash = int(hashlib.md5(self.emoji_name.encode()).hexdigest()[:8], 16)
+        state = emoji_hash % 256  # Keep within 0-255 range for minigrid compatibility
+        
+        return (obj_type_idx, color_idx, state)
     
     def render(self, img):
         emoji_char = EMOJI_MAP.get(self.emoji_name, '❓')
         h, w = img.shape[:2]
         font_size = int(min(h, w) * 0.8)
         
-        script_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+        # Find src/ directory (go up from utils/map_manager to find src/)
+        current_file = os.path.abspath(__file__)
+        src_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))  # src/ directory
         
-        # use_emoji_color=True일 때는 imagetext_py를 사용하여 컬러 이모지 렌더링
+        # When use_emoji_color=True, use imagetext_py for color emoji rendering
         if self.use_emoji_color:
-            try:
-                from imagetext_py import FontDB, Writer, Paint, TextAlign
+            # Load font from src/asset/fonts/
+            font_path = os.path.join(src_dir, 'asset', 'fonts', 'NotoEmoji-Regular.ttf')
+            if os.path.exists(font_path):
+                FontDB.LoadFromPath("NotoEmoji", font_path)
+                font = FontDB.Query("NotoEmoji")
                 
-                # 폰트 로드
-                font_path = os.path.join(script_dir, 'fonts', 'NotoEmoji-Regular.ttf')
-                if os.path.exists(font_path):
-                    FontDB.LoadFromPath("NotoEmoji", font_path)
-                    font = FontDB.Query("NotoEmoji")
-                    
-                    # 기존 이미지를 PIL Image로 변환
-                    pil_img = Image.fromarray(img.astype(np.uint8)).convert('RGBA')
-                    
-                    # imagetext_py Writer를 사용하여 컬러 이모지 렌더링
-                    with Writer(pil_img) as writer:
-                        writer.draw_text_wrapped(
-                            text=emoji_char,
-                            x=w // 2,
-                            y=h // 2,
-                            ax=0.5,
-                            ay=0.5,
-                            size=font_size,
-                            width=w,
-                            font=font,
-                            fill=Paint.Color((0, 0, 0, 255)),
-                            align=TextAlign.Center,
-                            draw_emojis=True  # 컬러 이모지 렌더링 활성화
-                        )
-                    
-                    # 로봇이 위에 있으면 초록색 테두리 그리기
-                    if self.agent_on_top:
-                        draw = ImageDraw.Draw(pil_img)
-                        border_width = 3
-                        green_color = (0, 255, 0, 255)
-                        draw.rectangle([(0, 0), (w-1, h-1)], outline=green_color, width=border_width)
-                    
-                    rgb_img = pil_img.convert('RGB')
-                    img[:] = np.array(rgb_img)
-                    return
-            except ImportError:
-                # imagetext_py가 없으면 에러 발생 (폴백 제거)
-                raise ImportError("imagetext_py is required for use_emoji_color=True. Please install imagetext_py.")
-            except (OSError, IOError, ValueError) as e:
-                # 파일 관련 오류 시 에러 발생
-                raise RuntimeError(f"Failed to render emoji with imagetext_py: {e}")
+                # Convert existing image to PIL Image
+                pil_img = Image.fromarray(img.astype(np.uint8)).convert('RGBA')
+                
+                # Render color emoji using imagetext_py Writer
+                with Writer(pil_img) as writer:
+                    writer.draw_text_wrapped(
+                        text=emoji_char,
+                        x=w // 2,
+                        y=h // 2,
+                        ax=0.5,
+                        ay=0.5,
+                        size=font_size,
+                        width=w,
+                        font=font,
+                        fill=Paint.Color((0, 0, 0, 255)),
+                        align=TextAlign.Center,
+                        draw_emojis=True  # Enable color emoji rendering
+                    )
+                
+                # Draw green border if robot is on top
+                if self.agent_on_top:
+                    draw = ImageDraw.Draw(pil_img)
+                    border_width = 3
+                    green_color = (0, 255, 0, 255)
+                    draw.rectangle([(0, 0), (w-1, h-1)], outline=green_color, width=border_width)
+                
+                rgb_img = pil_img.convert('RGB')
+                img[:] = np.array(rgb_img)
+                return
         
-        # use_emoji_color=False일 때 PIL 사용 (단색)
+        # Use PIL when use_emoji_color=False (monochrome)
         try:
-            regular_font_path = os.path.join(script_dir, 'fonts', 'NotoEmoji-Regular.ttf')
+            regular_font_path = os.path.join(src_dir, 'asset', 'fonts', 'NotoEmoji-Regular.ttf')
             if os.path.exists(regular_font_path):
                 font = ImageFont.truetype(regular_font_path, font_size)
             else:
@@ -159,7 +193,7 @@ class EmojiObject(WorldObj):
         x = (w - text_width) // 2
         y = (h - text_height) // 2 - 2
         
-        # 지정한 색상을 스트로크 색상으로 사용
+        # Use specified color as stroke color
         color_map = {
             'red': (255, 0, 0, 255),
             'green': (0, 255, 0, 255),
@@ -167,6 +201,18 @@ class EmojiObject(WorldObj):
             'purple': (128, 0, 128, 255),
             'yellow': (255, 255, 0, 255),
             'grey': (128, 128, 128, 255),
+            'orange': (255, 165, 0, 255),
+            'brown': (165, 42, 42, 255),
+            'pink': (255, 192, 203, 255),
+            'cyan': (0, 255, 255, 255),
+            'lime': (50, 205, 50, 255),
+            'navy': (0, 0, 128, 255),
+            'teal': (0, 128, 128, 255),
+            'magenta': (255, 0, 255, 255),
+            'olive': (128, 128, 0, 255),
+            'maroon': (128, 0, 0, 255),
+            'white': (255, 255, 255, 255),
+            'black': (0, 0, 0, 255),
         }
         stroke_color = color_map.get(self.color, (255, 255, 255, 255))
         
@@ -184,10 +230,10 @@ class EmojiObject(WorldObj):
             except (TypeError, ValueError, OSError):
                 pass
         
-        # 로봇이 위에 있으면 초록색 테두리 그리기
+        # Draw green border if robot is on top
         if self.agent_on_top:
             border_width = 3
-            green_color = (0, 255, 0, 255)  # 초록색
+            green_color = (0, 255, 0, 255)  # Green
             draw.rectangle([(0, 0), (w-1, h-1)], outline=green_color, width=border_width)
         
         rgb_img = pil_img.convert('RGB')
@@ -198,17 +244,17 @@ class EmojiObject(WorldObj):
 
 
 def _gen_mission_default():
-    """기본 미션 생성 함수"""
+    """Default mission generation function"""
     return "explore"
 
 
 class CustomRoomEnv(MiniGridEnv):
-    """커스텀 방 구조를 가진 MiniGrid 환경 클래스"""
+    """MiniGrid environment class with custom room structure"""
     
     def __init__(self, size=10, room_config=None, **kwargs):
         self.size = size
         self.room_config = room_config or {}
-        # 바닥 타일 정보 저장 (위치별 색상)
+        # Store floor tile information (color by position)
         self.floor_tiles = {}  # {(x, y): color}
         mission_space = MissionSpace(mission_func=_gen_mission_default)
         super().__init__(
@@ -286,17 +332,17 @@ class CustomRoomEnv(MiniGridEnv):
                         
                         self.put_obj(obj, obj_x, obj_y)
             
-            # 바닥 타일 정보 저장 (특정 위치의 바닥 색상)
-            # floor_tiles는 딕셔너리 형태로 전달됨: {(x, y): color}
+            # Store floor tile information (floor color at specific positions)
+            # floor_tiles is passed as dictionary: {(x, y): color}
             if 'floor_tiles' in self.room_config:
                 floor_tiles_data = self.room_config['floor_tiles']
                 if isinstance(floor_tiles_data, dict):
-                    # 딕셔너리 형태: {(x, y): color}
+                    # Dictionary format: {(x, y): color}
                     for (floor_x, floor_y), floor_color in floor_tiles_data.items():
                         if 0 <= floor_x < width and 0 <= floor_y < height:
                             self.floor_tiles[(floor_x, floor_y)] = floor_color
                 elif isinstance(floor_tiles_data, list):
-                    # 리스트 형태 (하위 호환성): [{'pos': (x, y), 'color': 'blue'}, ...]
+                    # List format (backward compatibility): [{'pos': (x, y), 'color': 'blue'}, ...]
                     for floor_info in floor_tiles_data:
                         if isinstance(floor_info, tuple):
                             if len(floor_info) == 2:
@@ -326,10 +372,10 @@ class CustomRoomEnv(MiniGridEnv):
         self.mission = self._gen_mission()
     
     def render(self):
-        # 로봇 위치 확인 및 이모지 객체에 표시
+        # Check robot position and mark on emoji objects
         if hasattr(self, 'agent_pos') and hasattr(self, 'grid'):
             agent_x, agent_y = int(self.agent_pos[0]), int(self.agent_pos[1])
-            # 모든 이모지 객체의 agent_on_top 초기화
+            # Initialize agent_on_top for all emoji objects
             for y in range(self.grid.height):
                 for x in range(self.grid.width):
                     cell = self.grid.get(x, y)
@@ -340,7 +386,7 @@ class CustomRoomEnv(MiniGridEnv):
         if frame is None:
             return frame
         
-        # 바닥 색상 적용 (로봇 렌더링 전에 수행)
+        # Apply floor colors (before robot rendering)
         floor_color = self.room_config.get('floor_color', None)
         if floor_color is not None or hasattr(self, 'floor_tiles'):
             frame = self._apply_floor_colors(frame, floor_color, apply_robot_glow=False)
@@ -363,9 +409,11 @@ class CustomRoomEnv(MiniGridEnv):
         
         try:
             import os
-            script_dir = os.path.dirname(os.path.abspath(__file__))
+            # Find src/ directory path (go up from utils/map_manager to find src/)
+            current_file = os.path.abspath(__file__)
+            src_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))  # src/ directory
             
-            # room_config에서 use_robot_emoji 확인
+            # Check use_robot_emoji from room_config
             use_robot_emoji = self.room_config.get('use_robot_emoji', False)
             robot_emoji_char = '🤖' if use_robot_emoji else None
             robot_emoji_color = self.room_config.get('robot_emoji_color', 'yellow')
@@ -375,6 +423,8 @@ class CustomRoomEnv(MiniGridEnv):
             
             cell = self.grid.get(agent_x, agent_y)
             try:
+                # Grid.render_tile call: signature (obj, agent_dir=None, highlight=False, tile_size=32, subdivs=3)
+                # Note: Linter shows error but execution works fine (execution tested)
                 bg_tile_img = Grid.render_tile(
                     cell,
                     (agent_x, agent_y),
@@ -456,48 +506,39 @@ class CustomRoomEnv(MiniGridEnv):
                 else:
                     bg_tile = agent_tile
             
-            # 로봇 이모지 모드인 경우
+            # If robot emoji mode
             if use_robot_emoji and robot_emoji_char:
                 font_size = int(actual_tile_size * 0.8)
                 
-                # use_robot_emoji_color=True일 때는 imagetext_py를 사용하여 컬러 이모지 렌더링
+                # When use_robot_emoji_color=True, use imagetext_py for color emoji rendering
                 if use_robot_emoji_color:
-                    try:
-                        from imagetext_py import FontDB, Writer, Paint, TextAlign
+                    # Load font from src/asset/fonts/
+                    font_path = os.path.join(src_dir, 'asset', 'fonts', 'NotoEmoji-Regular.ttf')
+                    if os.path.exists(font_path):
+                        FontDB.LoadFromPath("NotoEmoji", font_path)
+                        font = FontDB.Query("NotoEmoji")
                         
-                        # 폰트 로드
-                        font_path = os.path.join(script_dir, 'fonts', 'NotoEmoji-Regular.ttf')
-                        if os.path.exists(font_path):
-                            FontDB.LoadFromPath("NotoEmoji", font_path)
-                            font = FontDB.Query("NotoEmoji")
-                            
-                            # imagetext_py Writer를 사용하여 컬러 이모지 렌더링
-                            with Writer(bg_tile) as writer:
-                                writer.draw_text_wrapped(
-                                    text=robot_emoji_char,
-                                    x=actual_tile_size // 2,
-                                    y=actual_tile_size // 2,
-                                    ax=0.5,
-                                    ay=0.5,
-                                    size=font_size,
-                                    width=actual_tile_size,
-                                    font=font,
-                                    fill=Paint.Color((0, 0, 0, 255)),
-                                    align=TextAlign.Center,
-                                    draw_emojis=True  # 컬러 이모지 렌더링 활성화
-                                )
-                    except ImportError:
-                        # imagetext_py가 없으면 PIL로 폴백 (단색)
-                        use_robot_emoji_color = False
-                    except (OSError, IOError, ValueError):
-                        # imagetext_py 오류 시 PIL로 폴백
-                        use_robot_emoji_color = False
+                        # Render color emoji using imagetext_py Writer
+                        with Writer(bg_tile) as writer:
+                            writer.draw_text_wrapped(
+                                text=robot_emoji_char,
+                                x=actual_tile_size // 2,
+                                y=actual_tile_size // 2,
+                                ax=0.5,
+                                ay=0.5,
+                                size=font_size,
+                                width=actual_tile_size,
+                                font=font,
+                                fill=Paint.Color((0, 0, 0, 255)),
+                                align=TextAlign.Center,
+                                draw_emojis=True  # Enable color emoji rendering
+                            )
                 
-                # use_robot_emoji_color=False일 때 또는 imagetext_py 사용 실패 시 PIL 사용 (단색)
+                # Use PIL (monochrome) when use_robot_emoji_color=False or imagetext_py usage failed
                 if not use_robot_emoji_color:
                     font = None
                     try:
-                        local_font_path = os.path.join(script_dir, 'fonts', 'NotoEmoji-Regular.ttf')
+                        local_font_path = os.path.join(src_dir, 'asset', 'fonts', 'NotoEmoji-Regular.ttf')
                         if os.path.exists(local_font_path):
                             font = ImageFont.truetype(local_font_path, font_size)
                     except Exception:
@@ -505,7 +546,7 @@ class CustomRoomEnv(MiniGridEnv):
                     
                     draw = ImageDraw.Draw(bg_tile)
                     
-                    # 이모지 텍스트 크기 계산
+                    # Calculate emoji text size
                     if font:
                         try:
                             bbox = draw.textbbox((0, 0), robot_emoji_char, font=font)
@@ -524,11 +565,11 @@ class CustomRoomEnv(MiniGridEnv):
                         text_width = font_size
                         text_height = font_size
                     
-                    # 중앙에 이모지 그리기
+                    # Draw emoji at center
                     x = (actual_tile_size - text_width) // 2
                     y = (actual_tile_size - text_height) // 2 - 2
                     
-                    # 색상 맵 (다른 오브젝트들과 동일한 색상 시스템 사용)
+                    # Color map (use same color system as other objects)
                     color_map = {
                         'red': (255, 0, 0, 255),
                         'green': (0, 255, 0, 255),
@@ -552,8 +593,8 @@ class CustomRoomEnv(MiniGridEnv):
                         except:
                             pass
             else:
-                # arrow.png 이미지 모드 (기본)
-                arrow_img_path = os.path.join(script_dir, 'asset', 'arrow.png')
+                # arrow.png image mode (default)
+                arrow_img_path = os.path.join(src_dir, 'asset', 'arrow.png')
                 
                 if os.path.exists(arrow_img_path):
                     arrow_img = Image.open(arrow_img_path).convert('RGBA')
@@ -572,7 +613,7 @@ class CustomRoomEnv(MiniGridEnv):
         except Exception:
             pass
         
-        # 로봇 위치 바닥 빛나게 처리 (로봇 렌더링 후)
+        # Make floor at robot position glow (after robot rendering)
         if hasattr(self, 'agent_pos'):
             frame = self._apply_robot_floor_glow(frame)
         
@@ -580,16 +621,16 @@ class CustomRoomEnv(MiniGridEnv):
     
     def _apply_floor_colors(self, frame: np.ndarray, floor_color: Optional[str] = None, apply_robot_glow: bool = False) -> np.ndarray:
         """
-        바닥 색상 변경 처리 (로봇 렌더링 전에 호출)
+        Apply floor color changes (called before robot rendering)
         
         Args:
-            frame: 원본 프레임
-            floor_color: 전체 바닥 색상 (None이면 기본 색상 유지)
-                        특정 위치의 바닥 색상은 floor_tiles에서 가져옴
-            apply_robot_glow: 로봇 위치 초록색 테두리 적용 여부 (기본값: False)
+            frame: Original frame
+            floor_color: Overall floor color (if None, keep default color)
+                        Floor color at specific positions is taken from floor_tiles
+            apply_robot_glow: Whether to apply green border at robot position (default: False)
         
         Returns:
-            수정된 프레임
+            Modified frame
         """
         if not hasattr(self, 'grid'):
             return frame
@@ -600,7 +641,7 @@ class CustomRoomEnv(MiniGridEnv):
         
         actual_tile_size = self.tile_size if hasattr(self, 'tile_size') else 32
         
-        # 색상 맵
+        # Color map
         color_map = {
             'red': (200, 100, 100),
             'green': (100, 200, 100),
@@ -608,23 +649,33 @@ class CustomRoomEnv(MiniGridEnv):
             'purple': (150, 100, 150),
             'yellow': (200, 200, 100),
             'grey': (128, 128, 128),
+            'orange': (255, 165, 0),
+            'brown': (165, 42, 42),
+            'pink': (255, 192, 203),
+            'cyan': (0, 255, 255),
+            'lime': (50, 205, 50),
+            'navy': (0, 0, 128),
+            'teal': (0, 128, 128),
+            'magenta': (255, 0, 255),
+            'olive': (128, 128, 0),
+            'maroon': (128, 0, 0),
             'white': (240, 240, 240),
             'black': (50, 50, 50),
         }
         
-        # 기본 바닥 색상 (회색)
+        # Default floor color (grey)
         default_floor_color = (128, 128, 128)
         global_floor_color = color_map.get(floor_color, default_floor_color) if floor_color else None
         
         pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')
         draw = ImageDraw.Draw(pil_frame)
         
-        # 모든 타일 순회
+        # Iterate through all tiles
         for y in range(self.grid.height):
             for x in range(self.grid.width):
                 cell = self.grid.get(x, y)
                 
-                # 빈 타일(바닥)이거나 통과 가능한 이모지 객체인 경우
+                # Empty tile (floor) or passable emoji object
                 is_floor = (cell is None) or (
                     hasattr(cell, 'type') and 
                     cell.type == 'emoji' and 
@@ -638,19 +689,19 @@ class CustomRoomEnv(MiniGridEnv):
                     tile_end_x = tile_x + actual_tile_size
                     tile_end_y = tile_y + actual_tile_size
                     
-                    # 로봇 위치는 바닥 색상 적용하지 않음 (로봇이 그려진 후에 초록색 테두리만 추가)
+                    # Don't apply floor color to robot position (only add green border after robot is drawn)
                     if apply_robot_glow and agent_x is not None and agent_y is not None and x == agent_x and y == agent_y:
                         continue
                     
-                    # 특정 위치의 바닥 색상 (우선순위 높음)
+                    # Floor color for specific position (higher priority)
                     tile_floor_color = None
                     if hasattr(self, 'floor_tiles') and (x, y) in self.floor_tiles:
                         tile_floor_color = color_map.get(self.floor_tiles[(x, y)], default_floor_color)
-                    # 전체 바닥 색상 (특정 위치가 없을 때만 적용)
+                    # Global floor color (only applied when no specific position)
                     elif global_floor_color is not None:
                         tile_floor_color = global_floor_color
                     
-                    # 바닥 색상 적용
+                    # Apply floor color
                     if tile_floor_color is not None:
                         draw.rectangle(
                             [(tile_x, tile_y), (tile_end_x - 1, tile_end_y - 1)],
@@ -661,13 +712,13 @@ class CustomRoomEnv(MiniGridEnv):
     
     def _apply_robot_floor_glow(self, frame: np.ndarray) -> np.ndarray:
         """
-        로봇 위치 바닥에 초록색 테두리 추가 (로봇 렌더링 후에 호출)
+        Add green border to floor at robot position (called after robot rendering)
         
         Args:
-            frame: 로봇이 렌더링된 프레임
+            frame: Frame with robot rendered
         
         Returns:
-            수정된 프레임
+            Modified frame
         """
         if not hasattr(self, 'agent_pos') or not hasattr(self, 'grid'):
             return frame
@@ -683,9 +734,9 @@ class CustomRoomEnv(MiniGridEnv):
         tile_end_x = tile_x + actual_tile_size
         tile_end_y = tile_y + actual_tile_size
         
-        # 로봇이 있는 위치의 바닥에 초록색 테두리 그리기 (이모지처럼 빛나게)
+        # Draw green border on floor at robot position (glow like emoji)
         border_width = 3
-        green_color = (0, 255, 0, 255)  # 초록색 테두리
+        green_color = (0, 255, 0, 255)  # Green border
         draw.rectangle(
             [(tile_x, tile_y), (tile_end_x - 1, tile_end_y - 1)],
             outline=green_color,
@@ -697,15 +748,15 @@ class CustomRoomEnv(MiniGridEnv):
 
 class MiniGridEmojiWrapper:
     """
-    MiniGrid 환경을 제어하기 위한 Wrapper 클래스 (이모지 및 절대좌표 이동 지원)
+    Wrapper class for controlling MiniGrid environment (supports emoji and absolute coordinate movement)
     
-    주요 기능:
-    - 이모지 객체 배치 및 파싱
-    - 절대 방향 이동 (상/하/좌/우 직접 이동)
-    - 환경 생성, 조작, 정보 파싱 API
+    Main features:
+    - Emoji object placement and parsing
+    - Absolute direction movement (direct up/down/left/right movement)
+    - Environment creation, manipulation, and information parsing API
     """
     
-    # 기본 액션 (상대 방향)
+    # Default actions (relative direction)
     ACTION_NAMES = {
         0: "turn left",
         1: "turn right", 
@@ -726,7 +777,7 @@ class MiniGridEmojiWrapper:
         "toggle": 6, "interact": 6, "use": 6, "activate": 6
     }
     
-    # 절대 방향 액션
+    # Absolute direction actions
     ABSOLUTE_ACTION_NAMES = {
         0: "move up",      # North
         1: "move down",    # South
@@ -756,11 +807,53 @@ class MiniGridEmojiWrapper:
         use_absolute_movement: bool = True,
         **kwargs
     ):
-        """
+        """Initialize MiniGrid environment wrapper with emoji support.
+        
+        Creates a MiniGrid environment wrapper that supports emoji objects and
+        absolute direction movement. The wrapper provides a high-level interface
+        for environment control, making it easy to use with VLM controllers.
+        
         Args:
-            use_absolute_movement: 절대 움직임 모드 활성화 여부 (기본값: True)
-                - True: step() 메서드가 절대 방향 액션을 받아 처리 (표준)
-                - False: step() 메서드가 상대 방향 액션을 받아 처리 (레거시)
+            size: Grid size (width and height). Defaults to 10.
+            walls: List of wall positions as (x, y) tuples. If None, no walls
+                are added. Defaults to None.
+            room_config: Dictionary containing room configuration. Can include:
+                - 'start_pos': (x, y) tuple for agent start position
+                - 'goal_pos': (x, y) tuple for goal position
+                - 'walls': List of (x, y, color) tuples for walls
+                - 'objects': List of object dictionaries (emoji objects, etc.)
+                - 'floor_tiles': Dict mapping (x, y) to color strings
+                - 'use_robot_emoji': bool for robot emoji rendering
+                - 'robot_emoji_color': str for robot emoji color
+                If None, empty config is used. Defaults to None.
+            render_mode: Rendering mode. Must be 'rgb_array' for image output.
+                Defaults to 'rgb_array'.
+            use_absolute_movement: Whether to enable absolute movement mode.
+                - True: step() method receives and processes absolute direction
+                    actions (up/down/left/right). This is the standard mode.
+                - False: step() method receives and processes relative direction
+                    actions (turn left/right, move forward/backward). Legacy mode.
+                Defaults to True.
+            **kwargs: Additional keyword arguments passed to CustomRoomEnv.
+        
+        Examples:
+            >>> # Create a simple 10x10 environment
+            >>> wrapper = MiniGridEmojiWrapper(size=10)
+            >>> obs, info = wrapper.reset()
+            >>> 
+            >>> # Create environment with walls
+            >>> walls = [(5, 5), (5, 6), (6, 5)]
+            >>> wrapper = MiniGridEmojiWrapper(size=10, walls=walls)
+            >>> 
+            >>> # Create environment from room_config
+            >>> room_config = {
+            ...     'start_pos': (1, 1),
+            ...     'goal_pos': (8, 8),
+            ...     'objects': [
+            ...         {'type': 'emoji', 'pos': (3, 3), 'emoji_name': 'tree'}
+            ...     ]
+            ... }
+            >>> wrapper = MiniGridEmojiWrapper(size=10, room_config=room_config)
         """
         self.size = size
         self.walls = walls or []
@@ -785,21 +878,83 @@ class MiniGridEmojiWrapper:
         self.current_info = None
     
     def reset(self, seed: Optional[int] = None) -> Tuple[np.ndarray, Dict]:
+        """Reset the environment to initial state.
+        
+        Resets the environment and returns the initial observation and info.
+        This should be called at the start of each episode.
+        
+        Args:
+            seed: Random seed for environment reset. If None, uses random seed.
+                Defaults to None.
+        
+        Returns:
+            Tuple containing:
+                - observation: numpy array of shape (height, width, 3) representing
+                    the initial state of the environment as an RGB image.
+                - info: Dictionary containing additional information about the
+                    initial state (e.g., agent position, mission text).
+        
+        Examples:
+            >>> wrapper = MiniGridEmojiWrapper(size=10)
+            >>> obs, info = wrapper.reset()
+            >>> print(f"Agent position: {info.get('agent_pos')}")
+        """
         self.current_obs, self.current_info = self.env.reset(seed=seed)
         return self.current_obs, self.current_info
     
     def step(self, action: Union[int, str]) -> Tuple[Dict, float, bool, bool, Dict]:
-        """
-        액션 실행
+        """Execute an action in the environment.
         
-        use_absolute_movement=True인 경우 절대 방향 액션으로 처리,
-        False인 경우 상대 방향 액션으로 처리합니다.
+        Executes the given action and returns the new observation, reward,
+        termination status, truncation status, and info dictionary.
+        
+        The behavior depends on the `use_absolute_movement` setting:
+        - If True (default): Action is interpreted as an absolute direction
+          (up/down/left/right). The robot will automatically rotate to face
+          the correct direction before moving.
+        - If False: Action is interpreted as a relative direction
+          (turn left/right, move forward/backward).
+        
+        Args:
+            action: Action to execute. Can be:
+                - Integer: Action index (0-6 for absolute, 0-6 for relative)
+                - String: Action name (e.g., "move up", "turn left", "pickup")
+                For absolute movement: "move up", "move down", "move left",
+                "move right", "pickup", "drop", "toggle"
+                For relative movement: "turn left", "turn right", "move forward",
+                "move backward", "pickup", "drop", "toggle"
+        
+        Returns:
+            Tuple containing:
+                - observation: Dictionary or numpy array representing the new
+                    state of the environment.
+                - reward: float representing the reward for this step.
+                - terminated: bool indicating if the episode has ended due to
+                    reaching a terminal state (e.g., goal reached).
+                - truncated: bool indicating if the episode was truncated
+                    (e.g., max steps reached).
+                - info: Dictionary containing additional information about
+                    the step (e.g., agent position, mission status).
+        
+        Examples:
+            >>> wrapper = MiniGridEmojiWrapper(size=10, use_absolute_movement=True)
+            >>> obs, info = wrapper.reset()
+            >>> 
+            >>> # Move up (absolute direction)
+            >>> obs, reward, done, truncated, info = wrapper.step("move up")
+            >>> 
+            >>> # Or use integer index
+            >>> obs, reward, done, truncated, info = wrapper.step(0)  # move up
+            >>> 
+            >>> # With relative movement mode
+            >>> wrapper_rel = MiniGridEmojiWrapper(size=10, use_absolute_movement=False)
+            >>> obs, reward, done, truncated, info = wrapper_rel.step("move forward")
         """
         if self.use_absolute_movement:
-            # 절대 움직임 모드: step_absolute 사용
+            # Absolute movement mode: use step_absolute
             return self.step_absolute(action)
         else:
-            # 상대 움직임 모드: 기존 방식
+            # Relative movement mode: use existing method
             if isinstance(action, str):
                 action = self.parse_action(action)
             
@@ -809,12 +964,12 @@ class MiniGridEmojiWrapper:
             return obs, reward, terminated, truncated, info
     
     def _get_target_direction(self, absolute_action: int) -> int:
-        """절대 액션을 MiniGrid 방향으로 변환"""
+        """Convert absolute action to MiniGrid direction"""
         direction_map = {0: 3, 1: 1, 2: 2, 3: 0}  # up->North, down->South, left->West, right->East
         return direction_map.get(absolute_action, 0)
     
     def _calculate_rotation(self, current_dir: int, target_dir: int) -> list:
-        """현재 방향에서 목표 방향으로 회전하기 위한 액션 시퀀스 계산"""
+        """Calculate action sequence to rotate from current direction to target direction"""
         if current_dir == target_dir:
             return []
         
@@ -830,37 +985,79 @@ class MiniGridEmojiWrapper:
         return []
     
     def step_absolute(self, action: Union[int, str]) -> Tuple[Dict, float, bool, bool, Dict]:
-        """
-        절대 방향 액션을 실행
+        """Execute an absolute direction action.
+        
+        Moves the robot in an absolute direction (North/South/East/West)
+        regardless of the robot's current heading. The robot will automatically
+        rotate to face the correct direction before moving.
+        
+        This method is useful for VLM control where the model can specify
+        directions like "move up" without needing to know the robot's current
+        orientation.
         
         Args:
-            action: 절대 방향 액션 (정수 인덱스 또는 액션 이름 문자열)
-                - 0 또는 "move up": 위로 이동 (North)
-                - 1 또는 "move down": 아래로 이동 (South)
-                - 2 또는 "move left": 왼쪽으로 이동 (West)
-                - 3 또는 "move right": 오른쪽으로 이동 (East)
-                - 4 또는 "pickup": 물체 집기
-                - 5 또는 "drop": 물체 놓기
-                - 6 또는 "toggle": 상호작용
+            action: Absolute direction action. Can be:
+                - Integer index: 0-6
+                    - 0: Move up (North)
+                    - 1: Move down (South)
+                    - 2: Move left (West)
+                    - 3: Move right (East)
+                    - 4: Pick up object
+                    - 5: Drop object
+                    - 6: Toggle/interact
+                - String: Action name or alias
+                    - "move up", "up", "north", "n": Move up
+                    - "move down", "down", "south", "s": Move down
+                    - "move left", "left", "west", "w": Move left
+                    - "move right", "right", "east", "e": Move right
+                    - "pickup", "pick up", "grab": Pick up object
+                    - "drop", "put down", "release": Drop object
+                    - "toggle", "interact", "use": Toggle/interact
+        
+        Returns:
+            Tuple containing:
+                - observation: Dictionary or numpy array of the new state.
+                - reward: float reward value.
+                - terminated: bool indicating terminal state reached.
+                - truncated: bool indicating episode truncation.
+                - info: Dictionary with additional step information.
+        
+        Examples:
+            >>> wrapper = MiniGridEmojiWrapper(size=10)
+            >>> obs, info = wrapper.reset()
+            >>> 
+            >>> # Move north (up) regardless of current heading
+            >>> obs, reward, done, truncated, info = wrapper.step_absolute("move up")
+            >>> 
+            >>> # Move east (right)
+            >>> obs, reward, done, truncated, info = wrapper.step_absolute(3)
+            >>> 
+            >>> # Pick up an object
+            >>> obs, reward, done, truncated, info = wrapper.step_absolute("pickup")
+        
+        Note:
+            For movement actions (0-3), the robot will automatically rotate
+            to face the target direction before moving. Non-movement actions
+            (4-6) are executed directly without rotation.
         """
         if isinstance(action, str):
             action = self.parse_absolute_action(action)
         
-        # 이동 액션이 아닌 경우 (pickup, drop, toggle) 직접 실행
+        # For non-movement actions (pickup, drop, toggle), execute directly
         if action >= 4:
-            # 상대 움직임 모드로 직접 env.step() 호출 (재귀 방지)
+            # Call env.step() directly in relative movement mode (prevent recursion)
             obs, reward, terminated, truncated, info = self.env.step(action)
             self.current_obs = obs
             self.current_info = info
             return obs, reward, terminated, truncated, info
         
-        # 이동 액션인 경우: 현재 방향 확인 후 필요한 회전 수행
+        # For movement actions: check current direction and perform necessary rotation
         current_dir = self.env.agent_dir
         target_dir = self._get_target_direction(action)
         
         rotation_actions = self._calculate_rotation(current_dir, target_dir)
         
-        # 회전 액션 실행 (상대 움직임 모드로 직접 env.step() 호출)
+        # Execute rotation actions (call env.step() directly in relative movement mode)
         for rot_action in rotation_actions:
             obs, reward, terminated, truncated, info = self.env.step(rot_action)
             self.current_obs = obs
@@ -868,14 +1065,48 @@ class MiniGridEmojiWrapper:
             if terminated or truncated:
                 return obs, reward, terminated, truncated, info
         
-        # 목표 방향으로 회전 완료 후 전진 (상대 움직임 모드로 직접 env.step() 호출)
+        # After rotation to target direction, move forward (call env.step() directly in relative movement mode)
         obs, reward, terminated, truncated, info = self.env.step(2)  # move forward
         self.current_obs = obs
         self.current_info = info
         return obs, reward, terminated, truncated, info
     
     def get_image(self, fov_range: Optional[int] = None, fov_width: Optional[int] = None) -> np.ndarray:
-        """현재 환경의 이미지를 반환 (VLM 입력용)"""
+        """Get the current environment state as an RGB image.
+        
+        Returns the current state of the environment as a numpy array image,
+        suitable for input to Vision Language Models (VLMs). Optionally applies
+        field-of-view (FOV) limitations to simulate limited visibility.
+        
+        Args:
+            fov_range: Maximum forward range for field of view. If None, returns
+                full visibility image. Defaults to None.
+            fov_width: Maximum width (left/right) for field of view. If None,
+                returns full visibility image. Defaults to None.
+        
+        Returns:
+            numpy.ndarray: RGB image of shape (height, width, 3) with dtype uint8.
+                Height and width are typically size * 32 pixels.
+                If FOV parameters are provided, areas outside the field of view
+                are masked in black.
+        
+        Examples:
+            >>> wrapper = MiniGridEmojiWrapper(size=10)
+            >>> obs, info = wrapper.reset()
+            >>> 
+            >>> # Get full image
+            >>> image = wrapper.get_image()
+            >>> print(f"Image shape: {image.shape}")  # (320, 320, 3)
+            >>> 
+            >>> # Get image with limited field of view
+            >>> image_fov = wrapper.get_image(fov_range=3, fov_width=2)
+            >>> # Areas outside FOV are black
+        
+        Note:
+            This method is typically used to get images for VLM input. The image
+            shows the current state of the environment including walls, objects,
+            the robot, and goal markers.
+        """
         image = self.env.render()
         if image is None:
             return np.zeros((self.size * 32, self.size * 32, 3), dtype=np.uint8)
@@ -886,7 +1117,7 @@ class MiniGridEmojiWrapper:
         return image
     
     def _apply_fog_of_war(self, image: np.ndarray, fov_range: int, fov_width: int) -> np.ndarray:
-        """시야 제한을 적용하여 시야 밖의 영역을 검은색으로 마스킹"""
+        """Apply field of view limitation, masking areas outside view in black"""
         if not hasattr(self.env, 'agent_pos') or not hasattr(self.env, 'agent_dir'):
             return image
         
@@ -933,7 +1164,7 @@ class MiniGridEmojiWrapper:
         return masked_image
     
     def get_action_space(self) -> Dict:
-        """액션 공간 정보 반환"""
+        """Return action space information"""
         return {
             'n': self.env.action_space.n,
             'actions': list(self.ACTION_NAMES.values()),
@@ -942,7 +1173,36 @@ class MiniGridEmojiWrapper:
         }
     
     def get_absolute_action_space(self) -> Dict:
-        """절대 방향 액션 공간 정보 반환"""
+        """Get information about the absolute direction action space.
+        
+        Returns a dictionary containing details about the available absolute
+        direction actions, including action names, aliases, and mappings.
+        This is useful for understanding what actions are available and for
+        displaying action options to users or VLMs.
+        
+        Returns:
+            Dictionary containing:
+                - 'n': Integer, number of actions (7)
+                - 'actions': List of action name strings:
+                    ["move up", "move down", "move left", "move right",
+                     "pickup", "drop", "toggle"]
+                - 'action_mapping': Dictionary mapping index to action name:
+                    {0: "move up", 1: "move down", ...}
+                - 'action_aliases': Dictionary mapping aliases to indices:
+                    {"up": 0, "down": 1, "north": 0, "south": 1, ...}
+        
+        Examples:
+            >>> wrapper = MiniGridEmojiWrapper(size=10)
+            >>> action_space = wrapper.get_absolute_action_space()
+            >>> 
+            >>> print(f"Number of actions: {action_space['n']}")
+            >>> print(f"Available actions: {action_space['actions']}")
+            >>> 
+            >>> # Check if an alias exists
+            >>> if "up" in action_space['action_aliases']:
+            ...     action_idx = action_space['action_aliases']["up"]
+            ...     print(f"Action index for 'up': {action_idx}")
+        """
         return {
             'n': 7,
             'actions': list(self.ABSOLUTE_ACTION_NAMES.values()),
@@ -951,7 +1211,7 @@ class MiniGridEmojiWrapper:
         }
     
     def parse_action(self, action_str: str) -> int:
-        """액션 문자열을 인덱스로 변환 (상대 방향)"""
+        """Convert action string to index (relative direction)"""
         action_str = action_str.strip()
         
         try:
@@ -976,7 +1236,47 @@ class MiniGridEmojiWrapper:
         )
     
     def parse_absolute_action(self, action_str: str) -> int:
-        """절대 방향 액션 문자열을 인덱스로 변환"""
+        """Parse an absolute direction action string to its integer index.
+        
+        Converts a string representation of an absolute direction action
+        (e.g., "move up", "north", "up") to its corresponding integer index
+        (0-6). This is useful when receiving action commands from VLMs or
+        other text-based sources.
+        
+        Args:
+            action_str: String representation of the action. Can be:
+                - Integer string: "0", "1", "2", etc. (0-6)
+                - Action name: "move up", "move down", "move left", "move right"
+                - Alias: "up", "down", "left", "right", "north", "south", etc.
+                - Other actions: "pickup", "drop", "toggle"
+                Case-insensitive.
+        
+        Returns:
+            Integer action index (0-6):
+                - 0: move up (North)
+                - 1: move down (South)
+                - 2: move left (West)
+                - 3: move right (East)
+                - 4: pickup
+                - 5: drop
+                - 6: toggle
+        
+        Raises:
+            ValueError: If the action string is not recognized.
+        
+        Examples:
+            >>> wrapper = MiniGridEmojiWrapper(size=10)
+            >>> 
+            >>> # Parse various action strings
+            >>> wrapper.parse_absolute_action("move up")  # 0
+            >>> wrapper.parse_absolute_action("north")   # 0
+            >>> wrapper.parse_absolute_action("up")       # 0
+            >>> wrapper.parse_absolute_action("n")        # 0
+            >>> wrapper.parse_absolute_action("move right")  # 3
+            >>> wrapper.parse_absolute_action("east")     # 3
+            >>> wrapper.parse_absolute_action("pickup")   # 4
+            >>> wrapper.parse_absolute_action("0")        # 0
+        """
         action_str = action_str.strip()
         
         try:
@@ -1001,7 +1301,36 @@ class MiniGridEmojiWrapper:
         )
     
     def get_state(self) -> Dict:
-        """현재 환경 상태 정보 반환"""
+        """Get the current environment state information.
+        
+        Returns a dictionary containing the current state of the environment,
+        including agent position, direction, mission text, and current image.
+        
+        Returns:
+            Dictionary containing:
+                - 'agent_pos': Tuple (x, y) of agent's current position.
+                - 'agent_dir': Integer (0-3) representing agent's heading direction:
+                    - 0: East (right)
+                    - 1: South (down)
+                    - 2: West (left)
+                    - 3: North (up)
+                - 'mission': String containing the current mission/objective text.
+                - 'image': numpy.ndarray of shape (H, W, 3) representing the
+                    current environment state as an RGB image.
+        
+        Examples:
+            >>> wrapper = MiniGridEmojiWrapper(size=10)
+            >>> obs, info = wrapper.reset()
+            >>> 
+            >>> # Get current state
+            >>> state = wrapper.get_state()
+            >>> print(f"Agent at: {state['agent_pos']}")
+            >>> print(f"Facing: {state['agent_dir']}")
+            >>> print(f"Mission: {state['mission']}")
+            >>> 
+            >>> # Use state for VLM input
+            >>> image = state['image']
+        """
         agent_pos = None
         if hasattr(self.env, 'agent_pos'):
             if isinstance(self.env.agent_pos, np.ndarray):
@@ -1017,7 +1346,7 @@ class MiniGridEmojiWrapper:
         }
     
     def parse_grid(self) -> Dict[Tuple[int, int], str]:
-        """그리드를 파싱하여 각 위치의 객체 정보를 반환"""
+        """Parse grid and return object information for each position"""
         grid_map = {}
         
         if not hasattr(self.env, 'grid'):
@@ -1043,7 +1372,7 @@ class MiniGridEmojiWrapper:
         return grid_map
     
     def get_emoji_at(self, x: int, y: int) -> Optional[str]:
-        """특정 위치의 이모지 이름을 반환"""
+        """Return emoji name at specific position"""
         if not hasattr(self.env, 'grid'):
             return None
         
@@ -1059,34 +1388,34 @@ class MiniGridEmojiWrapper:
     
     def get_heading(self) -> str:
         """
-        현재 로봇의 heading 방향을 문자열로 반환
+        Return robot's heading direction as string
         
         Returns:
-            heading: 방향 문자열
-                - "East" (오른쪽, agent_dir=0)
-                - "South" (아래, agent_dir=1)
-                - "West" (왼쪽, agent_dir=2)
-                - "North" (위, agent_dir=3)
+            heading: Direction string
+                - "East" (right, agent_dir=0)
+                - "South" (down, agent_dir=1)
+                - "West" (left, agent_dir=2)
+                - "North" (up, agent_dir=3)
         """
         if not hasattr(self.env, 'agent_dir'):
             return "Unknown"
         
         agent_dir = self.env.agent_dir
         heading_map = {
-            0: "East",   # 오른쪽
-            1: "South",  # 아래
-            2: "West",   # 왼쪽
-            3: "North"   # 위
+            0: "East",   # right
+            1: "South",  # down
+            2: "West",   # left
+            3: "North"   # up
         }
         return heading_map.get(agent_dir, "Unknown")
     
     def get_heading_description(self) -> str:
         """
-        현재 로봇의 heading 방향을 상세 설명 문자열로 반환
+        Return detailed description string of robot's heading direction
         
         Returns:
-            description: 방향 설명 문자열
-                예: "facing East (right)" 또는 "facing North (up)"
+            description: Direction description string
+                e.g., "facing East (right)" or "facing North (up)"
         """
         heading = self.get_heading()
         if heading == "Unknown":
@@ -1102,6 +1431,6 @@ class MiniGridEmojiWrapper:
         return f"facing {heading} ({direction})"
     
     def close(self):
-        """환경 종료 및 리소스 정리"""
+        """Close environment and clean up resources"""
         self.env.close()
 

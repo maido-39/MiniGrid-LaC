@@ -18,8 +18,8 @@ JSON 파일에서 맵을 로드하고 키보드로 절대 방향 이동을 테�
 """
 
 from minigrid import register_minigrid_envs
-# Actual paths: lib.map_manager.minigrid_customenv_emoji, lib.map_manager.emoji_map_loader
-from lib import MiniGridEmojiWrapper, load_emoji_map_from_json
+# Actual paths: utils.map_manager.minigrid_customenv_emoji, utils.map_manager.emoji_map_loader
+from utils import MiniGridEmojiWrapper, load_emoji_map_from_json
 import numpy as np
 import cv2
 from pathlib import Path

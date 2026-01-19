@@ -7,8 +7,8 @@ MiniGrid 전용 VLM 컨트롤러 (하위 호환성 유지)
 새로운 프로젝트에서는 vlm_controller.VLMController를 직접 사용하는 것을 권장합니다.
 """
 
-# Actual paths: lib.vlm.vlm_controller, lib.map_manager.minigrid_customenv_emoji
-from lib import VLMController, MiniGridEmojiWrapper
+# Actual paths: utils.vlm.vlm_controller, utils.map_manager.minigrid_customenv_emoji
+from utils import VLMController, MiniGridEmojiWrapper
 import cv2
 from typing import Optional
 

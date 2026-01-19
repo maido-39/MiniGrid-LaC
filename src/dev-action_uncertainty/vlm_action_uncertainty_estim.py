@@ -17,8 +17,8 @@ import math
 
 # Actual path: legacy.vlm_rels.minigrid_vlm_controller
 from legacy import MiniGridVLMController
-# Actual paths: lib.map_manager.minigrid_customenv_emoji, lib.vlm.vlm_wrapper, lib.vlm.vlm_postprocessor
-from lib import MiniGridEmojiWrapper, ChatGPT4oVLMWrapper, VLMResponsePostProcessor
+# Actual paths: utils.map_manager.minigrid_customenv_emoji, utils.vlm.vlm_wrapper, utils.vlm.vlm_postprocessor
+from utils import MiniGridEmojiWrapper, ChatGPT4oVLMWrapper, VLMResponsePostProcessor
 
 try:
     from openai import OpenAI

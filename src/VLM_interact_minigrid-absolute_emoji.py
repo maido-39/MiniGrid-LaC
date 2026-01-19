@@ -13,10 +13,10 @@ Usage:
 """
 
 from minigrid import register_minigrid_envs
-# Actual path: lib.map_manager.minigrid_customenv_emoji
-from lib import MiniGridEmojiWrapper, load_emoji_map_from_json
-# Actual paths: lib.vlm.vlm_wrapper, lib.vlm.vlm_postprocessor
-from lib import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
+# Actual path: utils.map_manager.minigrid_customenv_emoji
+from utils import MiniGridEmojiWrapper, load_emoji_map_from_json
+# Actual paths: utils.vlm.vlm_wrapper, utils.vlm.vlm_postprocessor
+from utils import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
 import numpy as np
 import cv2
 from typing import Union, Tuple, Dict, Optional

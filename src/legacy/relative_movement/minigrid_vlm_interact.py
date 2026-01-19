@@ -11,8 +11,8 @@ VLM을 사용하여 MiniGrid 환경을 제어하고 시각화합니다.
 from minigrid import register_minigrid_envs
 # Actual path: legacy.relative_movement.custom_environment_relative_movement
 from legacy import CustomRoomWrapperRelative as CustomRoomWrapper
-# Actual paths: lib.vlm.vlm_wrapper, lib.vlm.vlm_postprocessor
-from lib import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
+# Actual paths: utils.vlm.vlm_wrapper, utils.vlm.vlm_postprocessor
+from utils import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
 import numpy as np
 import cv2
 

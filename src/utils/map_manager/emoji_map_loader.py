@@ -52,51 +52,11 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 from .minigrid_customenv_emoji import MiniGridEmojiWrapper
 
-# Default emoji object definitions for text file support
-DEFAULT_EMOJI_OBJECTS = {
-    "⬛": {
-        "type": "wall",
-        "color": "grey",
-        "can_pickup": False,
-        "can_overlap": False
-    },
-    "⬜️": {
-        "type": "empty",
-        "can_pickup": False,
-        "can_overlap": True
-    },
-    "🟦": {
-        "type": "floor",
-        "color": "blue"
-    },
-    "🟪": {
-        "type": "floor",
-        "color": "purple"
-    },
-    "🟨": {
-        "type": "floor",
-        "color": "yellow"
-    },
-    "🟩": {
-        "type": "floor",
-        "color": "green"
-    },
-    "🤖": {
-        "type": "empty",
-        "can_pickup": False,
-        "can_overlap": True
-    },
-    "🟥": {
-        "type": "empty",
-        "can_pickup": False,
-        "can_overlap": True
-    },
-    "🎯": {
-        "type": "goal",
-        "can_pickup": False,
-        "can_overlap": False
-    }
-}
+# Import terminal formatting utils for important messages
+from ..prompt_manager import terminal_formatting_utils as tfu
+from ..prompt_manager.terminal_formatting_utils import (
+    GREEN, YELLOW, CYAN
+)
 
 
 class EmojiMapLoader:
@@ -246,11 +206,10 @@ class EmojiMapLoader:
         
         self.size = self.num_rows  # Square map: row count = column count = size
         
-        # Emoji object definitions (merge defaults with JSON settings, JSON takes precedence)
-        json_emoji_objects = self.map_data.get('emoji_objects', {})
-        # Copy default emoji definitions and override with JSON settings
-        self.emoji_objects = DEFAULT_EMOJI_OBJECTS.copy()
-        self.emoji_objects.update(json_emoji_objects)  # JSON settings safely override default settings
+        # Emoji object definitions (JSON only, no defaults)
+        if 'emoji_objects' not in self.map_data:
+            raise ValueError("JSON file does not contain 'emoji_objects' key.")
+        self.emoji_objects = self.map_data['emoji_objects']
         
         # Robot configuration
         self.robot_config = self.map_data.get('robot_config', {
@@ -259,12 +218,11 @@ class EmojiMapLoader:
             'use_robot_emoji_color': True
         })
         
-        # Find 🤖 or 🟥 marker and set start_pos (takes precedence over JSON start_pos)
-        # 🟥 is legacy marker, 🤖 is new marker - support both for compatibility
+        # Find 🤖 marker and set start_pos (takes precedence over JSON start_pos)
         robot_marker_found = False
         for y, row in enumerate(self.emoji_render):
             for x, emoji in enumerate(row):
-                if emoji == '🤖' or emoji == '🟥':
+                if emoji == '🤖':
                     self.start_pos = (x, y)
                     robot_marker_found = True
                     # Replace marker with ⬜️ (treat as empty space)
@@ -286,14 +244,18 @@ class EmojiMapLoader:
             if goal_marker_found:
                 break
         
-        # If 🤖 or 🟥 marker not found, use JSON start_pos (or default)
+        # If 🤖 marker not found, use JSON start_pos (or default)
         if not robot_marker_found:
             self.start_pos = tuple(self.map_data.get('start_pos', [1, 1]))
         else:
             # Warning if marker found but JSON also has start_pos
             if 'start_pos' in self.map_data:
-                print(f"Warning: Found robot marker (🤖 or 🟥) and set start_pos to ({self.start_pos[0]}, {self.start_pos[1]}). "
-                      f"JSON start_pos is ignored.")
+                tfu.cprint(
+                    f"Warning: Found robot marker (🤖) and set start_pos to ({self.start_pos[0]}, {self.start_pos[1]}). "
+                    f"JSON start_pos is ignored.",
+                    YELLOW,
+                    bold=True
+                )
         
         # If 🎯 marker not found, use JSON goal_pos (or default)
         if not goal_marker_found:
@@ -301,14 +263,18 @@ class EmojiMapLoader:
         else:
             # Warning if 🎯 marker found but JSON also has goal_pos
             if 'goal_pos' in self.map_data:
-                print(f"Warning: Found 🎯 marker and set goal_pos to ({self.goal_pos[0]}, {self.goal_pos[1]}). "
-                      f"JSON goal_pos is ignored.")
+                tfu.cprint(
+                    f"Warning: Found 🎯 marker and set goal_pos to ({self.goal_pos[0]}, {self.goal_pos[1]}). "
+                    f"JSON goal_pos is ignored.",
+                    YELLOW,
+                    bold=True
+                )
         
         # Clear error messages: if start or goal position is not set
         if self.start_pos is None:
             raise ValueError(
                 "Robot start position not found. "
-                "Place 🤖 or 🟥 emoji on the map or specify 'start_pos' in JSON."
+                "Place 🤖 emoji on the map or specify 'start_pos' in JSON."
             )
         
         if self.goal_pos is None:
@@ -330,15 +296,21 @@ class EmojiMapLoader:
         
         for y, row in enumerate(self.emoji_render):
             for x, emoji in enumerate(row):
-                # 🤖, 🟥, and 🎯 are already replaced with ⬜️ in _parse_map_data, so skip here
-                if emoji == '🤖' or emoji == '🟥' or emoji == '🎯':
+                # 🤖 and 🎯 are already replaced with ⬜️ in _parse_map_data, so skip here
+                if emoji == '🤖' or emoji == '🎯':
                     # Should already be processed, but treat as empty space just in case
                     continue
                 
                 # Check emoji definition
+                # IMPORTANT: Always check emoji_objects first, even for ⬛
+                # This ensures JSON definitions are respected, especially for outer walls
                 if emoji not in self.emoji_objects:
                     # Undefined emoji: warn and ignore
-                    print(f"Warning: Undefined emoji '{emoji}' found in map (position: ({x}, {y})). Ignored.")
+                    tfu.cprint(
+                        f"Warning: Undefined emoji '{emoji}' found in map (position: ({x}, {y})). Ignored.",
+                        YELLOW,
+                        bold=True
+                    )
                     continue
                 
                 emoji_def = self.emoji_objects[emoji]
@@ -483,21 +455,21 @@ if __name__ == "__main__":
     import sys
     
     if len(sys.argv) < 2:
-        print("Usage: python emoji_map_loader.py <json_file_path>")
-        print("Example: python emoji_map_loader.py example_map.json")
+        tfu.cprint("Usage: python emoji_map_loader.py <json_file_path>", CYAN)
+        tfu.cprint("Example: python emoji_map_loader.py example_map.json", CYAN)
         sys.exit(1)
     
     json_path = sys.argv[1]
     
-    print(f"Loading map from JSON file: {json_path}")
+    tfu.cprint(f"Loading map from JSON file: {json_path}", CYAN, bold=True)
     wrapper = load_emoji_map_from_json(json_path)
     
-    print("Initializing environment...")
+    tfu.cprint("Initializing environment...", CYAN)
     wrapper.reset()
     
     state = wrapper.get_state()
-    print(f"Agent position: {state['agent_pos']}")
-    print(f"Agent direction: {state['agent_dir']}")
+    tfu.cprint(f"Agent position: {state['agent_pos']}", GREEN)
+    tfu.cprint(f"Agent direction: {state['agent_dir']}", GREEN)
     
-    print("\nMap loaded successfully!")
+    tfu.cprint("\nMap loaded successfully!", GREEN, bold=True)
 

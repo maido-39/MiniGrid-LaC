@@ -44,10 +44,10 @@ from PIL import Image
 
 # Import MiniGrid and VLM related classes
 from minigrid import register_minigrid_envs
-# Actual paths: lib.map_manager.minigrid_customenv_emoji, lib.map_manager.emoji_map_loader
-from lib import MiniGridEmojiWrapper, load_emoji_map_from_json
-# Actual paths: lib.vlm.vlm_wrapper, lib.vlm.vlm_postprocessor
-from lib import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
+# Actual paths: utils.map_manager.minigrid_customenv_emoji, utils.map_manager.emoji_map_loader
+from utils import MiniGridEmojiWrapper, load_emoji_map_from_json
+# Actual paths: utils.vlm.vlm_wrapper, utils.vlm.vlm_postprocessor
+from utils import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
 
 # Register MiniGrid environments
 register_minigrid_envs()
