@@ -1,0 +1,3 @@
+Go to the cats room.
+The cats room is on the left of the phones room.
+The phones room is on the top of the first flower room, which is on your right.
