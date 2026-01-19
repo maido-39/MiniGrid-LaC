@@ -18,6 +18,11 @@ try:
 except ImportError:
     GemmaHandler = None
 
+try:
+    from .gemini_handler import GeminiHandler
+except ImportError:
+    GeminiHandler = None
+
 # List of available handlers
 AVAILABLE_HANDLERS = {
     "openai": OpenAIHandler,
@@ -49,6 +54,18 @@ if GemmaHandler is not None:
         "gemma-2-27b": GemmaHandler,
     })
 
+# Register Gemini handler
+if GeminiHandler is not None:
+    AVAILABLE_HANDLERS.update({
+        "gemini": GeminiHandler,
+        "gemini-1.5-flash": GeminiHandler,
+        "gemini-1.5-pro": GeminiHandler,
+        "gemini-1.5-flash-latest": GeminiHandler,
+        "gemini-1.5-pro-latest": GeminiHandler,
+        "gemini-pro": GeminiHandler,
+        "gemini-pro-vision": GeminiHandler,
+    })
+
 __all__ = [
     "VLMHandler",
     "OpenAIHandler",
@@ -60,4 +77,6 @@ if QwenHandler is not None:
     __all__.append("QwenHandler")
 if GemmaHandler is not None:
     __all__.append("GemmaHandler")
+if GeminiHandler is not None:
+    __all__.append("GeminiHandler")
 

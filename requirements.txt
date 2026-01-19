@@ -30,12 +30,18 @@ python-dotenv>=1.0.0  # Load .env files for API keys
 # HTTP requests
 requests>=2.31.0  # For downloading images and API calls
 
+# Terminal formatting
+colorama>=0.4.6  # Cross-platform colored terminal text
+
 # ============================================================================
 # VLM (Vision Language Model) Dependencies
 # ============================================================================
 
 # OpenAI VLM (Primary)
 openai>=1.0.0  # GPT-4o Vision API
+
+# Gemini VLM (Optional - via Google Generative AI)
+google-generativeai>=0.3.0  # Google Gemini API
 
 # Qwen VLM (Optional - via DashScope API)
 dashscope>=1.0.0  # Alibaba DashScope API for Qwen models

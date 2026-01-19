@@ -91,6 +91,101 @@ class VLMHandler(ABC):
         """
         return ["png", "jpg", "jpeg"]
     
+    def _to_pil_image(
+        self,
+        image: Union[str, Path, np.ndarray, Image.Image],
+        convert_to_rgb: bool = True
+    ) -> Image.Image:
+        """
+        Convert various image formats to PIL Image
+        
+        Common utility method for all handlers to convert images to PIL format.
+        This reduces code duplication across handlers.
+        
+        Args:
+            image: Input image (path, numpy array, or PIL Image)
+            convert_to_rgb: Whether to convert to RGB mode (default: True)
+            
+        Returns:
+            PIL Image object
+            
+        Raises:
+            FileNotFoundError: If image path doesn't exist
+            TypeError: If image type is not supported
+        """
+        # If path string
+        if isinstance(image, (str, Path)):
+            image_path = Path(image)
+            if not image_path.exists():
+                raise FileNotFoundError(f"Image file not found: {image_path}")
+            pil_image = Image.open(image_path)
+            if convert_to_rgb:
+                pil_image = pil_image.convert("RGB")
+            return pil_image
+        
+        # If PIL Image
+        elif isinstance(image, Image.Image):
+            if convert_to_rgb:
+                return image.convert("RGB")
+            return image
+        
+        # If numpy array
+        elif isinstance(image, np.ndarray):
+            # Convert numpy array to PIL Image
+            if image.dtype != np.uint8:
+                # Convert 0-1 range float array to 0-255
+                if image.max() <= 1.0:
+                    image = (image * 255).astype(np.uint8)
+                else:
+                    image = image.astype(np.uint8)
+            
+            pil_image = Image.fromarray(image)
+            if convert_to_rgb:
+                pil_image = pil_image.convert("RGB")
+            return pil_image
+        
+        else:
+            raise TypeError(
+                f"Unsupported image type: {type(image)}. "
+                "Use str, Path, np.ndarray, or PIL.Image."
+            )
+    
+    def _resize_image(
+        self,
+        image: Image.Image,
+        max_size: int = 1024,
+        maintain_aspect_ratio: bool = True
+    ) -> Image.Image:
+        """
+        Resize image if it exceeds max_size
+        
+        Common utility method for all handlers to resize large images.
+        
+        Args:
+            image: PIL Image
+            max_size: Maximum size for width or height
+            maintain_aspect_ratio: Whether to maintain aspect ratio (default: True)
+            
+        Returns:
+            Resized PIL Image
+        """
+        width, height = image.size
+        if width <= max_size and height <= max_size:
+            return image
+        
+        if maintain_aspect_ratio:
+            # Calculate new size maintaining aspect ratio
+            if width > height:
+                new_width = max_size
+                new_height = int(height * (max_size / width))
+            else:
+                new_height = max_size
+                new_width = int(width * (max_size / height))
+            return image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+        else:
+            # Square resize
+            return image.resize((max_size, max_size), Image.Resampling.LANCZOS)
+    
     def __call__(
         self,
         image: Optional[Union[str, Path, np.ndarray, Image.Image]] = None,
