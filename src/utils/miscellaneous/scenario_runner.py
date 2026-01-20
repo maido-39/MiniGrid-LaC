@@ -63,6 +63,7 @@ class ScenarioExperiment:
         self.wrapper = None
         self.json_map_path = json_map_path
         self.prompt_organizer = PromptOrganizer()
+        # self.vlm_processor = VLMProcessor(debug=True) # For debugging
         self.vlm_processor = VLMProcessor()
         self.visualizer = Visualizer()
         self.user_interaction = UserInteraction()

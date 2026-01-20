@@ -43,26 +43,42 @@ class VLMProcessor:
     def __init__(self,
                  model: str = VLM_MODEL,
                  temperature: float = VLM_TEMPERATURE,
-                 max_tokens: int = VLM_MAX_TOKENS
+                 max_tokens: int = VLM_MAX_TOKENS,
+                 debug: bool = False
                 ):
         self.vlm = VLMWrapper(model=model,
                                        temperature=temperature,
                                        max_tokens=max_tokens
                                       )
+        self.debug = debug
         self.postprocessor_action = VLMResponsePostProcessor(required_fields=["action", "reasoning", "grounding", "memory"])
         self.postprocessor_feedback = VLMResponsePostProcessor(required_fields=["knowledge"])
     
     def requester(self,
                   image: np.ndarray,
                   system_prompt: str,
-                  user_prompt: str
+                  user_prompt: str,
+                  debug: bool = None
                  ) -> str:
-        """Send Request to VLM (Default Method)"""
+        """Send Request to VLM (Default Method)
+        
+        Args:
+            image: Input image array
+            system_prompt: System prompt
+            user_prompt: User prompt
+            debug: Enable debug output. If None, uses instance's debug setting.
+        
+        Returns:
+            Raw response string from VLM
+        """
         
         try:
+            # Use method-level debug if provided, otherwise use instance-level debug
+            debug_flag = debug if debug is not None else self.debug
             response = self.vlm.generate(image=image,
                                          system_prompt=system_prompt,
-                                         user_prompt=user_prompt
+                                         user_prompt=user_prompt,
+                                         debug=debug_flag
                                         )
             return response
         except Exception as e:
