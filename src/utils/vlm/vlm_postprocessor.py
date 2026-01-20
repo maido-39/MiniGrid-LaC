@@ -6,6 +6,7 @@ Handles JSON parsing and validation for robot control command extraction.
 """
 
 import json
+import re
 from typing import Dict, Optional
 
 
@@ -52,18 +53,18 @@ class VLMResponsePostProcessor:
         # Clean text
         response_text = response_text.strip()
         
-        # Extract if JSON code block exists
-        if "```json" in response_text:
-            start_idx = response_text.find("```json") + 7
-            end_idx = response_text.find("```", start_idx)
-            if end_idx != -1:
-                response_text = response_text[start_idx:end_idx].strip()
-        elif "```" in response_text:
-            start_idx = response_text.find("```") + 3
-            end_idx = response_text.find("```", start_idx)
-            if end_idx != -1:
-                response_text = response_text[start_idx:end_idx].strip()
+        # More robust JSON extraction using regex
+        # This will find a JSON object enclosed in ```json ... ``` or ``` ... ```
+        json_match = re.search(r"```(?:json)?\s*({.+?})\s*```", response_text, re.DOTALL)
         
+        if json_match:
+            response_text = json_match.group(1)
+        # Fallback for cases where only the JSON object is returned without backticks
+        elif not response_text.startswith('{'):
+             start_idx = response_text.find('{')
+             if start_idx != -1:
+                 response_text = response_text[start_idx:]
+
         # Try JSON parsing
         try:
             parsed = json.loads(response_text)

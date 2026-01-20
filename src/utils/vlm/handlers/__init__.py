@@ -6,6 +6,7 @@ Registers and manages handlers for each VLM provider.
 
 from .base import VLMHandler
 from .openai_handler import OpenAIHandler
+from .gemini_handler import GeminiHandler
 
 # Qwen and Gemma handlers are optional imports (required libraries may not be available)
 try:
@@ -18,11 +19,6 @@ try:
 except ImportError:
     GemmaHandler = None
 
-try:
-    from .gemini_handler import GeminiHandler
-except ImportError:
-    GeminiHandler = None
-
 # List of available handlers
 AVAILABLE_HANDLERS = {
     "openai": OpenAIHandler,
@@ -31,6 +27,13 @@ AVAILABLE_HANDLERS = {
     "gpt-4": OpenAIHandler,
     "gpt-4-turbo": OpenAIHandler,
     "gpt-5": OpenAIHandler,
+    "gemini": GeminiHandler,
+    "gemini-1.5-flash": GeminiHandler,
+    "gemini-1.5-pro": GeminiHandler,
+    "gemini-1.5-flash-latest": GeminiHandler,
+    "gemini-1.5-pro-latest": GeminiHandler,
+    "gemini-pro": GeminiHandler,
+    "gemini-pro-vision": GeminiHandler,
 }
 
 # Register Qwen handler
@@ -54,21 +57,10 @@ if GemmaHandler is not None:
         "gemma-2-27b": GemmaHandler,
     })
 
-# Register Gemini handler
-if GeminiHandler is not None:
-    AVAILABLE_HANDLERS.update({
-        "gemini": GeminiHandler,
-        "gemini-1.5-flash": GeminiHandler,
-        "gemini-1.5-pro": GeminiHandler,
-        "gemini-1.5-flash-latest": GeminiHandler,
-        "gemini-1.5-pro-latest": GeminiHandler,
-        "gemini-pro": GeminiHandler,
-        "gemini-pro-vision": GeminiHandler,
-    })
-
 __all__ = [
     "VLMHandler",
     "OpenAIHandler",
+    "GeminiHandler",
     "AVAILABLE_HANDLERS",
 ]
 
@@ -77,6 +69,3 @@ if QwenHandler is not None:
     __all__.append("QwenHandler")
 if GemmaHandler is not None:
     __all__.append("GemmaHandler")
-if GeminiHandler is not None:
-    __all__.append("GeminiHandler")
-

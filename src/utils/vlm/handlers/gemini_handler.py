@@ -216,6 +216,14 @@ class GeminiHandler(VLMHandler):
             "max_output_tokens": self.max_tokens,
         }
         
+        # Disable all safety filters
+        safety_settings = [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+        ]
+        
         # Prepare image part if image exists
         image_part = None
         if image is not None:
@@ -236,13 +244,15 @@ class GeminiHandler(VLMHandler):
                     # Generate with image
                     response = self.generative_model.generate_content(
                         [full_prompt, image_part],
-                        generation_config=generation_config
+                        generation_config=generation_config,
+                        safety_settings=safety_settings
                     )
                 else:
                     # Generate text only
                     response = self.generative_model.generate_content(
                         full_prompt,
-                        generation_config=generation_config
+                        generation_config=generation_config,
+                        safety_settings=safety_settings
                     )
                 
                 # Extract and return response text

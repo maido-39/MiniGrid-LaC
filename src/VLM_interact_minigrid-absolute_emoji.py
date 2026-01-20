@@ -72,6 +72,7 @@ you can move in ANY direction regardless of the robot's current heading.
 ## Movement Rules
 - You cannot step on some objects, you should detour around it.
 - When you step on an emoji object, the block will glow green
+- surrounded by emojis means you are in the room
 
 ## Response Format
 Respond in JSON format:

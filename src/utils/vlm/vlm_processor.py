@@ -22,7 +22,7 @@ import numpy as np
 
 from utils.prompt_manager.prompt_interp import *
 import utils.prompt_manager.terminal_formatting_utils as tfu
-from utils.vlm.vlm_wrapper import ChatGPT4oVLMWrapper
+from utils.vlm.vlm_manager import VLMManager
 from utils.vlm.vlm_postprocessor import VLMResponsePostProcessor
 
 from utils.miscellaneous.global_variables import VLM_MAX_TOKENS, VLM_MODEL, VLM_TEMPERATURE
@@ -41,14 +41,19 @@ class VLMProcessor:
     """VLM Request and Parsing Processing Class"""
     
     def __init__(self,
-                 model: str = VLM_MODEL,
+                 model: str = "models/gemini-2.5-flash",
                  temperature: float = VLM_TEMPERATURE,
                  max_tokens: int = VLM_MAX_TOKENS
                 ):
-        self.vlm = ChatGPT4oVLMWrapper(model=model,
-                                       temperature=temperature,
-                                       max_tokens=max_tokens
-                                      )
+        self.vlm_manager = VLMManager()
+        self.vlm_manager.create_handler(
+            handler_type='gemini',
+            name='gemini',
+            set_as_default=True,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
         self.postprocessor_action = VLMResponsePostProcessor(required_fields=["action", "reasoning", "grounding", "memory"])
         self.postprocessor_feedback = VLMResponsePostProcessor(required_fields=["knowledge"])
     
@@ -60,10 +65,10 @@ class VLMProcessor:
         """Send Request to VLM (Default Method)"""
         
         try:
-            response = self.vlm.generate(image=image,
-                                         system_prompt=system_prompt,
-                                         user_prompt=user_prompt
-                                        )
+            response = self.vlm_manager.generate(image=image,
+                                                 system_prompt=system_prompt,
+                                                 user_prompt=user_prompt
+                                                )
             return response
         except Exception as e:
             tfu.cprint(f"VLM API call failed: {e}", tfu.RED, True)
