@@ -15,7 +15,7 @@ from minigrid import register_minigrid_envs
 # Actual path: legacy.relative_movement.custom_environment
 from legacy import CustomRoomWrapper
 # Actual paths: utils.vlm.vlm_wrapper, utils.vlm.vlm_postprocessor
-from utils import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
+from utils import VLMWrapper, VLMResponsePostProcessor
 import numpy as np
 import cv2
 import json
@@ -144,7 +144,7 @@ def display_image(img: np.ndarray, window_name: str = "VLM Egocentric Transform 
 class SolutionB_CoTReasoning:
     """솔루션 B: CoT(Chain of Thought)를 통한 좌표 변환 강제"""
     
-    def __init__(self, vlm: ChatGPT4oVLMWrapper, postprocessor: VLMResponsePostProcessor):
+    def __init__(self, vlm: VLMWrapper, postprocessor: VLMResponsePostProcessor):
         self.vlm = vlm
         self.postprocessor = postprocessor
     
@@ -259,7 +259,7 @@ Important:
 class SolutionC_VisualPrompting:
     """솔루션 C: Visual Prompting (이미지 전처리)"""
     
-    def __init__(self, vlm: ChatGPT4oVLMWrapper, postprocessor: VLMResponsePostProcessor):
+    def __init__(self, vlm: VLMWrapper, postprocessor: VLMResponsePostProcessor):
         self.vlm = vlm
         self.postprocessor = postprocessor
     
@@ -445,7 +445,7 @@ class EgocentricTransformTest:
     
     def __init__(self):
         self.wrapper = None
-        self.vlm = ChatGPT4oVLMWrapper(
+        self.vlm = VLMWrapper(
             model=VLM_MODEL,
             temperature=VLM_TEMPERATURE,
             max_tokens=VLM_MAX_TOKENS

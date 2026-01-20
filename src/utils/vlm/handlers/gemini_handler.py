@@ -16,10 +16,11 @@ from PIL import Image
 import io
 
 try:
-    import google.generativeai as genai
+    from google import genai
+    from google.genai import types
 except ImportError as exc:
     raise ImportError(
-        "google-generativeai library is required. Install with: pip install google-generativeai"
+        "google-genai library is required. Install with: pip install google-genai"
     ) from exc
 
 try:
@@ -44,6 +45,7 @@ class GeminiHandler(VLMHandler):
     - gemini-1.5-pro: Large model (high accuracy)
     - gemini-1.5-flash-latest: Latest flash model
     - gemini-1.5-pro-latest: Latest pro model
+    - gemini-2.5-flash: Latest 2.5 flash model
     - gemini-pro: Legacy model
     - gemini-pro-vision: Legacy vision model
     
@@ -53,6 +55,9 @@ class GeminiHandler(VLMHandler):
         
         # Use large model (high accuracy)
         handler = GeminiHandler(model="gemini-1.5-pro", max_tokens=2000)
+        
+        # Use latest 2.5 flash model
+        handler = GeminiHandler(model="gemini-2.5-flash", max_tokens=1000)
     """
     
     def __init__(
@@ -61,6 +66,7 @@ class GeminiHandler(VLMHandler):
         model: str = "gemini-1.5-flash",
         temperature: float = 0.0,
         max_tokens: int = 1000,
+        thinking_budget: Optional[int] = None,
         **kwargs
     ):
         """
@@ -73,12 +79,18 @@ class GeminiHandler(VLMHandler):
                 - "gemini-1.5-pro": Large model
                 - "gemini-1.5-flash-latest": Latest flash model
                 - "gemini-1.5-pro-latest": Latest pro model
+                - "gemini-2.5-flash": Latest 2.5 flash model
                 - "gemini-pro": Legacy model
                 - "gemini-pro-vision": Legacy vision model
             temperature: Generation temperature (default: 0.0)
             max_tokens: Maximum token count (default: 1000)
                 - Flash model: 1000-2000 tokens recommended
                 - Pro model: 2000-4000 tokens recommended
+            thinking_budget: Thinking budget for Gemini 2.5 Flash model (default: None)
+                - None: Use default thinking (enabled by default for gemini-2.5-flash)
+                - 0: Disable thinking (faster, lower cost)
+                - Positive integer: Set thinking budget in tokens
+                - Note: Only supported for gemini-2.5-flash model
             **kwargs: Additional settings
         """
         super().__init__(
@@ -89,13 +101,26 @@ class GeminiHandler(VLMHandler):
             **kwargs
         )
         
+        # Validate thinking_budget
+        if thinking_budget is not None:
+            model_lower = model.lower()
+            if model_lower != "gemini-2.5-flash":
+                raise ValueError(
+                    f"thinking_budget is only supported for gemini-2.5-flash model. "
+                    f"Current model: {model}"
+                )
+            if thinking_budget < 0:
+                raise ValueError(
+                    f"thinking_budget must be non-negative. Got: {thinking_budget}"
+                )
+        
         self.api_key = api_key
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
+        self.thinking_budget = thinking_budget
         
         self.client = None
-        self.generative_model = None
     
     def initialize(self) -> bool:
         """
@@ -118,8 +143,13 @@ class GeminiHandler(VLMHandler):
                 )
         
         try:
-            genai.configure(api_key=self.api_key)
-            self.generative_model = genai.GenerativeModel(self.model)
+            # Initialize client with API key
+            # If api_key is provided, use it directly; otherwise client will read from environment
+            if self.api_key:
+                self.client = genai.Client(api_key=self.api_key)
+            else:
+                # Client will automatically read from GEMINI_API_KEY environment variable
+                self.client = genai.Client()
             return True
         except Exception as e:
             raise RuntimeError(f"Failed to initialize Gemini client: {e}") from e
@@ -183,8 +213,9 @@ class GeminiHandler(VLMHandler):
         system_prompt: str = "",
         user_prompt: str = "",
         max_retries: int = 3,
-        retry_delay: Optional[float] = None
-    ) -> str:
+        retry_delay: Optional[float] = None,
+        return_metadata: bool = False
+    ) -> Union[str, tuple]:
         """
         Call Gemini API with image and prompts, return raw response
         Includes automatic retry logic for rate limiting
@@ -195,61 +226,122 @@ class GeminiHandler(VLMHandler):
             user_prompt: User prompt
             max_retries: Maximum number of retries for rate limit errors (default: 3)
             retry_delay: Base retry delay in seconds (default: None, auto-parsed from error)
+            return_metadata: If True, return tuple (response, metadata_dict). If False, return only response string.
             
         Returns:
-            Raw response text (str)
+            Raw response text (str) or tuple (str, dict) if return_metadata=True
         """
         # Initialize client if not initialized
-        if self.generative_model is None:
+        if self.client is None:
             self.initialize()
         
-        # Combine system prompt and user prompt
-        # Gemini doesn't have separate system/user roles, so we combine them
-        if system_prompt:
-            full_prompt = f"{system_prompt}\n\n{user_prompt}"
-        else:
-            full_prompt = user_prompt
-        
-        # Prepare generation config
-        generation_config = {
+        # Prepare generation config with system_instruction and thinking_budget support
+        config_kwargs = {
             "temperature": self.temperature,
             "max_output_tokens": self.max_tokens,
         }
         
-        # Prepare image part if image exists
-        image_part = None
+        # Add system_instruction if provided
+        if system_prompt:
+            config_kwargs["system_instruction"] = system_prompt
+        
+        # Add thinking_config for gemini-2.5-flash
+        model_lower = self.model.lower()
+        if model_lower == "gemini-2.5-flash":
+            if self.thinking_budget is not None:
+                # Explicit thinking_budget specified
+                # include_thoughts=True to get thinking content in response
+                config_kwargs["thinking_config"] = types.ThinkingConfig(
+                    thinking_budget=self.thinking_budget,
+                    include_thoughts=True
+                )
+            else:
+                # None: Use default dynamic thinking (-1)
+                # include_thoughts=True to get thinking content in response
+                config_kwargs["thinking_config"] = types.ThinkingConfig(
+                    thinking_budget=-1,
+                    include_thoughts=True
+                )
+        elif self.thinking_budget is not None:
+            print("[WARNING] thinking_budget is only supported for gemini-2.5-flash. Ignoring setting.")
+        
+        # Disable all safety filters
+        safety_settings = [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+        ]
+        config_kwargs["safety_settings"] = safety_settings
+        
+        config = types.GenerateContentConfig(**config_kwargs)
+        
+        # Prepare contents with image if image exists
         if image is not None:
             # Encode image (with automatic resizing)
             image_bytes = self.encode_image(image, max_size=1024)
             
-            # Create image part
-            image_part = {
-                "mime_type": "image/jpeg",
-                "data": image_bytes
-            }
+            # For new genai API, use Part with inline_data
+            from google.genai.types import Part
+            image_part = Part(inline_data={"mime_type": "image/jpeg", "data": image_bytes})
+            contents = [image_part, user_prompt]
+        else:
+            contents = user_prompt
         
         # Retry logic
         last_error = None
         for attempt in range(max_retries + 1):
             try:
-                if image_part is not None:
-                    # Generate with image
-                    response = self.generative_model.generate_content(
-                        [full_prompt, image_part],
-                        generation_config=generation_config
-                    )
-                else:
-                    # Generate text only
-                    response = self.generative_model.generate_content(
-                        full_prompt,
-                        generation_config=generation_config
-                    )
+                # Generate with new genai API
+                response = self.client.models.generate_content(
+                    model=self.model,
+                    contents=contents,
+                    config=config
+                )
                 
-                # Extract and return response text
-                if response.text:
-                    return response.text.strip()
-                else:
+                # Extract response text
+                if not response.text:
                     raise RuntimeError("Empty response from Gemini API")
+                
+                raw_response = response.text.strip()
+                
+                # Extract metadata if requested
+                if return_metadata:
+                    metadata = {}
+                    
+                    # Extract usage information
+                    if hasattr(response, 'usage_metadata'):
+                        usage = response.usage_metadata
+                        metadata['input_tokens'] = getattr(usage, 'prompt_token_count', None)
+                        metadata['output_tokens'] = getattr(usage, 'candidates_token_count', None)
+                        metadata['total_tokens'] = getattr(usage, 'total_token_count', None)
+                        # Thinking tokens (if available)
+                        metadata['thinking_tokens'] = getattr(usage, 'thoughts_token_count', None)
+                    
+                    # Extract thinking content (if available)
+                    # According to Gemini API docs, thinking content is in parts where part.thought == True
+                    # part.thought is a boolean flag, and the actual content is in part.text
+                    thinking_content = None
+                    if hasattr(response, 'candidates') and response.candidates:
+                        candidate = response.candidates[0]
+                        if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                            # Look for thought parts
+                            thoughts = []
+                            for part in candidate.content.parts:
+                                # Check if part.thought is True (boolean flag)
+                                if hasattr(part, 'thought') and part.thought is True:
+                                    # The thinking content is in part.text when part.thought is True
+                                    if hasattr(part, 'text') and part.text:
+                                        thoughts.append(str(part.text))
+                            
+                            if thoughts:
+                                thinking_content = '\n'.join(thoughts)
+                    
+                    metadata['thinking_content'] = thinking_content
+                    
+                    return raw_response, metadata
+                
+                return raw_response
                     
             except (RuntimeError, ValueError):
                 # Re-raise non-API errors immediately
@@ -259,7 +351,7 @@ class GeminiHandler(VLMHandler):
                 last_error = e
                 error_str = str(e)
                 
-                # Handle 429 error (quota/rate limit)
+                # Handle 429 error (quota/rate limit) and 503 error (service unavailable/overloaded)
                 if '429' in error_str or 'quota' in error_str.lower() or 'rate limit' in error_str.lower():
                     # Parse retry delay from error message
                     retry_after = self._parse_retry_after(error_str, retry_delay)
@@ -278,8 +370,25 @@ class GeminiHandler(VLMHandler):
                             f"Rate limit error after {max_retries} retries. "
                             f"Error: {error_str}"
                         ) from e
+                elif '503' in error_str or 'unavailable' in error_str.lower() or 'overloaded' in error_str.lower():
+                    # Handle 503 service unavailable / model overloaded
+                    if attempt < max_retries:
+                        # Exponential backoff for 503 errors
+                        base_delay = 2.0  # Start with 2 seconds
+                        wait_time = base_delay * (2 ** attempt) + random.uniform(0.1, 1.0)
+                        
+                        print(f"[WARNING] Service unavailable (model overloaded). Retrying in {wait_time:.2f}s ({attempt + 1}/{max_retries})...")
+                        time.sleep(wait_time)
+                        continue
+                    else:
+                        # Max retries exceeded
+                        raise RuntimeError(
+                            f"Service unavailable after {max_retries} retries. "
+                            f"The model may be overloaded. Please try again later. "
+                            f"Error: {error_str}"
+                        ) from e
                 else:
-                    # Non-rate-limit errors are raised immediately
+                    # Non-retryable errors are raised immediately
                     raise RuntimeError(f"Error occurred during API call: {e}") from e
         
         # Should not reach here, but safety check

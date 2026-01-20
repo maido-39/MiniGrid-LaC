@@ -12,7 +12,7 @@ from .map_manager.emoji_map_loader import load_emoji_map_from_json
 
 # VLM exports
 # Actual path: utils.vlm.vlm_wrapper
-from .vlm.vlm_wrapper import ChatGPT4oVLMWrapper
+from .vlm.vlm_wrapper import VLMWrapper, ChatGPT4oVLMWrapper  # ChatGPT4oVLMWrapper is alias for backward compatibility
 # Actual path: utils.vlm.vlm_postprocessor
 from .vlm.vlm_postprocessor import VLMResponsePostProcessor
 # Actual path: utils.vlm.vlm_controller
@@ -25,7 +25,8 @@ __all__ = [
     "MiniGridEmojiWrapper",
     "load_emoji_map_from_json",
     # VLM
-    "ChatGPT4oVLMWrapper",
+    "VLMWrapper",
+    "ChatGPT4oVLMWrapper",  # Backward compatibility alias
     "VLMResponsePostProcessor",
     "VLMController",
     "VLMManager",

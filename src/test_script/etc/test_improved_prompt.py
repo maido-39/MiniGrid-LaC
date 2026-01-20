@@ -7,7 +7,7 @@ from minigrid import register_minigrid_envs
 # Actual path: legacy.relative_movement.custom_environment
 from legacy import CustomRoomWrapper
 # Actual paths: utils.vlm.vlm_wrapper, utils.vlm.vlm_postprocessor
-from utils import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
+from utils import VLMWrapper, VLMResponsePostProcessor
 import numpy as np
 
 # MiniGrid 환경 등록
@@ -176,7 +176,7 @@ def test_single_step():
     # VLM 초기화
     print("\n[2] VLM 초기화 중...")
     try:
-        vlm = ChatGPT4oVLMWrapper(
+        vlm = VLMWrapper(
             model=VLM_MODEL,
             temperature=VLM_TEMPERATURE,
             max_tokens=VLM_MAX_TOKENS

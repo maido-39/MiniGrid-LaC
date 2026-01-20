@@ -225,8 +225,9 @@ class OpenAIHandler(VLMHandler):
         self,
         image: Optional[Union[str, Path, np.ndarray, Image.Image]] = None,
         system_prompt: str = "",
-        user_prompt: str = ""
-    ) -> str:
+        user_prompt: str = "",
+        return_metadata: bool = False
+    ) -> Union[str, tuple]:
         """
         Call VLM API with image and prompts, return raw response
         
@@ -234,9 +235,10 @@ class OpenAIHandler(VLMHandler):
             image: Input image (path, numpy array, or PIL Image). If None, send text only without image
             system_prompt: System prompt
             user_prompt: User prompt
+            return_metadata: If True, return tuple (response, metadata_dict). If False, return only response string.
             
         Returns:
-            Raw response text (str)
+            Raw response text (str) or tuple (str, dict) if return_metadata=True
         """
         # Initialize client if not initialized
         if self.client is None:
@@ -263,8 +265,31 @@ class OpenAIHandler(VLMHandler):
             
             response = self.client.chat.completions.create(**api_params)
             
-            # Extract and return response text
+            # Extract response text
             raw_response = response.choices[0].message.content
+            
+            # Extract metadata if requested
+            if return_metadata:
+                metadata = {}
+                # Extract usage information
+                if hasattr(response, 'usage'):
+                    usage = response.usage
+                    metadata['input_tokens'] = getattr(usage, 'prompt_tokens', None)
+                    metadata['output_tokens'] = getattr(usage, 'completion_tokens', None)
+                    metadata['total_tokens'] = getattr(usage, 'total_tokens', None)
+                
+                # Extract thinking information (if available)
+                choice = response.choices[0]
+                if hasattr(choice, 'logprobs') and choice.logprobs:
+                    metadata['has_logprobs'] = True
+                
+                # Check for thinking/reasoning in response
+                # OpenAI doesn't have separate thinking tokens, but we can check the response
+                metadata['thinking_tokens'] = None  # OpenAI doesn't provide this
+                metadata['thinking_content'] = None  # OpenAI doesn't provide this
+                
+                return raw_response, metadata
+            
             return raw_response
                 
         except Exception as e:

@@ -18,7 +18,7 @@ import math
 # Actual path: legacy.vlm_rels.minigrid_vlm_controller
 from legacy import MiniGridVLMController
 # Actual paths: utils.map_manager.minigrid_customenv_emoji, utils.vlm.vlm_wrapper, utils.vlm.vlm_postprocessor
-from utils import MiniGridEmojiWrapper, ChatGPT4oVLMWrapper, VLMResponsePostProcessor
+from utils import MiniGridEmojiWrapper, VLMWrapper, VLMResponsePostProcessor
 
 try:
     from openai import OpenAI
@@ -26,11 +26,11 @@ except ImportError:
     raise ImportError("openai 라이브러리가 필요합니다: pip install openai")
 
 
-class UncertaintyVLMWrapper(ChatGPT4oVLMWrapper):
+class UncertaintyVLMWrapper(VLMWrapper):
     """
     logprobs를 지원하는 VLM Wrapper
     
-    기존 ChatGPT4oVLMWrapper를 확장하여 logprobs 정보를 얻을 수 있게 합니다.
+    기존 VLMWrapper를 확장하여 logprobs 정보를 얻을 수 있게 합니다.
     """
     
     def __init__(

@@ -12,7 +12,7 @@ Key features:
 - VLM response parsing and action execution
 """
 
-from .vlm_wrapper import ChatGPT4oVLMWrapper
+from .vlm_wrapper import VLMWrapper
 from .vlm_postprocessor import VLMResponsePostProcessor
 import numpy as np
 from typing import Union, Tuple, Dict, Optional, Protocol, runtime_checkable
@@ -146,7 +146,7 @@ class VLMController:
         """
         self.env = env
         
-        self.vlm = ChatGPT4oVLMWrapper(
+        self.vlm = VLMWrapper(
             model=model,
             temperature=temperature,
             max_tokens=max_tokens

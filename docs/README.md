@@ -24,6 +24,9 @@
 - [SLAM 스타일 FOV 맵핑 가이드](./slam-fov-mapping.md) - 탐색 영역 추적 및 시야 제한 기능
 - [이모지 사용 가이드](./EMOJI_USAGE_GUIDE.md) - 이모지 객체 사용하기
 
+### LLM API 문서
+- [Gemini Thinking 기능 가이드](./LLM-API/gemini-thinking.md) - Gemini 2.5/3 시리즈의 Thinking 기능 사용법
+
 ## 빠른 시작
 
 ### Import 경로
@@ -47,7 +50,8 @@ from lib.map_manager.minigrid_customenv_emoji import MiniGridEmojiWrapper
 3. **이모지 맵 사용**: [이모지 맵 JSON 로더 가이드](./emoji-map-loader.md) 참고 (권장)
 4. **절대 좌표 이동**: [Wrapper API](./wrapper-api.md#절대-좌표-이동-absolute-movement)의 절대 좌표 이동 섹션 참고
 5. **VLM 사용**: [VLM 핸들러 시스템 가이드](./vlm-handlers.md) 참고
-6. **Legacy API**: [CustomRoomEnv API](./custom-environment-api.md) 참고 (레거시 코드)
+6. **Gemini Thinking 기능**: [Gemini Thinking 기능 가이드](./LLM-API/gemini-thinking.md) 참고
+7. **Legacy API**: [CustomRoomEnv API](./custom-environment-api.md) 참고 (레거시 코드)
 
 ## 참고 자료
 

@@ -16,7 +16,7 @@ from minigrid import register_minigrid_envs
 # Actual path: utils.map_manager.minigrid_customenv_emoji
 from utils import MiniGridEmojiWrapper, load_emoji_map_from_json
 # Actual paths: utils.vlm.vlm_wrapper, utils.vlm.vlm_postprocessor
-from utils import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
+from utils import VLMWrapper, VLMResponsePostProcessor
 import numpy as np
 import cv2
 from typing import Union, Tuple, Dict, Optional
@@ -25,9 +25,15 @@ from typing import Union, Tuple, Dict, Optional
 register_minigrid_envs()
 
 # VLM configuration
-VLM_MODEL = "gpt-4o"
+VLM_MODEL = "gemini-2.5-flash"
 VLM_TEMPERATURE = 0.0
-VLM_MAX_TOKENS = 1000
+VLM_MAX_TOKENS = 8000
+# Thinking budget for Gemini 2.5 Flash (only supported for gemini-2.5-flash)
+# - None: Use default thinking (dynamic budget, automatically adjusted by model)
+# - 0: Disable thinking (faster, lower cost)
+# - Positive integer: Set thinking budget in tokens (0 ~ 24576)
+# Default: None (dynamic thinking)
+VLM_THINKING_BUDGET = 2000
 
 # Display configuration
 DISPLAY_MAX_SIZE = 1000  # Maximum window size for image display
@@ -342,12 +348,20 @@ def main():
     # Initialize VLM
     print("\n[2] Initializing VLM...")
     try:
-        vlm = ChatGPT4oVLMWrapper(
+        vlm = VLMWrapper(
             model=VLM_MODEL,
             temperature=VLM_TEMPERATURE,
-            max_tokens=VLM_MAX_TOKENS
+            max_tokens=VLM_MAX_TOKENS,
+            thinking_budget=VLM_THINKING_BUDGET
         )
-        print(f"VLM initialization complete: {VLM_MODEL}")
+        thinking_info = ""
+        if VLM_THINKING_BUDGET is None:
+            thinking_info = " (default thinking: dynamic budget)"
+        elif VLM_THINKING_BUDGET == 0:
+            thinking_info = " (thinking disabled)"
+        else:
+            thinking_info = f" (thinking budget: {VLM_THINKING_BUDGET} tokens)"
+        print(f"VLM initialization complete: {VLM_MODEL}{thinking_info}")
     except Exception as e:
         print(f"VLM initialization failed: {e}")
         return
@@ -396,7 +410,8 @@ def main():
             vlm_response_raw = vlm.generate(
                 image=image,
                 system_prompt=SYSTEM_PROMPT,
-                user_prompt=user_prompt
+                user_prompt=user_prompt,
+                debug=True  # Enable debug output to see raw response
             )
             print(f"VLM response received")
         except Exception as e:

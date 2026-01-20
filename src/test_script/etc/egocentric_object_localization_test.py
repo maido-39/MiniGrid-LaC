@@ -9,7 +9,7 @@ from minigrid import register_minigrid_envs
 # Actual path: legacy.relative_movement.custom_environment
 from legacy import CustomRoomWrapper
 # Actual paths: utils.vlm.vlm_wrapper, utils.vlm.vlm_postprocessor
-from utils import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
+from utils import VLMWrapper, VLMResponsePostProcessor
 import numpy as np
 import json
 import random
@@ -212,7 +212,7 @@ def calculate_gt_egocentric_position(agent_pos: Tuple[int, int], agent_dir: int,
 class EgocentricLocalizationSolution:
     """Egocentric 좌표계 물체 위치 추론 솔루션"""
     
-    def __init__(self, vlm: ChatGPT4oVLMWrapper, postprocessor: VLMResponsePostProcessor, prompt_variant: int = 0):
+    def __init__(self, vlm: VLMWrapper, postprocessor: VLMResponsePostProcessor, prompt_variant: int = 0):
         self.vlm = vlm
         self.postprocessor = postprocessor
         self.prompt_variant = prompt_variant
@@ -466,7 +466,7 @@ class EgocentricLocalizationTest:
     def __init__(self, iteration: int = 0, prompt_variant: int = 0):
         self.iteration = iteration
         self.prompt_variant = prompt_variant
-        self.vlm = ChatGPT4oVLMWrapper(
+        self.vlm = VLMWrapper(
             model=VLM_MODEL,
             temperature=VLM_TEMPERATURE,
             max_tokens=VLM_MAX_TOKENS

@@ -47,7 +47,7 @@ from minigrid import register_minigrid_envs
 # Actual paths: utils.map_manager.minigrid_customenv_emoji, utils.map_manager.emoji_map_loader
 from utils import MiniGridEmojiWrapper, load_emoji_map_from_json
 # Actual paths: utils.vlm.vlm_wrapper, utils.vlm.vlm_postprocessor
-from utils import ChatGPT4oVLMWrapper, VLMResponsePostProcessor
+from utils import VLMWrapper, VLMResponsePostProcessor
 
 # Register MiniGrid environments
 register_minigrid_envs()
@@ -243,7 +243,7 @@ class VLMProcessor:
     """VLM request and parsing processing class"""
     
     def __init__(self, model: str = VLM_MODEL, temperature: float = VLM_TEMPERATURE, max_tokens: int = VLM_MAX_TOKENS):
-        self.vlm = ChatGPT4oVLMWrapper(
+        self.vlm = VLMWrapper(
             model=model,
             temperature=temperature,
             max_tokens=max_tokens

@@ -22,7 +22,7 @@ import numpy as np
 
 from utils.prompt_manager.prompt_interp import *
 import utils.prompt_manager.terminal_formatting_utils as tfu
-from utils.vlm.vlm_wrapper import ChatGPT4oVLMWrapper
+from utils.vlm.vlm_wrapper import VLMWrapper
 from utils.vlm.vlm_postprocessor import VLMResponsePostProcessor
 
 from utils.miscellaneous.global_variables import VLM_MAX_TOKENS, VLM_MODEL, VLM_TEMPERATURE
@@ -45,7 +45,7 @@ class VLMProcessor:
                  temperature: float = VLM_TEMPERATURE,
                  max_tokens: int = VLM_MAX_TOKENS
                 ):
-        self.vlm = ChatGPT4oVLMWrapper(model=model,
+        self.vlm = VLMWrapper(model=model,
                                        temperature=temperature,
                                        max_tokens=max_tokens
                                       )

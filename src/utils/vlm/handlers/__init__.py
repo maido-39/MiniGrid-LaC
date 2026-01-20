@@ -62,6 +62,7 @@ if GeminiHandler is not None:
         "gemini-1.5-pro": GeminiHandler,
         "gemini-1.5-flash-latest": GeminiHandler,
         "gemini-1.5-pro-latest": GeminiHandler,
+        "gemini-2.5-flash": GeminiHandler,
         "gemini-pro": GeminiHandler,
         "gemini-pro-vision": GeminiHandler,
     })
