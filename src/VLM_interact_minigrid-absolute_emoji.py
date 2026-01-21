@@ -25,7 +25,7 @@ from typing import Union, Tuple, Dict, Optional
 register_minigrid_envs()
 
 # VLM configuration
-VLM_MODEL = "gemini-2.5-flash"
+VLM_MODEL = "gpt-4o"
 VLM_TEMPERATURE = 0.0
 VLM_MAX_TOKENS = 8000
 # Thinking budget for Gemini 2.5 Flash (only supported for gemini-2.5-flash)

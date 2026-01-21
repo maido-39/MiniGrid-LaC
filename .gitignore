@@ -6,6 +6,11 @@ experiments/
 .env.local
 .env.*.local
 
+# Google Cloud 서비스 계정 키 파일
+*service-account*.json
+*credentials*.json
+trans-century*.json
+
 # Python
 __pycache__/
 *.py[cod]

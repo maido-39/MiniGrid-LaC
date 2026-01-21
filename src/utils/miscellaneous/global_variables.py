@@ -19,7 +19,7 @@
 
 
 # VLM Configuration
-VLM_MODEL = "gemini-2.5-flash"
+VLM_MODEL = "gpt-4o"
 VLM_TEMPERATURE = 0.0
 VLM_MAX_TOKENS = 3000
 VLM_THINKING_BUDGET = 2000

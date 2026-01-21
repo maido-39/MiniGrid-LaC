@@ -24,6 +24,11 @@ except ImportError as exc:
     ) from exc
 
 try:
+    from google.oauth2 import service_account
+except ImportError:
+    service_account = None
+
+try:
     from dotenv import load_dotenv
 except ImportError as exc:
     raise ImportError(
@@ -67,6 +72,11 @@ class GeminiHandler(VLMHandler):
         temperature: float = 0.0,
         max_tokens: int = 1000,
         thinking_budget: Optional[int] = None,
+        vertexai: bool = False,
+        credentials: Optional[Union[str, object]] = None,
+        project_id: Optional[str] = None,
+        location: Optional[str] = None,
+        logprobs: Optional[int] = None,
         **kwargs
     ):
         """
@@ -80,6 +90,7 @@ class GeminiHandler(VLMHandler):
                 - "gemini-1.5-flash-latest": Latest flash model
                 - "gemini-1.5-pro-latest": Latest pro model
                 - "gemini-2.5-flash": Latest 2.5 flash model
+                - "gemini-2.5-flash-vertex": Vertex AI version with logprobs support
                 - "gemini-pro": Legacy model
                 - "gemini-pro-vision": Legacy vision model
             temperature: Generation temperature (default: 0.0)
@@ -91,6 +102,19 @@ class GeminiHandler(VLMHandler):
                 - 0: Disable thinking (faster, lower cost)
                 - Positive integer: Set thinking budget in tokens
                 - Note: Only supported for gemini-2.5-flash model
+            vertexai: If True, use Vertex AI instead of Gemini API (default: False)
+                - Requires credentials, project_id, and location
+                - Enables logprobs support
+            credentials: Service account credentials for Vertex AI
+                - Can be a path to JSON key file (str) or credentials object
+                - If None and vertexai=True, reads from GOOGLE_APPLICATION_CREDENTIALS env var
+            project_id: Google Cloud project ID for Vertex AI
+                - If None and vertexai=True, reads from GOOGLE_CLOUD_PROJECT env var
+            location: Google Cloud location for Vertex AI (default: "us-central1")
+                - If None and vertexai=True, reads from GOOGLE_CLOUD_LOCATION env var
+            logprobs: Number of top logprobs to return (default: None, disabled)
+                - Only supported with Vertex AI (vertexai=True)
+                - Recommended: 5
             **kwargs: Additional settings
         """
         super().__init__(
@@ -101,10 +125,18 @@ class GeminiHandler(VLMHandler):
             **kwargs
         )
         
+        # Check if model name indicates Vertex AI mode
+        model_lower = model.lower()
+        if model_lower.endswith("-vertex") or model_lower.endswith("-logprobs"):
+            vertexai = True
+            # Remove suffix to get base model name
+            base_model = model_lower.replace("-vertex", "").replace("-logprobs", "")
+            if base_model == "gemini-2.5-flash":
+                model = "gemini-2.5-flash"
+        
         # Validate thinking_budget
         if thinking_budget is not None:
-            model_lower = model.lower()
-            if model_lower != "gemini-2.5-flash":
+            if model_lower not in ["gemini-2.5-flash", "gemini-2.5-flash-vertex", "gemini-2.5-flash-logprobs"]:
                 raise ValueError(
                     f"thinking_budget is only supported for gemini-2.5-flash model. "
                     f"Current model: {model}"
@@ -114,11 +146,26 @@ class GeminiHandler(VLMHandler):
                     f"thinking_budget must be non-negative. Got: {thinking_budget}"
                 )
         
+        # Validate logprobs
+        if logprobs is not None:
+            if not vertexai:
+                raise ValueError(
+                    "logprobs is only supported with Vertex AI (vertexai=True). "
+                    "Set vertexai=True or use model name ending with '-vertex' or '-logprobs'"
+                )
+            if logprobs <= 0:
+                raise ValueError(f"logprobs must be positive. Got: {logprobs}")
+        
         self.api_key = api_key
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.thinking_budget = thinking_budget
+        self.vertexai = vertexai
+        self.credentials = credentials
+        self.project_id = project_id
+        self.location = location
+        self.logprobs = logprobs
         
         self.client = None
     
@@ -129,27 +176,82 @@ class GeminiHandler(VLMHandler):
         Returns:
             Whether initialization succeeded
         """
-        # API key priority: argument > environment variable > .env file
-        if self.api_key is None:
-            # Try GEMINI_API_KEY first, then GOOGLE_API_KEY
-            self.api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-            if self.api_key is None:
-                raise ValueError(
-                    "API key not provided. "
-                    "Use one of the following:\n"
-                    "1. Pass directly via __init__(api_key='your-key')\n"
-                    "2. Set environment variable GEMINI_API_KEY or GOOGLE_API_KEY\n"
-                    "3. Add GEMINI_API_KEY=your-key to .env file"
-                )
-        
         try:
-            # Initialize client with API key
-            # If api_key is provided, use it directly; otherwise client will read from environment
-            if self.api_key:
-                self.client = genai.Client(api_key=self.api_key)
+            if self.vertexai:
+                # Vertex AI mode: use service account credentials
+                if service_account is None:
+                    raise ImportError(
+                        "google.oauth2.service_account is required for Vertex AI. "
+                        "Install with: pip install google-auth"
+                    )
+                
+                # Get credentials
+                creds = self.credentials
+                if creds is None:
+                    # Try to load from environment variable
+                    key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+                    if key_path:
+                        scopes = ['https://www.googleapis.com/auth/cloud-platform']
+                        creds = service_account.Credentials.from_service_account_file(
+                            key_path,
+                            scopes=scopes
+                        )
+                    else:
+                        raise ValueError(
+                            "Credentials not provided for Vertex AI. "
+                            "Use one of the following:\n"
+                            "1. Pass credentials object via __init__(credentials=creds)\n"
+                            "2. Pass path to JSON key file via __init__(credentials='/path/to/key.json')\n"
+                            "3. Set environment variable GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json"
+                        )
+                elif isinstance(creds, str):
+                    # Path to JSON key file
+                    scopes = ['https://www.googleapis.com/auth/cloud-platform']
+                    creds = service_account.Credentials.from_service_account_file(
+                        creds,
+                        scopes=scopes
+                    )
+                
+                # Get project_id and location
+                project_id = self.project_id or os.getenv("GOOGLE_CLOUD_PROJECT")
+                location = self.location or os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+                
+                if project_id is None:
+                    raise ValueError(
+                        "Project ID not provided for Vertex AI. "
+                        "Use one of the following:\n"
+                        "1. Pass via __init__(project_id='your-project-id')\n"
+                        "2. Set environment variable GOOGLE_CLOUD_PROJECT=your-project-id"
+                    )
+                
+                # Initialize Vertex AI client
+                self.client = genai.Client(
+                    vertexai=True,
+                    project=project_id,
+                    location=location,
+                    credentials=creds
+                )
             else:
-                # Client will automatically read from GEMINI_API_KEY environment variable
-                self.client = genai.Client()
+                # Standard Gemini API mode: use API key
+                if self.api_key is None:
+                    # Try GEMINI_API_KEY first, then GOOGLE_API_KEY
+                    self.api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+                    if self.api_key is None:
+                        raise ValueError(
+                            "API key not provided. "
+                            "Use one of the following:\n"
+                            "1. Pass directly via __init__(api_key='your-key')\n"
+                            "2. Set environment variable GEMINI_API_KEY or GOOGLE_API_KEY\n"
+                            "3. Add GEMINI_API_KEY=your-key to .env file"
+                        )
+                
+                # Initialize client with API key
+                if self.api_key:
+                    self.client = genai.Client(api_key=self.api_key)
+                else:
+                    # Client will automatically read from GEMINI_API_KEY environment variable
+                    self.client = genai.Client()
+            
             return True
         except Exception as e:
             raise RuntimeError(f"Failed to initialize Gemini client: {e}") from e
@@ -274,6 +376,11 @@ class GeminiHandler(VLMHandler):
         ]
         config_kwargs["safety_settings"] = safety_settings
         
+        # Add logprobs support for Vertex AI
+        if self.vertexai and self.logprobs is not None:
+            config_kwargs["response_logprobs"] = True
+            config_kwargs["logprobs"] = self.logprobs
+        
         config = types.GenerateContentConfig(**config_kwargs)
         
         # Prepare contents with image if image exists
@@ -338,6 +445,13 @@ class GeminiHandler(VLMHandler):
                                 thinking_content = '\n'.join(thoughts)
                     
                     metadata['thinking_content'] = thinking_content
+                    
+                    # Extract logprobs (if available, Vertex AI only)
+                    if self.vertexai and hasattr(response, 'candidates') and response.candidates:
+                        candidate = response.candidates[0]
+                        if hasattr(candidate, 'logprobs_result'):
+                            logprobs_result = candidate.logprobs_result
+                            metadata['logprobs_result'] = logprobs_result
                     
                     return raw_response, metadata
                 

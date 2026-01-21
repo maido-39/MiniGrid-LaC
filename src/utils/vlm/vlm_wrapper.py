@@ -54,7 +54,12 @@ class VLMWrapper:
         model: str = "gpt-4o",
         temperature: float = 0.0,
         max_tokens: int = 1000,
-        thinking_budget: Optional[int] = None
+        thinking_budget: Optional[int] = None,
+        vertexai: bool = False,
+        credentials: Optional[Union[str, object]] = None,
+        project_id: Optional[str] = None,
+        location: Optional[str] = None,
+        logprobs: Optional[int] = None
     ):
         """
         Initialize wrapper
@@ -66,6 +71,7 @@ class VLMWrapper:
             model: Model name to use (default: "gpt-4o")
                 - OpenAI models: "gpt-4o", "gpt-4o-mini", "gpt-4", etc.
                 - Gemini models: "gemini-2.5-flash", "gemini-1.5-pro", "gemini-1.5-flash", etc.
+                - Vertex AI models: "gemini-2.5-flash-vertex", "gemini-2.5-flash-logprobs"
             temperature: Generation temperature (default: 0.0)
             max_tokens: Maximum number of tokens (default: 1000)
             thinking_budget: Thinking budget for Gemini 2.5 Flash model (default: None)
@@ -73,6 +79,16 @@ class VLMWrapper:
                 - 0: Disable thinking (faster, lower cost)
                 - Positive integer: Set thinking budget in tokens
                 - Note: Only supported for gemini-2.5-flash model
+            vertexai: If True, use Vertex AI instead of Gemini API (default: False)
+                - Only for Gemini models
+                - Requires credentials, project_id, and location
+            credentials: Service account credentials for Vertex AI
+                - Can be a path to JSON key file (str) or credentials object
+            project_id: Google Cloud project ID for Vertex AI
+            location: Google Cloud location for Vertex AI (default: "us-central1")
+            logprobs: Number of top logprobs to return (default: None, disabled)
+                - Only supported with Vertex AI
+                - Recommended: 5
         """
         # Select handler based on model name
         model_lower = model.lower() if model else ""
@@ -84,7 +100,12 @@ class VLMWrapper:
                 model=model,
                 temperature=temperature,
                 max_tokens=max_tokens,
-                thinking_budget=thinking_budget
+                thinking_budget=thinking_budget,
+                vertexai=vertexai,
+                credentials=credentials,
+                project_id=project_id,
+                location=location,
+                logprobs=logprobs
             )
         else:
             # Use OpenAIHandler for OpenAI models (default)
@@ -280,6 +301,186 @@ class VLMWrapper:
             Raw response text (str)
         """
         return self.generate(image, system_prompt, user_prompt, debug=debug)
+    
+    def generate_with_logprobs(
+        self,
+        image: Optional[Union[str, Path, np.ndarray, Image.Image]] = None,
+        system_prompt: str = "",
+        user_prompt: str = "",
+        debug: bool = False
+    ) -> tuple:
+        """Generate a response with logprobs from the VLM.
+        
+        This method is specifically for Vertex AI models that support logprobs.
+        It returns both the response text and logprobs metadata.
+        
+        Args:
+            image: Input image for vision analysis. Can be:
+                - str: Path to image file
+                - Path: Path object to image file
+                - numpy.ndarray: RGB image array of shape (H, W, 3) with dtype uint8
+                - PIL.Image: PIL Image object
+                - None: No image (text-only request)
+            system_prompt: System-level prompt that defines the assistant's behavior
+            user_prompt: User-level prompt containing the specific request
+            debug: If True, print detailed debug information about the response.
+        
+        Returns:
+            tuple: (response_text: str, logprobs_metadata: dict)
+                - response_text: Raw text response from the VLM
+                - logprobs_metadata: Dictionary containing:
+                    - 'logprobs_result': The logprobs result object from the API
+                    - 'tokens': List of tokens in the response
+                    - 'token_logprobs': List of log probabilities for each token
+                    - 'top_logprobs': List of top-k logprobs for each token position
+                    - 'entropies': List of Shannon entropies for each token position
+        
+        Raises:
+            RuntimeError: If the API call fails or if logprobs are not available.
+            ValueError: If the handler doesn't support logprobs (not Vertex AI).
+        
+        Examples:
+            >>> wrapper = VLMWrapper(
+            ...     model="gemini-2.5-flash-vertex",
+            ...     logprobs=5,
+            ...     credentials="/path/to/key.json",
+            ...     project_id="my-project"
+            ... )
+            >>> response, logprobs = wrapper.generate_with_logprobs(
+            ...     system_prompt="You are a helpful assistant.",
+            ...     user_prompt="What is the capital of France?"
+            ... )
+            >>> print(f"Response: {response}")
+            >>> print(f"Tokens: {logprobs['tokens']}")
+            >>> print(f"Entropies: {logprobs['entropies']}")
+        """
+        # Check if handler supports logprobs
+        if not hasattr(self._handler, 'vertexai') or not self._handler.vertexai:
+            raise ValueError(
+                "logprobs are only available with Vertex AI. "
+                "Use model='gemini-2.5-flash-vertex' or set vertexai=True, "
+                "and provide credentials, project_id, and logprobs parameter."
+            )
+        
+        # Measure inference time
+        start_time = time.time()
+        
+        # Call handler with metadata (logprobs will be included)
+        result = self._handler.generate(
+            image, system_prompt, user_prompt,
+            return_metadata=True
+        )
+        
+        if isinstance(result, tuple):
+            response, metadata = result
+        else:
+            response = result
+            metadata = {}
+        
+        inference_time = time.time() - start_time
+        
+        # Extract and process logprobs
+        logprobs_metadata = {}
+        
+        if 'logprobs_result' in metadata:
+            logprobs_result = metadata['logprobs_result']
+            logprobs_metadata['logprobs_result'] = logprobs_result
+            
+            # Extract tokens and logprobs
+            import numpy as np
+            
+            tokens = []
+            token_logprobs = []
+            top_logprobs = []
+            entropies = []
+            
+            if hasattr(logprobs_result, 'chosen_candidates'):
+                for i, chosen in enumerate(logprobs_result.chosen_candidates):
+                    tokens.append(chosen.token)
+                    token_logprobs.append(chosen.log_probability)
+                    
+                    # Get top candidates for this position
+                    if (hasattr(logprobs_result, 'top_candidates') and 
+                        i < len(logprobs_result.top_candidates)):
+                        top_candidates = logprobs_result.top_candidates[i]
+                        top_k = []
+                        if hasattr(top_candidates, 'candidates'):
+                            for cand in top_candidates.candidates:
+                                top_k.append({
+                                    'token': cand.token,
+                                    'log_probability': cand.log_probability
+                                })
+                        top_logprobs.append(top_k)
+                        
+                        # Calculate Shannon entropy
+                        if top_k:
+                            probs = [np.exp(c['log_probability']) for c in top_k]
+                            probs_sum = np.sum(probs)
+                            if probs_sum > 0:
+                                probs = [p / probs_sum for p in probs]
+                                entropy = -np.sum([p*np.log2(p) if p > 0 else 0 for p in probs])
+                                entropies.append(entropy)
+                            else:
+                                entropies.append(0.0)
+                        else:
+                            entropies.append(0.0)
+                    else:
+                        top_logprobs.append([])
+                        entropies.append(0.0)
+            
+            logprobs_metadata['tokens'] = tokens
+            logprobs_metadata['token_logprobs'] = token_logprobs
+            logprobs_metadata['top_logprobs'] = top_logprobs
+            logprobs_metadata['entropies'] = entropies
+        
+        # Add other metadata
+        logprobs_metadata['inference_time'] = inference_time
+        logprobs_metadata.update({k: v for k, v in metadata.items() if k != 'logprobs_result'})
+        
+        # Debug output
+        if debug:
+            print("\n" + "="*80)
+            print("[DEBUG] RAW VLM RESPONSE (with logprobs):")
+            print("="*80)
+            print(response)
+            print("\n" + "="*80)
+            print("[DEBUG] LOGPROBS METADATA:")
+            print("="*80)
+            print(f"  Inference Time: {inference_time:.3f} seconds")
+            if 'tokens' in logprobs_metadata:
+                print(f"  Number of tokens: {len(logprobs_metadata['tokens'])}")
+                print(f"  Tokens: {logprobs_metadata['tokens']}")
+                if 'entropies' in logprobs_metadata:
+                    print(f"  Entropies: {logprobs_metadata['entropies']}")
+                    if logprobs_metadata['entropies']:
+                        print(f"  Average entropy: {np.mean(logprobs_metadata['entropies']):.4f}")
+                
+                # Display top-k logprobs
+                if 'top_logprobs' in logprobs_metadata and logprobs_metadata['top_logprobs']:
+                    print(f"\n  Top-k Logprobs for each token:")
+                    for i, (token, top_k) in enumerate(zip(
+                        logprobs_metadata['tokens'],
+                        logprobs_metadata['top_logprobs']
+                    )):
+                        if top_k:
+                            print(f"\n    Token {i} ('{token}'):")
+                            for j, candidate in enumerate(top_k):
+                                logprob = candidate.get('log_probability', 0)
+                                prob = np.exp(logprob)
+                                cand_token = candidate.get('token', '')
+                                print(f"      {j+1}. '{cand_token}': prob={prob:.6f} (logprob={logprob:.4f})")
+                        else:
+                            print(f"    Token {i} ('{token}'): No top candidates")
+            if metadata:
+                if metadata.get('input_tokens') is not None:
+                    print(f"  Input Tokens: {metadata['input_tokens']}")
+                if metadata.get('output_tokens') is not None:
+                    print(f"  Output Tokens: {metadata['output_tokens']}")
+                if metadata.get('total_tokens') is not None:
+                    print(f"  Total Tokens: {metadata['total_tokens']}")
+            print("="*80 + "\n")
+        
+        return response, logprobs_metadata
 
 
 # Backward compatibility alias

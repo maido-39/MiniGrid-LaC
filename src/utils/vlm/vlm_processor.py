@@ -19,6 +19,7 @@
 
 
 import numpy as np
+from typing import Optional, Union
 
 from utils.prompt_manager.prompt_interp import *
 import utils.prompt_manager.terminal_formatting_utils as tfu
@@ -44,13 +45,24 @@ class VLMProcessor:
                  model: str = VLM_MODEL,
                  temperature: float = VLM_TEMPERATURE,
                  max_tokens: int = VLM_MAX_TOKENS,
-                 debug: bool = False
+                 debug: bool = False,
+                 vertexai: bool = False,
+                 credentials: Optional[Union[str, object]] = None,
+                 project_id: Optional[str] = None,
+                 location: Optional[str] = None,
+                 logprobs: Optional[int] = None
                 ):
         self.vlm = VLMWrapper(model=model,
                                        temperature=temperature,
-                                       max_tokens=max_tokens
+                                       max_tokens=max_tokens,
+                                       vertexai=vertexai,
+                                       credentials=credentials,
+                                       project_id=project_id,
+                                       location=location,
+                                       logprobs=logprobs
                                       )
         self.debug = debug
+        self.logprobs = logprobs
         self.postprocessor_action = VLMResponsePostProcessor(required_fields=["action", "reasoning", "grounding", "memory"])
         self.postprocessor_feedback = VLMResponsePostProcessor(required_fields=["knowledge"])
     
@@ -113,6 +125,90 @@ class VLMProcessor:
         except ValueError as e:
             tfu.cprint(f"Feedback response parsing failed: {e}", tfu.RED, True)
             return {"knowledge": ""}
+    
+    def requester_with_logprobs(self,
+                                image: np.ndarray,
+                                system_prompt: str,
+                                user_prompt: str,
+                                debug: bool = None
+                               ) -> tuple:
+        """Send Request to VLM with logprobs (Vertex AI only)
+        
+        Args:
+            image: Input image array
+            system_prompt: System prompt
+            user_prompt: User prompt
+            debug: Enable debug output. If None, uses instance's debug setting.
+        
+        Returns:
+            Tuple of (response_text: str, logprobs_metadata: dict)
+        """
+        
+        try:
+            if not self.logprobs:
+                raise ValueError(
+                    "logprobs not enabled. Set logprobs parameter in __init__ "
+                    "and use Vertex AI (vertexai=True or model='gemini-2.5-flash-vertex')."
+                )
+            
+            # Use method-level debug if provided, otherwise use instance-level debug
+            debug_flag = debug if debug is not None else self.debug
+            response, logprobs_metadata = self.vlm.generate_with_logprobs(
+                image=image,
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                debug=debug_flag
+            )
+            return response, logprobs_metadata
+        except Exception as e:
+            tfu.cprint(f"VLM API call with logprobs failed: {e}", tfu.RED, True)
+            return "", {}
+    
+    def parser_action_with_logprobs(self,
+                                     raw_response: str,
+                                     logprobs_metadata: dict,
+                                     action_field: str = "action",
+                                     remove_logprobs: bool = False
+                                    ) -> dict:
+        """Parse the response with logprobs wrapping for action field
+        
+        Args:
+            raw_response: Raw response text from VLM
+            logprobs_metadata: Logprobs metadata from requester_with_logprobs
+            action_field: Name of action field in JSON (default: "action")
+            remove_logprobs: If True, return clean JSON without logprobs (default: False)
+        
+        Returns:
+            Parsed dictionary with logprobs wrapped for action field
+        """
+        
+        try:
+            if remove_logprobs:
+                parsed = self.postprocessor_action.process_without_logprobs(
+                    raw_response,
+                    logprobs_metadata,
+                    strict=True
+                )
+            else:
+                parsed = self.postprocessor_action.process_with_action_logprobs(
+                    raw_response,
+                    logprobs_metadata,
+                    action_field=action_field,
+                    strict=True
+                )
+            return parsed
+        except ValueError as e:
+            tfu.cprint(f"Response parsing with logprobs failed: {e}", tfu.RED, True)
+            return {
+                "action": ["0"],  # Default value: move up
+                "reasoning": "Parsing failed",
+                "grounding": "",
+                "memory": {
+                    "spatial_description": "",
+                    "task_process": {"goal": "", "status": ""},
+                    "previous_action": ""
+                }
+            }
 
 
 
