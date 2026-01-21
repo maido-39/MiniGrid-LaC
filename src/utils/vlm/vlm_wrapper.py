@@ -301,7 +301,7 @@ class VLMWrapper:
             Raw response text (str)
         """
         return self.generate(image, system_prompt, user_prompt, debug=debug)
-    
+
     def generate_with_logprobs(
         self,
         image: Optional[Union[str, Path, np.ndarray, Image.Image]] = None,
@@ -447,16 +447,20 @@ class VLMWrapper:
             print("[DEBUG] LOGPROBS METADATA:")
             print("="*80)
             print(f"  Inference Time: {inference_time:.3f} seconds")
+            
             if 'tokens' in logprobs_metadata:
                 print(f"  Number of tokens: {len(logprobs_metadata['tokens'])}")
-                print(f"  Tokens: {logprobs_metadata['tokens']}")
-                if 'entropies' in logprobs_metadata:
+                SHOW_RAW_TOKENSLOGPROBS = False
+                if SHOW_RAW_TOKENSLOGPROBS and 'entropies' in logprobs_metadata:
+                    print(f"  Tokens: {logprobs_metadata['tokens']}")
                     print(f"  Entropies: {logprobs_metadata['entropies']}")
                     if logprobs_metadata['entropies']:
                         print(f"  Average entropy: {np.mean(logprobs_metadata['entropies']):.4f}")
                 
-                # Display top-k logprobs
-                if 'top_logprobs' in logprobs_metadata and logprobs_metadata['top_logprobs']:
+                # Display top-k logprobs (can be toggled via SHOW_TOP_K_LOGPROBS flag)
+                # Set to False to disable verbose top-k logprobs output
+                SHOW_TOP_K_LOGPROBS = False
+                if SHOW_TOP_K_LOGPROBS and 'top_logprobs' in logprobs_metadata and logprobs_metadata['top_logprobs']:
                     print(f"\n  Top-k Logprobs for each token:")
                     for i, (token, top_k) in enumerate(zip(
                         logprobs_metadata['tokens'],

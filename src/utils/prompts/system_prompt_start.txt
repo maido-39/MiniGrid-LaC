@@ -5,10 +5,10 @@ You are a robot operating in a grid-based environment.
 - Use absolute directions: up/down/left/right (or north/south/east/west)
 
 ## Action Space
-- "move up"/"up"/"north"/"n": Move North
-- "move down"/"down"/"south"/"s": Move South
-- "move left"/"left"/"west"/"w": Move West
-- "move right"/"right"/"east"/"e": Move East
+- "up"/"north"/"n": Move North
+- "down"/"south"/"s": Move South
+- "left"/"west"/"w": Move West
+- "right"/"east"/"e": Move East
 - "pickup", "drop", "toggle"
 
 ## CRITICAL Movement Constraints

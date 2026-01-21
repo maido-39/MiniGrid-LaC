@@ -24,7 +24,7 @@ import json
 import numpy as np
 from PIL import Image
 from pathlib import Path
-from typing import Union            # Union is used in visualize_grid_cli
+from typing import Union, Optional  # Union is used in visualize_grid_cli
 from datetime import datetime
 
 from utils.miscellaneous.visualizer import Visualizer
@@ -35,7 +35,15 @@ from utils.prompt_manager.prompt_organizer import PromptOrganizer
 from utils.prompt_manager.prompt_interp import system_prompt_interp
 from utils.map_manager.emoji_map_loader import load_emoji_map_from_json
 
-from utils.miscellaneous.global_variables import DEFAULT_INITIAL_MISSION, DEFAULT_MISSION
+from utils.miscellaneous.global_variables import (
+    DEFAULT_INITIAL_MISSION,
+    DEFAULT_MISSION,
+    VLM_MODEL,
+    LOGPROBS_ENABLED,
+    LOGPROBS_TOPK,
+    MAP_FILE_NAME,
+    DEBUG,
+)
 
 
 
@@ -52,19 +60,38 @@ class ScenarioExperiment:
     
     def __init__(self,
                  log_dir: Path = None,
-                 json_map_path: str = "scenario135_example_map.json"
+                 json_map_path: str = None,
+                 prompt_organizer: Optional[PromptOrganizer] = None,
+                 use_logprobs: bool = None,
+                 debug: bool = None
                 ):
         """
         Args:
             log_dir: Log directory path
-            json_map_path: JSON map file path
+            json_map_path: JSON map file path (default: None, uses MAP_FILE_NAME from global_variables)
+            prompt_organizer: Custom PromptOrganizer instance (default: None, uses default PromptOrganizer)
+            use_logprobs: Enable logprobs (default: None, uses LOGPROBS_ENABLED from global_variables)
+            debug: Enable debug output (default: None, uses DEBUG from global_variables)
         """
         
         self.wrapper = None
+        # Use global MAP_FILE_NAME if json_map_path is not provided
+        if json_map_path is None:
+            json_map_path = f"config/{MAP_FILE_NAME}"
         self.json_map_path = json_map_path
-        self.prompt_organizer = PromptOrganizer()
-        # self.vlm_processor = VLMProcessor(debug=True) # For debugging
-        self.vlm_processor = VLMProcessor()
+        self.prompt_organizer = prompt_organizer if prompt_organizer is not None else PromptOrganizer()
+        # logprobs / VLM 설정
+        self.vlm_model = VLM_MODEL
+        # Use use_logprobs parameter if provided, otherwise use global LOGPROBS_ENABLED
+        self.logprobs_enabled_cfg = use_logprobs if use_logprobs is not None else LOGPROBS_ENABLED
+        self.logprobs_topk = LOGPROBS_TOPK
+        # Use debug parameter if provided, otherwise use global DEBUG
+        self.debug = debug if debug is not None else DEBUG
+        self.logprobs_active = False  # 실제 활성 여부 (모델/설정에 따라 결정)
+        self.logprobs_metadata = {}
+        self.action_logprobs_info = {}
+        # VLMProcessor 생성 (모델/설정에 따라 logprobs 활성화 여부 결정)
+        self.vlm_processor = self._create_vlm_processor()
         self.visualizer = Visualizer()
         self.user_interaction = UserInteraction()
         
@@ -98,6 +125,31 @@ class ScenarioExperiment:
         self.csv_writer = None
         self._init_csv_logging()
     
+    def _create_vlm_processor(self) -> VLMProcessor:
+        """
+        모델/설정에 따라 logprobs를 활성화한 VLMProcessor 생성.
+        logprobs는 Vertex AI Gemini(-vertex/-logprobs) 모델에서만 사용.
+        """
+        model_lower = (self.vlm_model or "").lower()
+        logprobs_allowed = (
+            model_lower.startswith("gemini")
+            and ("-vertex" in model_lower or "-logprobs" in model_lower)
+        )
+        logprobs_value = self.logprobs_topk if (self.logprobs_enabled_cfg and logprobs_allowed) else None
+        self.logprobs_active = logprobs_value is not None
+
+        if self.logprobs_enabled_cfg and not logprobs_allowed:
+            tfu.cprint(
+                "[Info] logprobs 비활성화: 모델이 Vertex AI Gemini(-vertex/-logprobs) 형태가 아닙니다.",
+                tfu.LIGHT_BLACK,
+            )
+
+        return VLMProcessor(
+            model=self.vlm_model,
+            logprobs=logprobs_value,
+            debug=self.debug,
+        )
+
     def _evaluate_feedback(self, user_prompt: str) -> bool:
         """
         Feedback Evaluation (Internal Method)
@@ -124,26 +176,70 @@ class ScenarioExperiment:
     def vlm_gen_action(self,
                        image: np.ndarray,
                        system_prompt: str,
-                       user_prompt: str
+                       user_prompt: str,
+                       use_logprobs: bool = None
                       ) -> dict:
         """
-        VLM call for Action creation
+        VLM call for Action creation.
+        use_logprobs=True 이고 logprobs가 활성 상태일 때만 logprobs 호출.
         """
-        
+        use_lp = self.logprobs_active if use_logprobs is None else (use_logprobs and self.logprobs_active)
+
         tfu.cprint("\n[3] Sending Action creation request to VLM...")
+
+        if use_lp and self.vlm_processor.logprobs:
+            try:
+                raw_response, logprobs_metadata = self.vlm_processor.requester_with_logprobs(
+                    image=image,
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    debug=self.debug
+                )
+
+                if not raw_response:
+                    tfu.cprint("The VLM response is empty.")
+                    return {}
+
+                tfu.cprint("VLM response received")
+                tfu.cprint("[4] Parsing response with logprobs...")
+                parsed = self.vlm_processor.parser_action_with_logprobs(
+                    raw_response,
+                    logprobs_metadata,
+                    action_field="action",
+                    remove_logprobs=False
+                )
+
+                # logprobs 정보 저장 (로깅용)
+                self.logprobs_metadata = logprobs_metadata
+                self.action_logprobs_info = parsed.get('action_logprobs_info', {})
+                
+                # Print logprobs info if debug is enabled
+                if self.debug and self.action_logprobs_info:
+                    self.vlm_processor.postprocessor_action.print_action_logprobs_info(self.action_logprobs_info)
+                
+                return parsed
+            except Exception as e:
+                tfu.cprint(f"[Warning] logprobs 호출 실패, 일반 모드로 재시도: {e}", tfu.LIGHT_RED)
+                # fallthrough to non-logprobs
+
+        # 일반 모드
         raw_response = self.vlm_processor.requester(
             image=image,
             system_prompt=system_prompt,
-            user_prompt=user_prompt
+            user_prompt=user_prompt,
+            debug=self.debug
         )
-        
+
         if not raw_response:
             tfu.cprint("The VLM response is empty.")
             return {}
-        
+
         tfu.cprint("VLM response received")
         tfu.cprint("[4] Parsing response...")
         parsed = self.vlm_processor.parser_action(raw_response)
+        # 일반 모드에서는 logprobs 정보 초기화
+        self.logprobs_metadata = {}
+        self.action_logprobs_info = {}
         return parsed
     
     def vlm_gen_feedback(self, system_prompt: str, user_feedback: str) -> str:
@@ -166,7 +262,8 @@ class ScenarioExperiment:
         raw_response = self.vlm_processor.requester(
             image=None,
             system_prompt=feedback_system_prompt,
-            user_prompt=feedback_user_prompt
+            user_prompt=feedback_user_prompt,
+            debug=self.debug
         )
         
         if not raw_response:
@@ -214,7 +311,7 @@ class ScenarioExperiment:
                 "vlm_action_chunk", "vlm_reasoning", "vlm_grounding",
                 "memory_spatial_description", "memory_task_goal", "memory_task_status", "memory_task_blocked_reason", "memory_previous_action",
                 "last_action_result_action", "last_action_result_success", "last_action_result_failure_reason", "last_action_result_position_changed",
-                "reward", "done", "image_path"
+                "reward", "done", "image_path", "vlm_action_logprobs_info"
             ])
     
     def _log_step(self):
@@ -287,7 +384,8 @@ class ScenarioExperiment:
             bool(last_action_result.get('position_changed', True)),
             float(self.reward),
             bool(self.done),
-            image_path
+            image_path,
+            json.dumps(self.action_logprobs_info, ensure_ascii=False)
         ])
         self.csv_file.flush()
         
@@ -311,7 +409,8 @@ class ScenarioExperiment:
             "last_action_result": last_action_result,
             "reward": float(self.reward),
             "done": bool(self.done),
-            "image_path": image_path
+            "image_path": image_path,
+            "action_logprobs_info": self.action_logprobs_info
         }
         
         all_data = []
@@ -400,7 +499,9 @@ class ScenarioExperiment:
             default_prompt = f"{DEFAULT_INITIAL_MISSION}"
         else:
             default_prompt = f"{DEFAULT_MISSION}"
-        self.user_prompt = self.prompt_organizer.get_user_prompt(default_prompt)
+        
+        # Use PromptOrganizer (supports file paths, templates, etc.)
+        self.user_prompt = self.prompt_organizer.get_user_prompt(default_prompt, init_step=init_step)
         
         tfu.cprint("\n" + "=" * 80, bold=True)
         tfu.cprint(f"{self.user_prompt}", tfu.YELLOW, True)
@@ -432,10 +533,12 @@ class ScenarioExperiment:
         
         # Create a General Action
         system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper, self.last_action_result)
+        
         self.vlm_response_parsed = self.vlm_gen_action(
             image=self.image,
             system_prompt=system_prompt,
-            user_prompt=self.user_prompt
+            user_prompt=self.user_prompt,
+            use_logprobs=self.logprobs_active
         )
         
         if not self.vlm_response_parsed:

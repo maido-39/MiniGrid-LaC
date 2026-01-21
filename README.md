@@ -126,6 +126,7 @@ image = wrapper.get_image()  # ← Hover here for detailed docs
 - Important notes and warnings
 
 ### 사용 가이드
+- [API Key 생성 및 설정 가이드](docs/LLM-API/api-key-setup.md) - OpenAI, Gemini, Vertex AI API Key 설정 방법
 - [키보드 제어 가이드](docs/keyboard-control.md) - 키보드 제어 예제 설명
 - [VLM 테스트 스크립트 가이드](docs/test-vlm-guide.md) - VLM 모델 테스트 및 비교 가이드
 - [이모지 맵 JSON 로더 가이드](docs/emoji-map-loader.md) - JSON 파일에서 이모지 맵 로드하기
@@ -143,7 +144,12 @@ image = wrapper.get_image()  # ← Hover here for detailed docs
 ### 필수 요구사항
 
 - Python 3.8 이상
-- OpenAI API 키 (VLM 기능 사용 시)
+- API 키 (VLM 기능 사용 시):
+  - OpenAI API 키 (GPT-4o 등 사용 시)
+  - Gemini API 키 (Gemini 모델 사용 시)
+  - Vertex AI 설정 (logprobs 기능 사용 시)
+
+**📖 API Key 설정 방법**: [API Key 생성 및 설정 가이드](docs/LLM-API/api-key-setup.md) 참고
 
 ### Conda를 사용한 설치 (권장)
 
@@ -159,8 +165,10 @@ conda activate minigrid
 # 의존성 설치
 pip install -r requirements.txt
 
-# OpenAI API 키 설정 (.env 파일 생성)
+# API 키 설정 (.env 파일 생성)
+# 자세한 설정 방법은 docs/LLM-API/api-key-setup.md 참고
 echo "OPENAI_API_KEY=your-api-key-here" > .env
+echo "GEMINI_API_KEY=your-api-key-here" >> .env  # Gemini 사용 시
 ```
 
 ### pip를 사용한 설치
@@ -179,8 +187,10 @@ venv\Scripts\activate  # Windows
 # 의존성 설치
 pip install -r requirements.txt
 
-# OpenAI API 키 설정 (.env 파일 생성)
+# API 키 설정 (.env 파일 생성)
+# 자세한 설정 방법은 docs/LLM-API/api-key-setup.md 참고
 echo "OPENAI_API_KEY=your-api-key-here" > .env
+echo "GEMINI_API_KEY=your-api-key-here" >> .env  # Gemini 사용 시
 ```
 
 ### 설치 확인

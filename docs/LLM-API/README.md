@@ -4,6 +4,9 @@
 
 ## 문서 목록
 
+### API 설정
+- [API Key 생성 및 설정 가이드](./api-key-setup.md) - OpenAI, Gemini, Vertex AI API Key 설정 방법
+
 ### Gemini API
 - [Gemini Thinking 기능 가이드](./gemini-thinking.md) - Gemini 2.5/3 시리즈의 Thinking 기능 사용법
 

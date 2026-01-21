@@ -29,7 +29,7 @@ except ImportError:
     service_account = None
 
 try:
-    from dotenv import load_dotenv
+    from dotenv import load_dotenv, find_dotenv
 except ImportError as exc:
     raise ImportError(
         "python-dotenv library is required. Install with: pip install python-dotenv"
@@ -39,6 +39,39 @@ from .base import VLMHandler
 
 # Automatically load .env file
 load_dotenv()
+
+
+def _resolve_path_relative_to_env(relative_path: str) -> str:
+    """
+    Resolve a relative path relative to the .env file location.
+    
+    If the path is already absolute, return it as-is.
+    If the path is relative, resolve it relative to the .env file's directory.
+    
+    Args:
+        relative_path: Path string (can be absolute or relative)
+    
+    Returns:
+        Absolute path string
+    """
+    if not relative_path:
+        return relative_path
+    
+    # If already absolute, return as-is
+    if os.path.isabs(relative_path):
+        return relative_path
+    
+    # Find .env file location
+    env_path = find_dotenv()
+    if env_path:
+        # Get directory containing .env file
+        env_dir = os.path.dirname(os.path.abspath(env_path))
+        # Resolve relative path from .env directory
+        resolved = os.path.join(env_dir, relative_path)
+        return os.path.abspath(resolved)
+    else:
+        # If .env file not found, resolve relative to current working directory
+        return os.path.abspath(relative_path)
 
 
 class GeminiHandler(VLMHandler):
@@ -191,6 +224,8 @@ class GeminiHandler(VLMHandler):
                     # Try to load from environment variable
                     key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
                     if key_path:
+                        # Resolve relative path relative to .env file location
+                        key_path = _resolve_path_relative_to_env(key_path)
                         scopes = ['https://www.googleapis.com/auth/cloud-platform']
                         creds = service_account.Credentials.from_service_account_file(
                             key_path,
@@ -202,13 +237,15 @@ class GeminiHandler(VLMHandler):
                             "Use one of the following:\n"
                             "1. Pass credentials object via __init__(credentials=creds)\n"
                             "2. Pass path to JSON key file via __init__(credentials='/path/to/key.json')\n"
-                            "3. Set environment variable GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json"
+                            "3. Set environment variable GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json\n"
+                            "   (Relative paths in .env file are resolved relative to .env file location)"
                         )
                 elif isinstance(creds, str):
-                    # Path to JSON key file
+                    # Path to JSON key file - resolve relative to .env if relative
+                    key_path = _resolve_path_relative_to_env(creds)
                     scopes = ['https://www.googleapis.com/auth/cloud-platform']
                     creds = service_account.Credentials.from_service_account_file(
-                        creds,
+                        key_path,
                         scopes=scopes
                     )
                 
@@ -233,6 +270,7 @@ class GeminiHandler(VLMHandler):
                 )
             else:
                 # Standard Gemini API mode: use API key
+                # API key priority: argument > environment variable > .env file
                 if self.api_key is None:
                     # Try GEMINI_API_KEY first, then GOOGLE_API_KEY
                     self.api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
@@ -246,6 +284,7 @@ class GeminiHandler(VLMHandler):
                         )
                 
                 # Initialize client with API key
+                # If api_key is provided, use it directly; otherwise client will read from environment
                 if self.api_key:
                     self.client = genai.Client(api_key=self.api_key)
                 else:
@@ -404,7 +443,7 @@ class GeminiHandler(VLMHandler):
                     model=self.model,
                     contents=contents,
                     config=config
-                )
+                    )
                 
                 # Extract response text
                 if not response.text:

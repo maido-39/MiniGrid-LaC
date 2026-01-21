@@ -125,7 +125,7 @@ class VLMProcessor:
         except ValueError as e:
             tfu.cprint(f"Feedback response parsing failed: {e}", tfu.RED, True)
             return {"knowledge": ""}
-    
+
     def requester_with_logprobs(self,
                                 image: np.ndarray,
                                 system_prompt: str,
@@ -170,7 +170,7 @@ class VLMProcessor:
                                      action_field: str = "action",
                                      remove_logprobs: bool = False
                                     ) -> dict:
-        """Parse the response with logprobs wrapping for action field
+        """Parse the response with logprobs information for action field
         
         Args:
             raw_response: Raw response text from VLM
@@ -179,23 +179,24 @@ class VLMProcessor:
             remove_logprobs: If True, return clean JSON without logprobs (default: False)
         
         Returns:
-            Parsed dictionary with logprobs wrapped for action field
+            Parsed dictionary. If remove_logprobs=False, includes 'action_logprobs_info' with:
+                - 'actions': List of action values
+                - 'action_logprobs': List of logprobs info for each action
+                - 'action_entropies': List of entropies for each action
         """
         
         try:
-            if remove_logprobs:
-                parsed = self.postprocessor_action.process_without_logprobs(
-                    raw_response,
+            # 기본 JSON 파싱 (strict=False로 설정하여 필수 필드가 없어도 파싱 가능)
+            parsed = self.postprocessor_action.process(raw_response, strict=False)
+            
+            # logprobs 정보 추가 (remove_logprobs=False인 경우)
+            if not remove_logprobs and logprobs_metadata:
+                action_logprobs_info = self.postprocessor_action.get_action_logprobs(
                     logprobs_metadata,
-                    strict=True
+                    action_field=action_field
                 )
-            else:
-                parsed = self.postprocessor_action.process_with_action_logprobs(
-                    raw_response,
-                    logprobs_metadata,
-                    action_field=action_field,
-                    strict=True
-                )
+                parsed['action_logprobs_info'] = action_logprobs_info
+            
             return parsed
         except ValueError as e:
             tfu.cprint(f"Response parsing with logprobs failed: {e}", tfu.RED, True)

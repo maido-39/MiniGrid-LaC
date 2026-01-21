@@ -196,197 +196,400 @@ class VLMResponsePostProcessor:
         """
         return self.parse_json_response(response_text, strict=strict)
     
-    def process_without_logprobs(
+    def get_token_logprobs_info(
         self,
-        response_text: str,
-        logprobs_metadata: Optional[Dict] = None,
-        strict: bool = True
-    ) -> Dict[str, Any]:
-        """Process VLM response and return clean JSON without logprobs.
-        
-        This method processes the response text and returns a clean JSON structure,
-        removing any logprobs-related metadata. This is useful when you want to
-        use the response as a normal JSON without logprobs information.
-        
-        Args:
-            response_text: Raw text response from the VLM
-            logprobs_metadata: Optional logprobs metadata (ignored, kept for API consistency)
-            strict: If True, raises ValueError if required fields are missing.
-        
-        Returns:
-            Dictionary containing parsed fields without logprobs information.
-        
-        Examples:
-            >>> processor = VLMResponsePostProcessor(
-            ...     required_fields=["action", "reasoning"]
-            ... )
-            >>> response = '{"action": "move up", "reasoning": "Go north"}'
-            >>> result = processor.process_without_logprobs(response)
-            >>> # Returns clean JSON without logprobs
-        """
-        # Simply process as normal JSON (logprobs are not in the text anyway)
-        return self.process(response_text, strict=strict)
-    
-    def process_with_action_logprobs(
-        self,
-        response_text: str,
         logprobs_metadata: Dict,
-        action_field: str = "action",
-        strict: bool = True
-    ) -> Dict[str, Any]:
-        """Process VLM response and wrap logprobs for tokens after action field.
-        
-        This method processes the response text, extracts the action field value,
-        and wraps logprobs information for the tokens that make up the action value
-        and all subsequent tokens in the response.
+        token_positions: List[int]
+    ) -> List[List[Any]]:
+        """
+        특정 토큰 위치들에 대한 logprobs 정보를 추출합니다.
         
         Args:
-            response_text: Raw text response from the VLM
-            logprobs_metadata: Dictionary containing logprobs information:
-                - 'tokens': List of tokens in the response
-                - 'token_logprobs': List of log probabilities for each token
-                - 'top_logprobs': List of top-k logprobs for each token position
-                - 'entropies': List of Shannon entropies for each token position
-            action_field: Name of the action field in the JSON (default: "action")
-            strict: If True, raises ValueError if required fields are missing.
+            logprobs_metadata: logprobs 메타데이터 딕셔너리
+                - 'tokens': List[str] - 토큰 리스트
+                - 'token_logprobs': List[float] - 각 토큰의 log probability
+                - 'top_logprobs': List[List[Dict]] - 각 토큰 위치의 top-k logprobs
+                - 'entropies': List[float] - 각 토큰 위치의 Shannon entropy
+            token_positions: 토큰 위치 인덱스 리스트
         
         Returns:
-            Dictionary containing parsed fields with logprobs wrapped:
-                - All original fields from the JSON
-                - 'action_logprobs': Dictionary containing:
-                    - 'action_tokens': List of tokens that make up the action value
-                    - 'action_token_logprobs': List of logprobs for action tokens
-                    - 'action_top_logprobs': List of top-k logprobs for action tokens
-                    - 'action_entropies': List of entropies for action tokens
-                    - 'action_start_idx': Starting token index of action in response
-                - 'remaining_logprobs': Dictionary containing:
-                    - 'tokens': List of tokens after action
-                    - 'token_logprobs': List of logprobs for remaining tokens
-                    - 'top_logprobs': List of top-k logprobs for remaining tokens
-                    - 'entropies': List of entropies for remaining tokens
-                    - 'start_idx': Starting token index of remaining tokens
-        
-        Examples:
-            >>> processor = VLMResponsePostProcessor(
-            ...     required_fields=["action", "reasoning"]
-            ... )
-            >>> response = '{"action": "move up", "reasoning": "Go north"}'
-            >>> logprobs = {
-            ...     'tokens': ['{', '"', 'action', '"', ':', '"', 'move', 'up', ...],
-            ...     'entropies': [0.5, 0.3, ...]
-            ... }
-            >>> result = processor.process_with_action_logprobs(
-            ...     response, logprobs, action_field="action"
-            ... )
-            >>> # result['action_logprobs'] contains logprobs for "move up" tokens
-            >>> # result['remaining_logprobs'] contains logprobs for remaining tokens
+            List of [token(평문), [token1:logprob, token2:logprob, ...], 섀넌 엔트로피, 토큰 위치]
+            각 요소는 [token_str, top_logprobs_list, entropy, position] 형태
         """
-        # First, parse the JSON response
-        parsed = self.process(response_text, strict=strict)
-        
-        # Extract tokens and logprobs from metadata
         tokens = logprobs_metadata.get('tokens', [])
         token_logprobs = logprobs_metadata.get('token_logprobs', [])
         top_logprobs = logprobs_metadata.get('top_logprobs', [])
         entropies = logprobs_metadata.get('entropies', [])
         
-        if not tokens:
-            # No logprobs available, return parsed result as-is
-            return parsed
-        
-        # Find the action field value in the response text
-        action_value = parsed.get(action_field, "")
-        if not action_value:
-            # No action field, return parsed result with all logprobs as remaining
-            parsed['remaining_logprobs'] = {
-                'tokens': tokens,
-                'token_logprobs': token_logprobs,
-                'top_logprobs': top_logprobs,
-                'entropies': entropies,
-                'start_idx': 0
-            }
-            return parsed
-        
-        # Convert action value to string for token matching
-        action_str = str(action_value)
-        
-        # Find where the action value appears in the response text
-        # We need to find the token indices that correspond to the action value
-        response_lower = response_text.lower()
-        action_lower = action_str.lower()
-        
-        # Try to find action value in response text
-        action_start_in_text = response_lower.find(action_lower)
-        
-        if action_start_in_text == -1:
-            # Action value not found in text, try to find it in tokens
-            # This is a fallback: search for tokens that match action value
-            action_tokens_str = ' '.join(tokens).lower()
-            action_start_in_tokens = action_tokens_str.find(action_lower)
+        result = []
+        for pos in token_positions:
+            if pos < 0 or pos >= len(tokens):
+                continue
             
-            if action_start_in_tokens != -1:
-                # Find the token index
-                # Count tokens before the match
-                text_before = action_tokens_str[:action_start_in_tokens]
-                token_count_before = len(text_before.split())
-                action_start_idx = token_count_before
+            token_str = tokens[pos]
+            top_logprobs_list = top_logprobs[pos] if pos < len(top_logprobs) else []
+            entropy = entropies[pos] if pos < len(entropies) else None
+            
+            # top_logprobs를 [token:logprob, ...] 형태로 변환
+            top_logprobs_formatted = []
+            if top_logprobs_list:
+                for item in top_logprobs_list:
+                    if isinstance(item, dict):
+                        token_name = item.get('token', '')
+                        logprob = item.get('log_probability', 0.0)
+                        top_logprobs_formatted.append(f"{token_name}:{logprob:.4f}")
+            
+            result.append([token_str, top_logprobs_formatted, entropy, pos])
+        
+        return result
+    
+    def find_action_token_positions(
+        self,
+        logprobs_metadata: Dict,
+        action_field: str = "action"
+    ) -> List[int]:
+        """
+        JSON을 파싱하여 action 필드의 실제 값 토큰 위치를 찾습니다.
+        logprobs_metadata만 받아서 동작합니다.
+        
+        Args:
+            logprobs_metadata: logprobs 메타데이터
+                - 'tokens': List[str] - 토큰 리스트
+            action_field: action 필드 이름 (기본값: "action")
+        
+        Returns:
+            action 값에 해당하는 토큰 위치 인덱스 리스트
+            (action이 배열인 경우 여러 개, 단일 값인 경우 하나)
+        """
+        import re
+        
+        tokens = logprobs_metadata.get('tokens', [])
+        if not tokens:
+            return []
+        
+        # JSON 파싱
+        try:
+            # tokens를 문자열로 재구성
+            text = ''.join(tokens)
+            
+            # JSON 코드 블록 제거
+            cleaned_text = text.strip()
+            if "```json" in cleaned_text:
+                start_idx = cleaned_text.find("```json") + 7
+                end_idx = cleaned_text.find("```", start_idx)
+                if end_idx != -1:
+                    cleaned_text = cleaned_text[start_idx:end_idx].strip()
+            elif "```" in cleaned_text:
+                start_idx = cleaned_text.find("```") + 3
+                end_idx = cleaned_text.find("```", start_idx)
+                if end_idx != -1:
+                    cleaned_text = cleaned_text[start_idx:end_idx].strip()
+            
+            parsed = json.loads(cleaned_text)
+            action_value = parsed.get(action_field)
+            
+            if action_value is None:
+                return []
+            
+            # action 값이 리스트인지 단일 값인지 확인
+            if isinstance(action_value, list):
+                action_values = [str(v).strip() for v in action_value if v]
             else:
-                # Cannot find action in tokens, use heuristic:
-                # Look for action field name, then find value after it
-                action_field_lower = action_field.lower()
-                for i, token in enumerate(tokens):
-                    if action_field_lower in token.lower():
-                        # Found action field, value should be a few tokens after
-                        # Skip field name, colon, quotes
-                        action_start_idx = min(i + 3, len(tokens))
-                        break
+                action_values = [str(action_value).strip()]
+            
+            if not action_values:
+                return []
+            
+            # action 필드 이름 찾기
+            action_field_idx = None
+            for i, token in enumerate(tokens):
+                # action 필드 이름 찾기 (정확히 매칭)
+                token_clean = re.sub(r'[^\w]', '', token.lower())
+                if token_clean == action_field.lower():
+                    action_field_idx = i
+                    break
+            
+            if action_field_idx is None:
+                return []
+            
+            # action 필드 다음에 오는 값 찾기
+            # JSON 구조: "action": ["value1", "value2", ...] 또는 "action": "value"
+            # 토큰 예시: ['{', '"', 'action', '"', ':', '[', '"', 'up', '"', ',', '"', 'down', '"', ']', '}']
+            result_positions = []
+            i = action_field_idx + 1
+            
+            # action 필드 다음에 오는 구조 건너뛰기: ":", 공백, "[" 또는 '"'
+            while i < len(tokens):
+                token_clean = re.sub(r'[^\w]', '', tokens[i].lower())
+                if token_clean:  # 유효한 단어가 나오면 중단
+                    break
+                i += 1
+            
+            # 각 action 값 찾기
+            for action_val in action_values:
+                if not action_val:
+                    continue
+                
+                # action 값의 단어 추출 (문장부호 제외)
+                action_words = re.findall(r'\w+', action_val.lower())
+                if not action_words:
+                    continue
+                
+                # 토큰에서 action 값 찾기
+                # 문장부호는 건너뛰고 유효한 단어만 매칭
+                found_start = None
+                found_end = None
+                word_idx = 0
+                search_i = i
+                
+                while search_i < len(tokens) and word_idx < len(action_words):
+                    token_clean = re.sub(r'[^\w]', '', tokens[search_i].lower())
+                    
+                    if token_clean:  # 유효한 단어
+                        if token_clean == action_words[word_idx]:
+                            if found_start is None:
+                                found_start = search_i
+                            found_end = search_i
+                            word_idx += 1
+                        else:
+                            # 매칭 실패, 처음부터 다시 시작
+                            if found_start is not None:
+                                found_start = None
+                                found_end = None
+                                word_idx = 0
+                                # 현재 토큰부터 다시 시작
+                                continue
+                    search_i += 1
+                
+                # action 값의 모든 단어를 찾았는지 확인
+                if found_start is not None and word_idx == len(action_words):
+                    # action 값의 첫 번째 토큰 위치 추가
+                    result_positions.append(found_start)
+                    # 다음 action 값 검색 시작 위치 업데이트
+                    i = found_end + 1
                 else:
-                    action_start_idx = 0
-        else:
-            # Found action in text, need to map to token indices
-            # This is approximate: count characters before action
-            chars_before = response_text[:action_start_in_text]
-            # Estimate token index (rough approximation)
-            # Count spaces and punctuation as token boundaries
-            approx_tokens_before = len(chars_before.split())
-            action_start_idx = min(approx_tokens_before, len(tokens))
+                    # 매칭 실패, 다음 위치부터 계속 검색
+                    if found_start is not None:
+                        i = found_start + 1
+                    else:
+                        i = search_i
+            
+            # 중복 제거 및 정렬
+            result_positions = sorted(list(set(result_positions)))
+            return result_positions
+            
+        except (json.JSONDecodeError, KeyError, AttributeError):
+            # 파싱 실패 시 빈 리스트 반환
+            return []
+    
+    def get_action_logprobs(
+        self,
+        logprobs_metadata: Dict,
+        action_field: str = "action"
+    ) -> Dict[str, Any]:
+        """
+        action 필드에 대한 logprobs 정보를 추출합니다.
+        logprobs_metadata만 받아서 동작합니다.
         
-        # Find action end: action value length in tokens
-        # Approximate: action value length / average token length
-        action_token_count = max(1, len(action_str.split()))
-        action_end_idx = min(action_start_idx + action_token_count, len(tokens))
+        Args:
+            logprobs_metadata: logprobs 메타데이터
+                - 'tokens': List[str] - 토큰 리스트
+                - 'token_logprobs': List[float] - 각 토큰의 log probability
+                - 'top_logprobs': List[List[Dict]] - 각 토큰 위치의 top-k logprobs
+                - 'entropies': List[float] - 각 토큰 위치의 Shannon entropy
+            action_field: action 필드 이름 (기본값: "action")
         
-        # Extract action logprobs
-        action_tokens = tokens[action_start_idx:action_end_idx]
-        action_token_logprobs = token_logprobs[action_start_idx:action_end_idx] if token_logprobs else []
-        action_top_logprobs = top_logprobs[action_start_idx:action_end_idx] if top_logprobs else []
-        action_entropies = entropies[action_start_idx:action_end_idx] if entropies else []
+        Returns:
+            Dictionary containing:
+                - 'action_positions': List of token positions for action values
+                - 'action_logprobs': List of logprobs info for each action
+                    Each item: [token_str, top_logprobs_list, entropy, position]
+                - 'action_entropies': List of entropies for each action
+        """
+        tokens = logprobs_metadata.get('tokens', [])
+        if not tokens:
+            return {
+                'action_positions': [],
+                'action_logprobs': [],
+                'action_entropies': []
+            }
         
-        # Extract remaining logprobs (after action)
-        remaining_tokens = tokens[action_end_idx:]
-        remaining_token_logprobs = token_logprobs[action_end_idx:] if token_logprobs else []
-        remaining_top_logprobs = top_logprobs[action_end_idx:] if top_logprobs else []
-        remaining_entropies = entropies[action_end_idx:] if entropies else []
+        # tokens를 문자열로 재구성하여 JSON 파싱
+        import re
+        try:
+            # tokens를 문자열로 재구성
+            text = ''.join(tokens)
+            
+            # JSON 코드 블록 제거
+            cleaned_text = text.strip()
+            if "```json" in cleaned_text:
+                start_idx = cleaned_text.find("```json") + 7
+                end_idx = cleaned_text.find("```", start_idx)
+                if end_idx != -1:
+                    cleaned_text = cleaned_text[start_idx:end_idx].strip()
+            elif "```" in cleaned_text:
+                start_idx = cleaned_text.find("```") + 3
+                end_idx = cleaned_text.find("```", start_idx)
+                if end_idx != -1:
+                    cleaned_text = cleaned_text[start_idx:end_idx].strip()
+            
+            parsed = json.loads(cleaned_text)
+            action_value = parsed.get(action_field)
+            
+            if action_value is None:
+                return {
+                    'action_positions': [],
+                    'action_logprobs': [],
+                    'action_entropies': []
+                }
+            
+            # action 값이 리스트인지 단일 값인지 확인
+            if isinstance(action_value, list):
+                action_values = [str(v).strip() for v in action_value if v]
+            else:
+                action_values = [str(action_value).strip()]
+            
+            if not action_values:
+                return {
+                    'action_positions': [],
+                    'action_logprobs': [],
+                    'action_entropies': []
+                }
+            
+            # action 필드 이름 찾기
+            action_field_idx = None
+            for i, token in enumerate(tokens):
+                token_clean = re.sub(r'[^\w]', '', token.lower())
+                if token_clean == action_field.lower():
+                    action_field_idx = i
+                    break
+            
+            if action_field_idx is None:
+                return {
+                    'action_positions': [],
+                    'action_logprobs': [],
+                    'action_entropies': []
+                }
+            
+            # action 필드 다음에 오는 값 찾기
+            result_positions = []
+            i = action_field_idx + 1
+            
+            # action 필드 다음에 오는 구조 건너뛰기: ":", 공백, "[" 또는 '"'
+            while i < len(tokens):
+                token_clean = re.sub(r'[^\w]', '', tokens[i].lower())
+                if token_clean:  # 유효한 단어가 나오면 중단
+                    break
+                i += 1
+            
+            # 각 action 값 찾기
+            for action_val in action_values:
+                if not action_val:
+                    continue
+                
+                # action 값의 단어 추출 (문장부호 제외)
+                action_words = re.findall(r'\w+', action_val.lower())
+                if not action_words:
+                    continue
+                
+                # 토큰에서 action 값 찾기
+                found_start = None
+                found_end = None
+                word_idx = 0
+                search_i = i
+                
+                while search_i < len(tokens) and word_idx < len(action_words):
+                    token_clean = re.sub(r'[^\w]', '', tokens[search_i].lower())
+                    
+                    if token_clean:  # 유효한 단어
+                        if token_clean == action_words[word_idx]:
+                            if found_start is None:
+                                found_start = search_i
+                            found_end = search_i
+                            word_idx += 1
+                        else:
+                            # 매칭 실패, 처음부터 다시 시작
+                            if found_start is not None:
+                                found_start = None
+                                found_end = None
+                                word_idx = 0
+                                continue
+                    search_i += 1
+                
+                # action 값의 모든 단어를 찾았는지 확인
+                if found_start is not None and word_idx == len(action_words):
+                    result_positions.append(found_start)
+                    i = found_end + 1
+                else:
+                    if found_start is not None:
+                        i = found_start + 1
+                    else:
+                        i = search_i
+            
+            # 중복 제거 및 정렬
+            action_positions = sorted(list(set(result_positions)))
+            
+            # 각 action 위치에 대한 logprobs 정보 추출
+            action_logprobs_info = self.get_token_logprobs_info(
+                logprobs_metadata, action_positions
+            )
+            
+            # 엔트로피 추출
+            entropies = logprobs_metadata.get('entropies', [])
+            action_entropies = [entropies[pos] if pos < len(entropies) else None 
+                               for pos in action_positions]
+            
+            return {
+                'action_positions': action_positions,
+                'action_logprobs': action_logprobs_info,
+                'action_entropies': action_entropies
+            }
+            
+        except (json.JSONDecodeError, KeyError, AttributeError):
+            return {
+                'action_positions': [],
+                'action_logprobs': [],
+                'action_entropies': []
+            }
+    
+    def print_action_logprobs_info(self, action_logprobs_info: dict):
+        """
+        Print action logprobs information in a formatted way
         
-        # Wrap logprobs in result
-        parsed['action_logprobs'] = {
-            'action_tokens': action_tokens,
-            'action_token_logprobs': action_token_logprobs,
-            'action_top_logprobs': action_top_logprobs,
-            'action_entropies': action_entropies,
-            'action_start_idx': action_start_idx,
-            'action_end_idx': action_end_idx
-        }
+        Args:
+            action_logprobs_info: Dictionary containing action logprobs info from get_action_logprobs()
+                Expected format: {
+                    'action_positions': List[int],
+                    'action_logprobs': List[List[Any]],  # [token_str, top_logs, entropy, pos]
+                    'action_entropies': List[float]
+                }
+        """
+        if not action_logprobs_info:
+            return
         
-        parsed['remaining_logprobs'] = {
-            'tokens': remaining_tokens,
-            'token_logprobs': remaining_token_logprobs,
-            'top_logprobs': remaining_top_logprobs,
-            'entropies': remaining_entropies,
-            'start_idx': action_end_idx
-        }
+        # Import here to avoid circular dependency
+        import utils.prompt_manager.terminal_formatting_utils as tfu
         
-        return parsed
+        action_positions = action_logprobs_info.get('action_positions', [])
+        action_logprobs_list = action_logprobs_info.get('action_logprobs', [])
+        action_entropies = action_logprobs_info.get('action_entropies', [])
+        
+        tfu.cprint("\n[5] Action logprobs info:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint(f"  Positions: {action_positions}", tfu.LIGHT_BLACK)
+        tfu.cprint(f"  Count: {len(action_logprobs_list)}", tfu.LIGHT_BLACK)
+        
+        for idx, entry in enumerate(action_logprobs_list):
+            if len(entry) >= 4:
+                token_str, top_logs, entropy, pos = entry[0], entry[1], entry[2], entry[3]
+                tfu.cprint(f"  - Action {idx+1} token: '{token_str}' (pos {pos})", tfu.LIGHT_BLACK)
+                if entropy is not None:
+                    tfu.cprint(f"    entropy: {entropy:.4f}", tfu.LIGHT_BLACK)
+                if top_logs:
+                    tfu.cprint(f"    top logprobs: {top_logs}", tfu.LIGHT_BLACK)
+        
+        if action_entropies:
+            entropies_str = [round(e, 4) if e is not None else None for e in action_entropies]
+            tfu.cprint(f"  Entropies list: {entropies_str}", tfu.LIGHT_BLACK)
 
 
 # Convenience function

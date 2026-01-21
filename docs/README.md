@@ -25,6 +25,7 @@
 - [이모지 사용 가이드](./EMOJI_USAGE_GUIDE.md) - 이모지 객체 사용하기
 
 ### LLM API 문서
+- [API Key 생성 및 설정 가이드](./LLM-API/api-key-setup.md) - OpenAI, Gemini, Vertex AI API Key 설정 방법
 - [Gemini Thinking 기능 가이드](./LLM-API/gemini-thinking.md) - Gemini 2.5/3 시리즈의 Thinking 기능 사용법
 
 ## 빠른 시작
@@ -45,13 +46,14 @@ from lib.map_manager.minigrid_customenv_emoji import MiniGridEmojiWrapper
 
 ### 시작 가이드
 
-1. **환경 생성**: [환경 생성 가이드](./environment-creation.md) 참고
-2. **키보드 제어**: [키보드 제어 가이드](./keyboard-control.md) 참고
-3. **이모지 맵 사용**: [이모지 맵 JSON 로더 가이드](./emoji-map-loader.md) 참고 (권장)
-4. **절대 좌표 이동**: [Wrapper API](./wrapper-api.md#절대-좌표-이동-absolute-movement)의 절대 좌표 이동 섹션 참고
-5. **VLM 사용**: [VLM 핸들러 시스템 가이드](./vlm-handlers.md) 참고
-6. **Gemini Thinking 기능**: [Gemini Thinking 기능 가이드](./LLM-API/gemini-thinking.md) 참고
-7. **Legacy API**: [CustomRoomEnv API](./custom-environment-api.md) 참고 (레거시 코드)
+1. **API Key 설정**: [API Key 생성 및 설정 가이드](./LLM-API/api-key-setup.md) 참고 (VLM 사용 전 필수)
+2. **환경 생성**: [환경 생성 가이드](./environment-creation.md) 참고
+3. **키보드 제어**: [키보드 제어 가이드](./keyboard-control.md) 참고
+4. **이모지 맵 사용**: [이모지 맵 JSON 로더 가이드](./emoji-map-loader.md) 참고 (권장)
+5. **절대 좌표 이동**: [Wrapper API](./wrapper-api.md#절대-좌표-이동-absolute-movement)의 절대 좌표 이동 섹션 참고
+6. **VLM 사용**: [VLM 핸들러 시스템 가이드](./vlm-handlers.md) 참고
+7. **Gemini Thinking 기능**: [Gemini Thinking 기능 가이드](./LLM-API/gemini-thinking.md) 참고
+8. **Legacy API**: [CustomRoomEnv API](./custom-environment-api.md) 참고 (레거시 코드)
 
 ## 참고 자료
 

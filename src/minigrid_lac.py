@@ -21,6 +21,7 @@
 import utils.prompt_manager.terminal_formatting_utils as tfu
 from utils.miscellaneous.scenario_runner import ScenarioExperiment
 from utils.miscellaneous.safe_minigrid_registration import safe_minigrid_reg
+from utils.miscellaneous.global_variables import MAP_FILE_NAME
 
 
 
@@ -49,17 +50,18 @@ def main():
     """Main function"""
     import sys
     
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "--help" or sys.argv[1] == "-h":
-            tfu.cprint("-- Usage Instructions --", tfu.LIGHT_GREEN, True)
-            tfu.cprint("python minigrid_lac.py <json_map_path>", tfu.LIGHT_RED, italic=True, indent=8)
-            tfu.cprint("Example: python minigrid_lac.py scenario135_example_map.json", tfu.LIGHT_BLACK, italic=True)
-            return
+        if len(sys.argv) > 1:
+            if sys.argv[1] == "--help" or sys.argv[1] == "-h":
+                tfu.cprint("-- Usage Instructions --", tfu.LIGHT_GREEN, True)
+                tfu.cprint("python minigrid_lac.py <json_map_path>", tfu.LIGHT_RED, italic=True, indent=8)
+                tfu.cprint(f"Example: python minigrid_lac.py config/{MAP_FILE_NAME}", tfu.LIGHT_BLACK, italic=True)
+                tfu.cprint(f"Default: Uses MAP_FILE_NAME from global_variables.py (currently: {MAP_FILE_NAME})", tfu.LIGHT_BLACK, italic=True)
+                return
+            else:
+                json_map_path = sys.argv[1]
         else:
-            json_map_path = sys.argv[1]
-    else:
-        # Specify the path to the JSON map file as a command-line argument
-        json_map_path = "scenario135_example_map.json"
+            # Use global MAP_FILE_NAME (will be set to config/{MAP_FILE_NAME} in ScenarioExperiment.__init__)
+            json_map_path = None
     
     try:
         experiment = ScenarioExperiment(json_map_path = json_map_path)

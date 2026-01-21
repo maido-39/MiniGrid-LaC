@@ -27,6 +27,7 @@ import sys
 import utils.prompt_manager.terminal_formatting_utils as tfu
 from utils.miscellaneous.scenario_runner import ScenarioExperiment
 from utils.miscellaneous.safe_minigrid_registration import safe_minigrid_reg
+from utils.miscellaneous.global_variables import MAP_FILE_NAME, LOGPROBS_ENABLED, DEBUG
 
 # MiniGrid Environment Safe Registration
 safe_minigrid_reg()
@@ -34,24 +35,29 @@ safe_minigrid_reg()
 
 def main():
     """Main function for Scenario 2 experiment (modularized version)"""
-    # Default JSON map path
-    json_map_path = "config/scenario135_example_map.json"
-    
     # Parse command line arguments
     if len(sys.argv) > 1:
         if sys.argv[1] == "--help" or sys.argv[1] == "-h":
             tfu.cprint("-- Usage Instructions --", tfu.LIGHT_GREEN, bold=True)
             tfu.cprint("python scenario2_test_absolutemove_modularized.py [json_map_path]", tfu.LIGHT_RED, italic=True, indent=8)
-            tfu.cprint("Example: python scenario2_test_absolutemove_modularized.py config/example_map.json", tfu.LIGHT_BLACK, italic=True)
-            tfu.cprint("Example: python scenario2_test_absolutemove_modularized.py config/scenario135_example_map.json", tfu.LIGHT_BLACK, italic=True)
+            tfu.cprint(f"Example: python scenario2_test_absolutemove_modularized.py config/{MAP_FILE_NAME}", tfu.LIGHT_BLACK, italic=True)
+            tfu.cprint(f"Default: Uses MAP_FILE_NAME from global_variables.py (currently: {MAP_FILE_NAME})", tfu.LIGHT_BLACK, italic=True)
             tfu.cprint("\nNote: Run from src/ directory", tfu.LIGHT_BLACK, italic=True)
             return
         else:
             json_map_path = sys.argv[1]
+    else:
+        # Use global MAP_FILE_NAME (will be set to config/{MAP_FILE_NAME} in ScenarioExperiment.__init__)
+        json_map_path = None
     
     try:
         # Create and run experiment using modularized ScenarioExperiment
-        experiment = ScenarioExperiment(json_map_path=json_map_path)
+        # use_logprobs and debug use settings from global_variables.py
+        experiment = ScenarioExperiment(
+            json_map_path=json_map_path,
+            use_logprobs=LOGPROBS_ENABLED,  # Use global LOGPROBS_ENABLED setting
+            debug=DEBUG  # Use global DEBUG setting
+        )
         experiment.run()
         experiment.cleanup()
     except KeyboardInterrupt:

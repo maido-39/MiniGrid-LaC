@@ -39,7 +39,7 @@ try:
     from utils.vlm.handlers import OpenAIHandler
 except ImportError:
     # Fallback for relative import if running as module
-    from ..handlers import OpenAIHandler
+from ..handlers import OpenAIHandler
 
 # Method 4: Use Gemini handler
 try:
