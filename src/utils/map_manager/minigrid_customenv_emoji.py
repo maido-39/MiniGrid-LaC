@@ -73,6 +73,51 @@ EMOJI_MAP = {
     'broom' : '🧹',
 }
 
+# Color map for RGBA format (with alpha channel)
+COLOR_MAP_RGBA = {
+    'red': (255, 0, 0, 255),
+    'green': (0, 255, 0, 255),
+    'blue': (0, 0, 255, 255),
+    'purple': (128, 0, 128, 255),
+    'yellow': (255, 255, 0, 255),
+    'grey': (128, 128, 128, 255),
+    'orange': (255, 165, 0, 255),
+    'brown': (165, 42, 42, 255),
+    'pink': (255, 192, 203, 255),
+    'cyan': (0, 255, 255, 255),
+    'lime': (50, 205, 50, 255),
+    'navy': (0, 0, 128, 255),
+    'teal': (0, 128, 128, 255),
+    'magenta': (255, 0, 255, 255),
+    'olive': (128, 128, 0, 255),
+    'maroon': (128, 0, 0, 255),
+    'white': (255, 255, 255, 255),
+    'black': (0, 0, 0, 255),
+}
+
+# Color map for RGB format (without alpha channel)
+COLOR_MAP_RGB = {
+    'red': (200, 100, 100),
+    'green': (100, 200, 100),
+    'blue': (100, 100, 200),
+    'purple': (150, 100, 150),
+    'yellow': (200, 200, 100),
+    'grey': (128, 128, 128),
+    'orange': (255, 165, 0),
+    'brown': (165, 42, 42),
+    'pink': (255, 192, 203),
+    'cyan': (0, 255, 255),
+    'lime': (50, 205, 50),
+    'navy': (0, 0, 128),
+    'teal': (0, 128, 128),
+    'magenta': (255, 0, 255),
+    'olive': (128, 128, 0),
+    'maroon': (128, 0, 0),
+    'white': (240, 240, 240),
+    'black': (50, 50, 50),
+}
+
+
 
 class EmojiObject(WorldObj):
     """Custom object that displays emoji"""
@@ -194,27 +239,7 @@ class EmojiObject(WorldObj):
         y = (h - text_height) // 2 - 2
         
         # Use specified color as stroke color
-        color_map = {
-            'red': (255, 0, 0, 255),
-            'green': (0, 255, 0, 255),
-            'blue': (0, 0, 255, 255),
-            'purple': (128, 0, 128, 255),
-            'yellow': (255, 255, 0, 255),
-            'grey': (128, 128, 128, 255),
-            'orange': (255, 165, 0, 255),
-            'brown': (165, 42, 42, 255),
-            'pink': (255, 192, 203, 255),
-            'cyan': (0, 255, 255, 255),
-            'lime': (50, 205, 50, 255),
-            'navy': (0, 0, 128, 255),
-            'teal': (0, 128, 128, 255),
-            'magenta': (255, 0, 255, 255),
-            'olive': (128, 128, 0, 255),
-            'maroon': (128, 0, 0, 255),
-            'white': (255, 255, 255, 255),
-            'black': (0, 0, 0, 255),
-        }
-        stroke_color = color_map.get(self.color, (255, 255, 255, 255))
+        stroke_color = COLOR_MAP_RGBA.get(self.color, (255, 255, 255, 255))
         
         if font:
             try:
@@ -263,6 +288,16 @@ class CustomRoomEnv(MiniGridEnv):
             max_steps=4 * size * size,
             **kwargs
         )
+        
+        # Disable MiniGrid's default FOV highlighting to allow full visibility
+        # This ensures that when FOV is disabled, all cells have the same background color
+        # Can be overridden via room_config['highlight']
+        self.highlight = self.room_config.get('highlight', False)
+        
+        # Set agent_view_size to grid size to disable view limitations
+        # This allows the agent to see the entire grid regardless of position
+        # Can be overridden via room_config['agent_view_size']
+        self.agent_view_size = self.room_config.get('agent_view_size', size)
     
     def _gen_mission(self):
         return "explore"
@@ -386,7 +421,11 @@ class CustomRoomEnv(MiniGridEnv):
         if frame is None:
             return frame
         
-        # Apply floor colors (before robot rendering)
+        # Apply background color (before floor colors)
+        background_color = self.room_config.get('background_color', None)
+        if background_color is not None:
+            frame = self._apply_background_color(frame, background_color)
+        
         floor_color = self.room_config.get('floor_color', None)
         if floor_color is not None or hasattr(self, 'floor_tiles'):
             frame = self._apply_floor_colors(frame, floor_color, apply_robot_glow=False)
@@ -569,16 +608,8 @@ class CustomRoomEnv(MiniGridEnv):
                     x = (actual_tile_size - text_width) // 2
                     y = (actual_tile_size - text_height) // 2 - 2
                     
-                    # Color map (use same color system as other objects)
-                    color_map = {
-                        'red': (255, 0, 0, 255),
-                        'green': (0, 255, 0, 255),
-                        'blue': (0, 0, 255, 255),
-                        'purple': (128, 0, 128, 255),
-                        'yellow': (255, 255, 0, 255),
-                        'grey': (128, 128, 128, 255),
-                    }
-                    fill_color = color_map.get(robot_emoji_color, (255, 255, 255, 255))
+                    # Use color map for robot emoji
+                    fill_color = COLOR_MAP_RGBA.get(robot_emoji_color, (255, 255, 255, 255))
                     if font:
                         try:
                             draw.text((x, y), robot_emoji_char, font=font, fill=fill_color)
@@ -617,6 +648,9 @@ class CustomRoomEnv(MiniGridEnv):
         if hasattr(self, 'agent_pos'):
             frame = self._apply_robot_floor_glow(frame)
         
+        # Apply highlight to cells within agent's field of view
+        frame = self._apply_highlight(frame)
+        
         return frame
     
     def _apply_floor_colors(self, frame: np.ndarray, floor_color: Optional[str] = None, apply_robot_glow: bool = False) -> np.ndarray:
@@ -641,31 +675,9 @@ class CustomRoomEnv(MiniGridEnv):
         
         actual_tile_size = self.tile_size if hasattr(self, 'tile_size') else 32
         
-        # Color map
-        color_map = {
-            'red': (200, 100, 100),
-            'green': (100, 200, 100),
-            'blue': (100, 100, 200),
-            'purple': (150, 100, 150),
-            'yellow': (200, 200, 100),
-            'grey': (128, 128, 128),
-            'orange': (255, 165, 0),
-            'brown': (165, 42, 42),
-            'pink': (255, 192, 203),
-            'cyan': (0, 255, 255),
-            'lime': (50, 205, 50),
-            'navy': (0, 0, 128),
-            'teal': (0, 128, 128),
-            'magenta': (255, 0, 255),
-            'olive': (128, 128, 0),
-            'maroon': (128, 0, 0),
-            'white': (240, 240, 240),
-            'black': (50, 50, 50),
-        }
-        
         # Default floor color (grey)
         default_floor_color = (128, 128, 128)
-        global_floor_color = color_map.get(floor_color, default_floor_color) if floor_color else None
+        global_floor_color = COLOR_MAP_RGB.get(floor_color, default_floor_color) if floor_color else None
         
         pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')
         draw = ImageDraw.Draw(pil_frame)
@@ -696,7 +708,7 @@ class CustomRoomEnv(MiniGridEnv):
                     # Floor color for specific position (higher priority)
                     tile_floor_color = None
                     if hasattr(self, 'floor_tiles') and (x, y) in self.floor_tiles:
-                        tile_floor_color = color_map.get(self.floor_tiles[(x, y)], default_floor_color)
+                        tile_floor_color = COLOR_MAP_RGB.get(self.floor_tiles[(x, y)], default_floor_color)
                     # Global floor color (only applied when no specific position)
                     elif global_floor_color is not None:
                         tile_floor_color = global_floor_color
@@ -707,6 +719,102 @@ class CustomRoomEnv(MiniGridEnv):
                             [(tile_x, tile_y), (tile_end_x - 1, tile_end_y - 1)],
                             fill=tile_floor_color + (255,)
                         )
+        
+        return np.array(pil_frame.convert('RGB'))
+    
+    def _apply_background_color(self, frame: np.ndarray, background_color: str) -> np.ndarray:
+        """
+        Apply custom background color to the frame (replaces black background)
+        
+        Args:
+            frame: Original frame with black background
+            background_color: Color name (e.g., 'white', 'grey', 'blue', etc.)
+        
+        Returns:
+            Modified frame with custom background color
+        """
+        bg_color = COLOR_MAP_RGB.get(background_color, (0, 0, 0))  # Default to black if not found
+        
+        # Convert frame to numpy array if needed
+        if not isinstance(frame, np.ndarray):
+            frame = np.array(frame)
+        
+        # Create a mask for black pixels (background)
+        # Consider pixels as black if all RGB values are below a threshold
+        black_threshold = 30
+        black_mask = (
+            (frame[:, :, 0] < black_threshold) &
+            (frame[:, :, 1] < black_threshold) &
+            (frame[:, :, 2] < black_threshold)
+        )
+        
+        # Apply background color to black pixels
+        frame[black_mask] = bg_color
+        
+        return frame
+    
+    def _apply_highlight(self, frame: np.ndarray) -> np.ndarray:
+        """
+        Apply highlight color to cells within agent's field of view
+        
+        Args:
+            frame: Frame to apply highlight to
+        
+        Returns:
+            Modified frame with highlight applied
+        """
+        if not self.highlight:
+            return frame
+        
+        if not hasattr(self, 'agent_pos') or not hasattr(self, 'agent_dir'):
+            return frame
+        
+        # Get highlight color from room_config
+        highlight_color_name = self.room_config.get('highlight_color', 'yellow')
+        highlight_color = COLOR_MAP_RGB.get(highlight_color_name, (200, 200, 100))  # Default to yellow
+        
+        agent_x, agent_y = int(self.agent_pos[0]), int(self.agent_pos[1])
+        agent_dir = self.agent_dir
+        actual_tile_size = self.tile_size if hasattr(self, 'tile_size') else 32
+        
+        # Calculate view range from agent_view_size
+        # agent_view_size is typically 7 (default MiniGrid view size)
+        view_range = self.agent_view_size // 2  # Forward range
+        view_width = self.agent_view_size  # Total width
+        
+        pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')
+        
+        # Apply highlight to cells within view range
+        for y in range(self.grid.height):
+            for x in range(self.grid.width):
+                # Calculate relative position from agent
+                dx = x - agent_x
+                dy = y - agent_y
+                
+                # Transform to agent's coordinate system
+                if agent_dir == 0:  # Right
+                    rel_x, rel_y = dx, -dy
+                elif agent_dir == 1:  # Down
+                    rel_x, rel_y = dy, dx
+                elif agent_dir == 2:  # Left
+                    rel_x, rel_y = -dx, dy
+                else:  # Up
+                    rel_x, rel_y = -dy, -dx
+                
+                # Check if cell is within view range
+                in_view = (
+                    rel_x >= 0 and
+                    rel_x <= view_range and
+                    abs(rel_y) <= view_width // 2
+                )
+                
+                if in_view:
+                    tile_x = x * actual_tile_size
+                    tile_y = y * actual_tile_size
+                    
+                    # Apply highlight as a semi-transparent overlay
+                    highlight_overlay = Image.new('RGBA', (actual_tile_size, actual_tile_size), highlight_color + (64,))  # 25% opacity
+                    pil_frame.paste(highlight_overlay, (tile_x, tile_y), highlight_overlay)
         
         return np.array(pil_frame.convert('RGB'))
     
@@ -1071,7 +1179,8 @@ class MiniGridEmojiWrapper:
         self.current_info = info
         return obs, reward, terminated, truncated, info
     
-    def get_image(self, fov_range: Optional[int] = None, fov_width: Optional[int] = None) -> np.ndarray:
+    def get_image(self, fov_range: Optional[int] = None, fov_width: Optional[int] = None, 
+                  fov_enabled: Optional[bool] = None, fov_color: Optional[str] = None) -> np.ndarray:
         """Get the current environment state as an RGB image.
         
         Returns the current state of the environment as a numpy array image,
@@ -1079,16 +1188,20 @@ class MiniGridEmojiWrapper:
         field-of-view (FOV) limitations to simulate limited visibility.
         
         Args:
-            fov_range: Maximum forward range for field of view. If None, returns
-                full visibility image. Defaults to None.
-            fov_width: Maximum width (left/right) for field of view. If None,
-                returns full visibility image. Defaults to None.
+            fov_range: Maximum forward range for field of view. If None, uses
+                value from room_config or returns full visibility image. Defaults to None.
+            fov_width: Maximum width (left/right) for field of view. If None, uses
+                value from room_config or returns full visibility image. Defaults to None.
+            fov_enabled: Whether to enable FOV masking. If None, uses value from
+                room_config or defaults to False. Defaults to None.
+            fov_color: Color name for FOV masking (e.g., 'black', 'grey', 'blue').
+                If None, uses value from room_config or defaults to 'black'. Defaults to None.
         
         Returns:
             numpy.ndarray: RGB image of shape (height, width, 3) with dtype uint8.
                 Height and width are typically size * 32 pixels.
-                If FOV parameters are provided, areas outside the field of view
-                are masked in black.
+                If FOV is enabled, areas outside the field of view are masked with
+                the specified color.
         
         Examples:
             >>> wrapper = MiniGridEmojiWrapper(size=10)
@@ -1099,8 +1212,12 @@ class MiniGridEmojiWrapper:
             >>> print(f"Image shape: {image.shape}")  # (320, 320, 3)
             >>> 
             >>> # Get image with limited field of view
-            >>> image_fov = wrapper.get_image(fov_range=3, fov_width=2)
-            >>> # Areas outside FOV are black
+            >>> image_fov = wrapper.get_image(fov_range=3, fov_width=2, fov_enabled=True)
+            >>> # Areas outside FOV are masked
+            
+            >>> # Get image with custom FOV color
+            >>> image_fov = wrapper.get_image(fov_range=3, fov_width=2, 
+            ...                                fov_enabled=True, fov_color='grey')
         
         Note:
             This method is typically used to get images for VLM input. The image
@@ -1111,15 +1228,39 @@ class MiniGridEmojiWrapper:
         if image is None:
             return np.zeros((self.size * 32, self.size * 32, 3), dtype=np.uint8)
         
-        if fov_range is not None and fov_width is not None:
-            image = self._apply_fog_of_war(image, fov_range, fov_width)
+        # Get FOV settings from room_config if not provided
+        room_config = getattr(self.env, 'room_config', {})
+        if fov_enabled is None:
+            fov_enabled = room_config.get('fov_enabled', False)
+        if fov_color is None:
+            fov_color = room_config.get('fov_color', 'black')
+        if fov_range is None:
+            fov_range = room_config.get('fov_range', None)
+        if fov_width is None:
+            fov_width = room_config.get('fov_width', None)
+        
+        if fov_enabled and fov_range is not None and fov_width is not None:
+            image = self._apply_fog_of_war(image, fov_range, fov_width, fov_color)
         
         return image
     
-    def _apply_fog_of_war(self, image: np.ndarray, fov_range: int, fov_width: int) -> np.ndarray:
-        """Apply field of view limitation, masking areas outside view in black"""
+    def _apply_fog_of_war(self, image: np.ndarray, fov_range: int, fov_width: int, 
+                          fov_color: str = 'black') -> np.ndarray:
+        """Apply field of view limitation, masking areas outside view with specified color
+        
+        Args:
+            image: Original image to apply FOV masking to
+            fov_range: Maximum forward range for field of view
+            fov_width: Maximum width (left/right) for field of view
+            fov_color: Color name for masking (e.g., 'black', 'grey', 'blue', etc.)
+        
+        Returns:
+            Masked image with areas outside FOV filled with specified color
+        """
         if not hasattr(self.env, 'agent_pos') or not hasattr(self.env, 'agent_dir'):
             return image
+        
+        mask_color = COLOR_MAP_RGB.get(fov_color, (0, 0, 0))  # Default to black if not found
         
         agent_pos = self.env.agent_pos
         if isinstance(agent_pos, np.ndarray):
@@ -1159,7 +1300,7 @@ class MiniGridEmojiWrapper:
                     pixel_y = grid_y * cell_size
                     end_x = min(pixel_x + cell_size, w)
                     end_y = min(pixel_y + cell_size, h)
-                    masked_image[pixel_y:end_y, pixel_x:end_x] = [0, 0, 0]
+                    masked_image[pixel_y:end_y, pixel_x:end_x] = mask_color
         
         return masked_image
     

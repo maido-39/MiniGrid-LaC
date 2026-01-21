@@ -31,7 +31,7 @@ VLM_TEMPERATURE = 0.0
 # VLM_MAX_TOKENS: 최대 출력 토큰 수 (응답 길이 제한)
 VLM_MAX_TOKENS = 3000
 # VLM_THINKING_BUDGET: Gemini 2.5 Flash thinking 예산 (토큰 단위, None=기본값, 0=비활성)
-VLM_THINKING_BUDGET = 2000
+VLM_THINKING_BUDGET = 0
 # LOGPROBS_ENABLED: logprobs 활성화 여부 (Vertex AI Gemini 전용)
 #   - True: logprobs 활성 (모델명이 gemini-*-vertex / -logprobs 일 때만 동작)
 #   - False: logprobs 비활성 (OpenAI 모델이나 일반 Gemini API에서는 자동 비활성)

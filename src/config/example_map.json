@@ -97,9 +97,20 @@
       }
     },
     "robot_config": {
+
       "use_robot_emoji": true,
       "robot_emoji_color": "red",
-      "use_robot_emoji_color": true
+      "background_color": "white", 
+      "use_robot_emoji_color": true,
+
+      "highlight": false,
+      "highlight_color": "grey",
+      "agent_view_size": 4,
+
+      "fov_enabled": false,
+      "fov_range": 3,
+      "fov_width": 2,
+      "fov_color": "white"
     },
     "start_pos": [
       2,

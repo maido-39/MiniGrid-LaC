@@ -72,6 +72,7 @@ class EmojiMapLoader:
         self.emoji_render = None
         self.emoji_objects = None
         self.robot_config = None
+        self.fov_config = None
         self.start_pos = None
         self.goal_pos = None
         self.size = None
@@ -217,6 +218,17 @@ class EmojiMapLoader:
             'robot_emoji_color': 'red',
             'use_robot_emoji_color': True
         })
+        
+        # FOV configuration (read from robot_config)
+        self.fov_config = {}
+        if 'fov_enabled' in self.robot_config:
+            self.fov_config['fov_enabled'] = self.robot_config['fov_enabled']
+        if 'fov_range' in self.robot_config:
+            self.fov_config['fov_range'] = self.robot_config['fov_range']
+        if 'fov_width' in self.robot_config:
+            self.fov_config['fov_width'] = self.robot_config['fov_width']
+        if 'fov_color' in self.robot_config:
+            self.fov_config['fov_color'] = self.robot_config['fov_color']
         
         # Find 🤖 marker and set start_pos (takes precedence over JSON start_pos)
         robot_marker_found = False
@@ -372,7 +384,8 @@ class EmojiMapLoader:
             'goal_pos': self.goal_pos,
             'walls': walls,
             'objects': objects,
-            **self.robot_config  # Merge robot configuration
+            **self.robot_config,  # Merge robot configuration
+            **self.fov_config  # Merge FOV configuration
         }
         
         # Add floor tiles if present
