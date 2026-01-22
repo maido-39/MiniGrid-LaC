@@ -71,6 +71,12 @@ EMOJI_MAP = {
     'dining' : '🍴',
     'water' : '💦',
     'broom' : '🧹',
+    "apple" : "🍎",
+    "redcircle" : "🔴",
+    "tomato" : "🍅",
+    "bellpepper" : "🫑",
+    "carrot" : "🥕",
+    "hotpepper" : "🌶️",
 }
 
 # Color map for RGBA format (with alpha channel)
