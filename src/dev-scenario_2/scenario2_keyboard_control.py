@@ -17,13 +17,22 @@ JSON 파일에서 맵을 로드하고 키보드로 절대 방향 이동을 테�
     - 'q': 종료
 """
 
+import sys
+import os
+from pathlib import Path
+
+# Add src/ directory to Python path to ensure imports work
+# This allows running from any directory
+src_dir = Path(__file__).parent.parent
+if str(src_dir) not in sys.path:
+    sys.path.insert(0, str(src_dir))
+
 from minigrid import register_minigrid_envs
-# Actual paths: utils.map_manager.minigrid_customenv_emoji, utils.map_manager.emoji_map_loader
-from utils import MiniGridEmojiWrapper, load_emoji_map_from_json
+# Import from full paths
+from utils.map_manager.minigrid_customenv_emoji import MiniGridEmojiWrapper
+from utils.map_manager.emoji_map_loader import load_emoji_map_from_json
 import numpy as np
 import cv2
-from pathlib import Path
-import sys
 
 # MiniGrid 환경 등록
 register_minigrid_envs()
@@ -116,8 +125,31 @@ class Visualizer:
         print("=" * 60)
         for y in range(size):
             print(''.join(grid_chars[y]))
+        # Check if agent is carrying an object
+        carrying = ""
+        if hasattr(env, 'carrying') and env.carrying is not None:
+            if hasattr(env.carrying, 'type'):
+                if env.carrying.type == 'key':
+                    carrying = f"🔑 (Key, {env.carrying.color})"
+                elif env.carrying.type == 'ball':
+                    carrying = f"⚽ (Ball, {env.carrying.color})"
+                elif env.carrying.type == 'box':
+                    carrying = f"📦 (Box, {env.carrying.color})"
+                elif env.carrying.type == 'emoji' and hasattr(env.carrying, 'emoji_name'):
+                    emoji_map = {
+                        'box': '📦', 'apple': '🍎', 'key': '🔑', 'ball': '⚽'
+                    }
+                    emoji_char = emoji_map.get(env.carrying.emoji_name, '❓')
+                    carrying = f"{emoji_char} ({env.carrying.emoji_name})"
+                else:
+                    carrying = f"{env.carrying.type}"
+        
         print("=" * 60)
         print(f"Agent Position: ({agent_x}, {agent_y}), Direction: {agent_dir} ({agent_symbol})")
+        if carrying:
+            print(f"Carrying: {carrying}")
+        else:
+            print("Carrying: None")
         print("=" * 60 + "\n")
     
     def display_image(self, img: np.ndarray):
@@ -195,12 +227,16 @@ def get_keyboard_action():
 def main():
     """메인 함수"""
     # 명령줄 인자로 JSON 맵 파일 경로 지정
-    json_map_path = "../../config/example_map.json"
+    # 기본 경로: src/config/example_map.json (src/ 디렉토리 기준)
+    default_map = "/home/syaro/DeepL_WS/multigrid-LaC/src/config/test_pickup_map.json"
+    json_map_path = default_map
+    
     if len(sys.argv) > 1:
         if sys.argv[1] == "--help" or sys.argv[1] == "-h":
             print("사용법:")
-            print("  python scenario2_keyboard_control.py [json_map_path]")
-            print("  예: python scenario2_keyboard_control.py ../../config/example_map.json")
+            print("  python dev-scenario_2/scenario2_keyboard_control.py [json_map_path]")
+            print("  예: python dev-scenario_2/scenario2_keyboard_control.py config/test_pickup_map.json")
+            print("  예: python dev-scenario_2/scenario2_keyboard_control.py config/example_map.json")
             print("\n조작법:")
             print("  - w/a/s/d: 절대 방향 이동 (w: 위, s: 아래, a: 왼쪽, d: 오른쪽)")
             print("  - p: pickup, x: drop, t: toggle")
@@ -209,6 +245,25 @@ def main():
             return
         else:
             json_map_path = sys.argv[1]
+    
+    # Resolve path relative to src/ directory
+    if not os.path.isabs(json_map_path):
+        # If relative path, resolve relative to src/ directory
+        json_map_path = os.path.join(src_dir, json_map_path)
+    
+    # Convert to absolute path
+    json_map_path = os.path.abspath(json_map_path)
+    
+    # Check if file exists
+    if not os.path.exists(json_map_path):
+        print(f"오류: JSON 파일을 찾을 수 없습니다: {json_map_path}")
+        print(f"\n사용 가능한 맵 파일:")
+        config_dir = os.path.join(src_dir, "config")
+        if os.path.exists(config_dir):
+            for f in os.listdir(config_dir):
+                if f.endswith(".json"):
+                    print(f"  - config/{f}")
+        return
     
     print("=" * 60)
     print("시나리오 2: 키보드 제어 (절대 좌표 이동 버전)")
@@ -287,6 +342,20 @@ def main():
             # 업데이트된 상태
             new_state = wrapper.get_state()
             print(f"위치: {new_state['agent_pos']}, 방향: {new_state['agent_dir']}")
+            
+            # Check if agent is carrying an object
+            env = wrapper.env
+            if hasattr(env, 'carrying') and env.carrying is not None:
+                if hasattr(env.carrying, 'type'):
+                    if env.carrying.type == 'emoji' and hasattr(env.carrying, 'emoji_name'):
+                        print(f"들고 있는 오브젝트: {env.carrying.emoji_name} ({env.carrying.type})")
+                    else:
+                        print(f"들고 있는 오브젝트: {env.carrying.type} ({env.carrying.color if hasattr(env.carrying, 'color') else 'N/A'})")
+                else:
+                    print(f"들고 있는 오브젝트: {env.carrying}")
+            else:
+                print("들고 있는 오브젝트: None")
+            
             print(f"보상: {reward}, 종료: {done}")
             
             if done:

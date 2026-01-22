@@ -379,6 +379,7 @@ class CustomRoomEnv(MiniGridEnv):
                 floor_tiles_data = self.room_config['floor_tiles']
                 if isinstance(floor_tiles_data, dict):
                     # Dictionary format: {(x, y): color}
+                    # Store floor tiles in external coordinates (for consistency with external API)
                     for (floor_x, floor_y), floor_color in floor_tiles_data.items():
                         if 0 <= floor_x < width and 0 <= floor_y < height:
                             self.floor_tiles[(floor_x, floor_y)] = floor_color
@@ -411,6 +412,31 @@ class CustomRoomEnv(MiniGridEnv):
             self.place_agent()
         
         self.mission = self._gen_mission()
+    
+    def step(self, action):
+        """
+        Override step method to handle pickup action with EmojiObject.can_pickup() check
+        
+        MiniGrid's default step method may not properly check EmojiObject.can_pickup(),
+        so we intercept pickup actions and verify can_pickup() before allowing pickup.
+        """
+        # Handle pickup action (action 3 in MiniGrid's action space)
+        # Check if front cell has an object that can be picked up
+        if action == 3:  # MiniGrid's pickup action
+            # Get front cell position
+            fwd_pos = self.front_pos
+            fwd_cell = self.grid.get(*fwd_pos)
+            
+            # Check if front cell has an object that can be picked up
+            if fwd_cell and hasattr(fwd_cell, 'can_pickup'):
+                if not fwd_cell.can_pickup():
+                    # Object cannot be picked up, call parent step but it will fail
+                    obs, reward, terminated, truncated, info = super().step(action)
+                    return obs, reward, terminated, truncated, info
+        
+        # For all other actions, call parent step
+        obs, reward, terminated, truncated, info = super().step(action)
+        return obs, reward, terminated, truncated, info
     
     def render(self):
         # Check robot position and mark on emoji objects
@@ -656,6 +682,156 @@ class CustomRoomEnv(MiniGridEnv):
         
         # Apply highlight to cells within agent's field of view
         frame = self._apply_highlight(frame)
+        
+        # Add chess-like coordinate labels (bottom-left origin)
+        frame = self._add_coordinate_labels(frame)
+        
+        return frame
+    
+    def _add_coordinate_labels(self, frame: np.ndarray) -> np.ndarray:
+        """Add chess-like coordinate labels to the frame (bottom-left origin)
+        
+        X-axis: A, B, C, ... (alphabet, uppercase) at bottom
+        Y-axis: 1, 2, 3, ... (numbers) at left
+        """
+        try:
+            # Get grid dimensions
+            if not hasattr(self, 'grid') or self.grid is None:
+                return frame
+            
+            width = self.grid.width
+            height = self.grid.height
+            actual_tile_size = self.tile_size if hasattr(self, 'tile_size') else 32
+            
+            # Convert to PIL Image for drawing
+            pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')
+            draw = ImageDraw.Draw(pil_frame)
+            
+            # Font size
+            font_size = max(14, actual_tile_size // 2)
+            
+            # Load NotoSans-Bold font
+            font = None
+            import os
+            current_file = os.path.abspath(__file__)
+            src_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))
+            
+            font_paths = [
+                os.path.join(src_dir, 'asset', 'fonts', 'NotoSans-Bold.ttf'),
+                os.path.join(src_dir, 'asset', 'fonts', 'NotoSans-Regular.ttf'),
+            ]
+            
+            for font_path in font_paths:
+                try:
+                    if os.path.exists(font_path):
+                        font = ImageFont.truetype(font_path, font_size)
+                        break
+                except Exception:
+                    continue
+            
+            if font is None:
+                try:
+                    font = ImageFont.load_default()
+                except:
+                    font = None
+            
+            # X-axis labels (A, B, C, ...) - bottom row
+            # MiniGrid: y=0 is top, y=height-1 is bottom (wall)
+            # Labels at bottom row: y=height-2 (since height-1 is wall)
+            label_y_bottom = height - 1
+            
+            # Label range: x=1 to width-2 (skip walls)
+            for x in range(1, width - 1):  # x=1 to width-2
+                # Convert x to uppercase alphabet (1->A, 2->B, 3->C, ...)
+                label_text = chr(ord('A') + (x - 1))
+                
+                # Position: center of tile at bottom row
+                x_pos = x * actual_tile_size + actual_tile_size // 2
+                y_pos = label_y_bottom * actual_tile_size + actual_tile_size - font_size - 4
+                
+                # Get text bounding box for centering
+                if font:
+                    try:
+                        bbox = draw.textbbox((0, 0), label_text, font=font)
+                        text_width = bbox[2] - bbox[0]
+                        text_height = bbox[3] - bbox[1]
+                    except AttributeError:
+                        try:
+                            text_width, text_height = draw.textsize(label_text, font=font)
+                        except:
+                            text_width = font_size
+                            text_height = font_size
+                    except:
+                        text_width = font_size
+                        text_height = font_size
+                else:
+                    text_width = font_size
+                    text_height = font_size
+                
+                # Draw text centered
+                text_x = x_pos - text_width // 2
+                text_y = y_pos - text_height // 2
+                
+                if font:
+                    try:
+                        draw.text((text_x, text_y), label_text, font=font, fill=(0, 0, 0, 255))
+                    except:
+                        draw.text((text_x, text_y), label_text, fill=(0, 0, 0, 255))
+                else:
+                    draw.text((text_x, text_y), label_text, fill=(0, 0, 0, 255))
+            
+            # Y-axis labels (1, 2, 3, ...) - left column
+            # MiniGrid: x=0 is left (wall), so we use x=1
+            # Y-axis: bottom is 1, going up (2, 3, ...)
+            # MiniGrid: y=height-1 is bottom (wall), y=height-2 -> 1, y=height-3 -> 2, ...
+            
+            for y in range(height - 2):  # y=0 to height-3
+                # Convert y to number (bottom->1, going up)
+                # MiniGrid y: height-2 -> 1, height-3 -> 2, ..., 0 -> height-1
+                label_number = height - 2 - y
+                label_text = str(label_number)
+                
+                # Position: left side of tile (x=1, since x=0 is wall)
+                x_pos = 0.25 * actual_tile_size  # Small offset from left edge
+                y_pos = y * actual_tile_size + actual_tile_size * 1.25
+                
+                # Get text bounding box for centering
+                if font:
+                    try:
+                        bbox = draw.textbbox((0, 0), label_text, font=font)
+                        text_width = bbox[2] - bbox[0]
+                        text_height = bbox[3] - bbox[1]
+                    except AttributeError:
+                        try:
+                            text_width, text_height = draw.textsize(label_text, font=font)
+                        except:
+                            text_width = font_size
+                            text_height = font_size
+                    except:
+                        text_width = font_size
+                        text_height = font_size
+                else:
+                    text_width = font_size
+                    text_height = font_size
+                
+                # Draw text centered vertically
+                text_x = x_pos
+                text_y = y_pos - text_height // 2
+                
+                if font:
+                    try:
+                        draw.text((text_x, text_y), label_text, font=font, fill=(0, 0, 0, 255))
+                    except:
+                        draw.text((text_x, text_y), label_text, fill=(0, 0, 0, 255))
+                else:
+                    draw.text((text_x, text_y), label_text, fill=(0, 0, 0, 255))
+            
+            # Convert back to numpy array
+            frame = np.array(pil_frame.convert('RGB'))
+            
+        except Exception as e:
+            # If anything fails, return original frame
+            pass
         
         return frame
     
@@ -1159,8 +1335,18 @@ class MiniGridEmojiWrapper:
         
         # For non-movement actions (pickup, drop, toggle), execute directly
         if action >= 4:
+            # Convert action 4 (pickup in absolute) to action 3 (pickup in MiniGrid)
+            # MiniGrid uses: 0=turn left, 1=turn right, 2=move forward, 3=pickup, 4=drop, 5=toggle
+            minigrid_action = action
+            if action == 4:  # pickup in our system
+                minigrid_action = 3  # pickup in MiniGrid
+            elif action == 5:  # drop in our system
+                minigrid_action = 4  # drop in MiniGrid
+            elif action == 6:  # toggle in our system
+                minigrid_action = 5  # toggle in MiniGrid
+            
             # Call env.step() directly in relative movement mode (prevent recursion)
-            obs, reward, terminated, truncated, info = self.env.step(action)
+            obs, reward, terminated, truncated, info = self.env.step(minigrid_action)
             self.current_obs = obs
             self.current_info = info
             return obs, reward, terminated, truncated, info

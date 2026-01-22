@@ -491,15 +491,31 @@ class EntropyComparisonExperiment(ScenarioExperiment):
             # Confirming position changes
             position_changed = (current_pos_before != current_pos_after)
             
+            # Check if this is a movement action (0=up, 1=down, 2=left, 3=right)
+            is_movement_action = (self.action_index in [0, 1, 2, 3])
+            
             # Action Result Determination
-            action_success = position_changed or self.reward > 0
-            failure_reason = ""
-            if not action_success:
-                # Reasoning about Failure Causes (Based on Visible Information in the Image)
-                if not position_changed:
-                    failure_reason = "blocked_by_obstacle"
-                else:
-                    failure_reason = "unknown"
+            if is_movement_action:
+                # For movement actions: success if position changed
+                action_success = position_changed or self.reward > 0
+                failure_reason = ""
+                if not action_success:
+                    # Reasoning about Failure Causes (Based on Visible Information in the Image)
+                    if not position_changed:
+                        failure_reason = "blocked_by_obstacle"
+                    else:
+                        failure_reason = "unknown"
+            else:
+                # For non-movement actions (pickup, drop, toggle): don't check reward
+                # These actions don't change position, so we don't check position_changed or reward
+                action_success = True  # Always consider as executed (not failed due to obstacle)
+                failure_reason = ""
+            
+            # Check pickup failure: if pickup action was executed but nothing was picked up
+            if self.action_index == 4:  # pickup action
+                env = self.wrapper.env
+                if hasattr(env, 'carrying') and env.carrying is None:
+                    tfu.cprint(f"[WARNING] Pickup action executed but no object was picked up. Front cell may be empty or object cannot be picked up.", tfu.LIGHT_RED, bold=True)
             
             # Last action result update
             self.last_action_result = {

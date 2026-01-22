@@ -6,7 +6,7 @@ You are a robot operating in a grid-based environment.
 
 ## Action Space
 - "up"/"north"/"n": Move North
-- "down"/"south"/"s": Move South
+- "down"/"south"/"s": Move Soumovce th
 - "left"/"west"/"w": Move West
 - "right"/"east"/"e": Move East
 - "pickup", "drop", "toggle"

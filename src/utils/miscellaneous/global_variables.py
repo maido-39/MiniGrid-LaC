@@ -25,7 +25,7 @@
 #   Vertex AI: "gemini-2.5-flash-vertex" (logprobs 지원)
 #   Qwen: "qwen2-vl-2b", "qwen2-vl-7b", "qwen2-vl-72b", "qwen2.5-vl-3b", "qwen2.5-vl-7b", "qwen2.5-vl-32b"
 #   Gemma: "gemma-2-2b", "gemma-2-9b", "gemma-2-27b"
-VLM_MODEL = "gemini-2.5-flash-vertex"
+VLM_MODEL = "gemini-2.5-flash"
 # VLM_TEMPERATURE: 생성 무작위성 조절 (0.0=결정적, 1.0=무작위, 권장: 0.0)
 VLM_TEMPERATURE = 0.0
 # VLM_MAX_TOKENS: 최대 출력 토큰 수 (응답 길이 제한)

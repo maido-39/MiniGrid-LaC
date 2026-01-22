@@ -171,6 +171,91 @@ class ScenarioExperiment:
         
         return False
     
+    def _format_carrying_object(self, carrying_obj) -> str:
+        """
+        Format carrying object information for terminal display.
+        Uses JSON map file to get the correct emoji character for emoji objects.
+        
+        Args:
+            carrying_obj: The object being carried by the agent
+            
+        Returns:
+            Formatted string describing the carrying object
+        """
+        if carrying_obj is None:
+            return "None"
+        
+        # Try to get emoji character from JSON map file
+        emoji_char = None
+        if hasattr(self, 'json_map_path') and self.json_map_path:
+            try:
+                import json
+                with open(self.json_map_path, 'r', encoding='utf-8') as f:
+                    map_data = json.load(f)
+                    if 'map' in map_data and 'emoji_objects' in map_data['map']:
+                        emoji_objects = map_data['map']['emoji_objects']
+                        # Search for emoji_name in emoji_objects
+                        for emoji_key, emoji_def in emoji_objects.items():
+                            if emoji_def.get('emoji_name') == getattr(carrying_obj, 'emoji_name', None):
+                                emoji_char = emoji_key
+                                break
+            except Exception:
+                # If JSON loading fails, fall back to default mapping
+                pass
+        
+        # Fallback emoji mapping for common objects (if JSON lookup failed)
+        if emoji_char is None:
+            emoji_map = {
+                'box': '📦',
+                'apple': '🍎',
+                'key': '🔑',
+                'ball': '⚽',
+                'chair': '🪑',
+                'tree': '🌲',
+                'mushroom': '🍄',
+                'flower': '🌼',
+                'cat': '🐈',
+                'grass': '🌾',
+                'rock': '🗿',
+                'desktop': '🖥️',
+                'workstation': '📱',
+                'brick': '🧱'
+            }
+            if hasattr(carrying_obj, 'emoji_name'):
+                emoji_char = emoji_map.get(carrying_obj.emoji_name, '❓')
+            else:
+                emoji_char = '❓'
+        
+        if hasattr(carrying_obj, 'type'):
+            obj_type = carrying_obj.type
+            
+            # Handle emoji objects
+            if obj_type == 'emoji' and hasattr(carrying_obj, 'emoji_name'):
+                emoji_name = carrying_obj.emoji_name
+                color = getattr(carrying_obj, 'color', 'N/A')
+                return f"{emoji_char} {emoji_name} (color: {color})"
+            
+            # Handle standard MiniGrid objects
+            elif obj_type == 'key':
+                color = getattr(carrying_obj, 'color', 'N/A')
+                return f"🔑 Key (color: {color})"
+            elif obj_type == 'ball':
+                color = getattr(carrying_obj, 'color', 'N/A')
+                return f"⚽ Ball (color: {color})"
+            elif obj_type == 'box':
+                color = getattr(carrying_obj, 'color', 'N/A')
+                return f"📦 Box (color: {color})"
+            else:
+                # Generic object with color if available
+                color = getattr(carrying_obj, 'color', None)
+                if color:
+                    return f"{obj_type} (color: {color})"
+                else:
+                    return f"{obj_type}"
+        else:
+            # Fallback: just return string representation
+            return str(carrying_obj)
+    
     def vlm_gen_action(self,
                        image: np.ndarray,
                        system_prompt: str,
@@ -578,7 +663,8 @@ class ScenarioExperiment:
                 "vlm_action_chunk", "vlm_reasoning", "vlm_grounding",
                 "memory_spatial_description", "memory_task_goal", "memory_task_status", "memory_task_blocked_reason", "memory_previous_action",
                 "last_action_result_action", "last_action_result_success", "last_action_result_failure_reason", "last_action_result_position_changed",
-                "reward", "done", "image_path", "vlm_action_logprobs_info"
+                "reward", "done", "image_path", "vlm_action_logprobs_info",
+                "carrying_object", "is_pickup", "is_drop"
             ])
     
     def _log_step(self):
@@ -628,6 +714,16 @@ class ScenarioExperiment:
             "position_changed": True
         }
         
+        # Get carrying object information
+        carrying_object = "None"
+        env = self.wrapper.env
+        if hasattr(env, 'carrying') and env.carrying is not None:
+            carrying_object = self._format_carrying_object(env.carrying)
+        
+        # Check if action is pickup or drop
+        is_pickup = (self.action_name.lower() in ['pickup', 'pick up'] or self.action_index == 4)
+        is_drop = (self.action_name.lower() in ['drop'] or self.action_index == 5)
+        
         self.csv_writer.writerow([
             self.step,
             timestamp,
@@ -652,11 +748,25 @@ class ScenarioExperiment:
             float(self.reward),
             bool(self.done),
             image_path,
-            json.dumps(self.action_logprobs_info, ensure_ascii=False)
+            json.dumps(self.action_logprobs_info, ensure_ascii=False),
+            carrying_object,
+            bool(is_pickup),
+            bool(is_drop)
         ])
         self.csv_file.flush()
         
         json_path = self.log_dir / "experiment_log.json"
+        
+        # Get carrying object information for JSON log
+        carrying_object_json = None
+        env = self.wrapper.env
+        if hasattr(env, 'carrying') and env.carrying is not None:
+            carrying_object_json = self._format_carrying_object(env.carrying)
+        
+        # Check if action is pickup or drop for JSON log
+        is_pickup_json = (self.action_name.lower() in ['pickup', 'pick up'] or self.action_index == 4)
+        is_drop_json = (self.action_name.lower() in ['drop'] or self.action_index == 5)
+        
         json_data = {
             "step": self.step,
             "timestamp": timestamp,
@@ -677,7 +787,10 @@ class ScenarioExperiment:
             "reward": float(self.reward),
             "done": bool(self.done),
             "image_path": image_path,
-            "action_logprobs_info": self.action_logprobs_info
+            "action_logprobs_info": self.action_logprobs_info,
+            "carrying_object": carrying_object_json,
+            "is_pickup": bool(is_pickup_json),
+            "is_drop": bool(is_drop_json)
         }
         
         all_data = []
@@ -953,15 +1066,31 @@ class ScenarioExperiment:
             # Confirming position changes
             position_changed = (current_pos_before != current_pos_after)
             
+            # Check if this is a movement action (0=up, 1=down, 2=left, 3=right)
+            is_movement_action = (self.action_index in [0, 1, 2, 3])
+            
             # Action Result Determination
-            action_success = position_changed or self.reward > 0
-            failure_reason = ""
-            if not action_success:
-                # Reasoning about Failure Causes (Based on Visible Information in the Image)
-                if not position_changed:
-                    failure_reason = "blocked_by_obstacle"
-                else:
-                    failure_reason = "unknown"
+            if is_movement_action:
+                # For movement actions: success if position changed
+                action_success = position_changed or self.reward > 0
+                failure_reason = ""
+                if not action_success:
+                    # Reasoning about Failure Causes (Based on Visible Information in the Image)
+                    if not position_changed:
+                        failure_reason = "blocked_by_obstacle"
+                    else:
+                        failure_reason = "unknown"
+            else:
+                # For non-movement actions (pickup, drop, toggle): don't check reward
+                # These actions don't change position, so we don't check position_changed or reward
+                action_success = True  # Always consider as executed (not failed due to obstacle)
+                failure_reason = ""
+            
+            # Check pickup failure: if pickup action was executed but nothing was picked up
+            if self.action_index == 4:  # pickup action
+                env = self.wrapper.env
+                if hasattr(env, 'carrying') and env.carrying is None:
+                    tfu.cprint(f"[WARNING] Pickup action executed but no object was picked up. Front cell may be empty or object cannot be picked up.", tfu.LIGHT_RED, bold=True)
             
             # Last action result update
             self.last_action_result = {
@@ -975,6 +1104,14 @@ class ScenarioExperiment:
             tfu.cprint(f"Action Result: {'Success' if action_success else 'Failure'} (Position Change: {'Yes' if position_changed else 'No'})")
             if not action_success:
                 print(f"Reasons for Failure: {failure_reason}")
+            
+            # Display carrying object information
+            env = self.wrapper.env
+            if hasattr(env, 'carrying') and env.carrying is not None:
+                carrying_info = self._format_carrying_object(env.carrying)
+                tfu.cprint(f"Carrying Object: {carrying_info}", color=tfu.CYAN, bold=True)
+            else:
+                tfu.cprint("Carrying Object: None", color=tfu.LIGHT_BLACK)
                 
         except Exception as e:
             tfu.cprint(f"Action execution failed: {e}")
@@ -995,6 +1132,14 @@ class ScenarioExperiment:
                 "failure_reason": "exception",
                 "position_changed": False
             }
+            
+            # Display carrying object information even on exception
+            env = self.wrapper.env
+            if hasattr(env, 'carrying') and env.carrying is not None:
+                carrying_info = self._format_carrying_object(env.carrying)
+                tfu.cprint(f"Carrying Object: {carrying_info}", color=tfu.CYAN, bold=True)
+            else:
+                tfu.cprint("Carrying Object: None", color=tfu.LIGHT_BLACK)
         
         # Previous action update (action actually executed)
         self.prompt_organizer.previous_action = self.action_name
