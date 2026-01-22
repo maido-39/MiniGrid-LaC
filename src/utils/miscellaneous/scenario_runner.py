@@ -106,7 +106,7 @@ class ScenarioExperiment:
             return False
         
         feedback_keywords = [
-            "wrong", "incorrect", "that's wrong", "no", "not that", "don't", 
+            "wrong", "incorrect", "that's wrong", "not that", "don't", 
             "shouldn't", "error", "mistake", "why did you", "why didn't you",
             "what are you doing", "where are you going", "not feasible", 
             "cannot", "should not",

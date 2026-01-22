@@ -12,7 +12,6 @@ $mission
 Based on the current image, choose the next action to complete this mission.
 Use absolute directions (up/down/left/right).
 - 0,0 coordinate is the top-left corner of the image.
-- x+ is right, y+ is down.
 
 You can divide this mission into subtasks.
 Example:
@@ -26,7 +25,8 @@ Example:
 """
 
 ## Constraints
-- emojis except for walls are passable.
-- walls are impassable.
-- Do not enter in collision with walls. So if you are one cell next to a walls, don't face it and try to rotate towards more open view field.
+- emojis except for red walls are passable.
+- red walls are impassable.
+- detour is a good option, when the destination is over the wall.
+- Do not enter in collision with walls or plan to bypass the walls. So if you are one cell next to a walls, don't face it and try to rotate towards more open view field.
 - Do not pick up objects unless instructed to do so.
