@@ -411,31 +411,94 @@ class CustomRoomEnv(MiniGridEnv):
         else:
             self.place_agent()
         
+        # Initialize carrying as a list to support multiple objects
+        self.carrying = []
+        
         self.mission = self._gen_mission()
     
     def step(self, action):
         """
-        Override step method to handle pickup action with EmojiObject.can_pickup() check
+        Override step method to handle pickup and drop actions for multiple objects
         
-        MiniGrid's default step method may not properly check EmojiObject.can_pickup(),
-        so we intercept pickup actions and verify can_pickup() before allowing pickup.
+        Supports carrying multiple objects (self.carrying is a list).
+        MiniGrid's default step method only supports one object, so we handle
+        pickup and drop actions manually.
         """
+        # Initialize carrying as list if not already
+        if not hasattr(self, 'carrying') or not isinstance(self.carrying, list):
+            self.carrying = []
+        
         # Handle pickup action (action 3 in MiniGrid's action space)
-        # Check if front cell has an object that can be picked up
         if action == 3:  # MiniGrid's pickup action
             # Get front cell position
             fwd_pos = self.front_pos
             fwd_cell = self.grid.get(*fwd_pos)
             
             # Check if front cell has an object that can be picked up
-            if fwd_cell and hasattr(fwd_cell, 'can_pickup'):
-                if not fwd_cell.can_pickup():
-                    # Object cannot be picked up, call parent step but it will fail
-                    obs, reward, terminated, truncated, info = super().step(action)
+            if fwd_cell:
+                can_pickup = True
+                if hasattr(fwd_cell, 'can_pickup'):
+                    can_pickup = fwd_cell.can_pickup()
+                
+                if can_pickup:
+                    # Remove object from grid
+                    self.grid.set(*fwd_pos, None)
+                    # Add to carrying list
+                    self.carrying.append(fwd_cell)
+                    # Return success (no reward change, just pickup)
+                    obs = self.gen_obs()
+                    reward = 0.0
+                    terminated = False
+                    truncated = False
+                    info = {}
                     return obs, reward, terminated, truncated, info
         
-        # For all other actions, call parent step
+        # Handle drop action (action 4 in MiniGrid's action space)
+        if action == 4:  # MiniGrid's drop action
+            if len(self.carrying) > 0:
+                # Get front cell position
+                fwd_pos = self.front_pos
+                fwd_cell = self.grid.get(*fwd_pos)
+                
+                # Only drop if front cell is empty
+                if fwd_cell is None:
+                    # Remove last object from carrying list
+                    obj_to_drop = self.carrying.pop()
+                    # Place object on grid
+                    self.grid.set(*fwd_pos, obj_to_drop)
+                    # Return success
+                    obs = self.gen_obs()
+                    reward = 0.0
+                    terminated = False
+                    truncated = False
+                    info = {}
+                    return obs, reward, terminated, truncated, info
+        
+        # For all other actions (movement, toggle), call parent step
+        # But we need to temporarily set self.carrying to None or first item
+        # for compatibility with MiniGrid's step method (e.g., toggle checks for key)
+        original_carrying = self.carrying.copy() if isinstance(self.carrying, list) else self.carrying
+        if len(self.carrying) > 0:
+            # MiniGrid expects single object, so use first one for compatibility
+            # This is important for toggle action (opening doors with keys)
+            self.carrying = self.carrying[0]
+        else:
+            self.carrying = None
+        
         obs, reward, terminated, truncated, info = super().step(action)
+        
+        # Restore carrying list
+        # Note: MiniGrid's step should not modify carrying for movement/toggle actions,
+        # but we restore it anyway to be safe
+        if isinstance(original_carrying, list):
+            self.carrying = original_carrying
+        else:
+            # Fallback: if original wasn't a list, keep parent's result
+            if self.carrying is not None and not isinstance(self.carrying, list):
+                self.carrying = [self.carrying]
+            elif self.carrying is None:
+                self.carrying = []
+        
         return obs, reward, terminated, truncated, info
     
     def render(self):

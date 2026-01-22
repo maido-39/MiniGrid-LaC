@@ -175,9 +175,36 @@ class ScenarioExperiment:
         """
         Format carrying object information for terminal display.
         Uses JSON map file to get the correct emoji character for emoji objects.
+        Supports both single object and list of objects.
         
         Args:
-            carrying_obj: The object being carried by the agent
+            carrying_obj: The object(s) being carried by the agent (can be single object or list)
+            
+        Returns:
+            Formatted string describing the carrying object(s)
+        """
+        if carrying_obj is None:
+            return "None"
+        
+        # Handle list of objects
+        if isinstance(carrying_obj, list):
+            if len(carrying_obj) == 0:
+                return "None"
+            # Format all objects in the list
+            formatted_objects = []
+            for obj in carrying_obj:
+                formatted_objects.append(self._format_single_carrying_object(obj))
+            return f"[{', '.join(formatted_objects)}]"
+        
+        # Handle single object
+        return self._format_single_carrying_object(carrying_obj)
+    
+    def _format_single_carrying_object(self, carrying_obj) -> str:
+        """
+        Format a single carrying object information for terminal display.
+        
+        Args:
+            carrying_obj: A single object being carried by the agent
             
         Returns:
             Formatted string describing the carrying object
@@ -717,8 +744,12 @@ class ScenarioExperiment:
         # Get carrying object information
         carrying_object = "None"
         env = self.wrapper.env
-        if hasattr(env, 'carrying') and env.carrying is not None:
-            carrying_object = self._format_carrying_object(env.carrying)
+        if hasattr(env, 'carrying'):
+            if isinstance(env.carrying, list):
+                if len(env.carrying) > 0:
+                    carrying_object = self._format_carrying_object(env.carrying)
+            elif env.carrying is not None:
+                carrying_object = self._format_carrying_object(env.carrying)
         
         # Check if action is pickup or drop
         is_pickup = (self.action_name.lower() in ['pickup', 'pick up'] or self.action_index == 4)
@@ -760,8 +791,12 @@ class ScenarioExperiment:
         # Get carrying object information for JSON log
         carrying_object_json = None
         env = self.wrapper.env
-        if hasattr(env, 'carrying') and env.carrying is not None:
-            carrying_object_json = self._format_carrying_object(env.carrying)
+        if hasattr(env, 'carrying'):
+            if isinstance(env.carrying, list):
+                if len(env.carrying) > 0:
+                    carrying_object_json = self._format_carrying_object(env.carrying)
+            elif env.carrying is not None:
+                carrying_object_json = self._format_carrying_object(env.carrying)
         
         # Check if action is pickup or drop for JSON log
         is_pickup_json = (self.action_name.lower() in ['pickup', 'pick up'] or self.action_index == 4)
@@ -1089,8 +1124,14 @@ class ScenarioExperiment:
             # Check pickup failure: if pickup action was executed but nothing was picked up
             if self.action_index == 4:  # pickup action
                 env = self.wrapper.env
-                if hasattr(env, 'carrying') and env.carrying is None:
-                    tfu.cprint(f"[WARNING] Pickup action executed but no object was picked up. Front cell may be empty or object cannot be picked up.", tfu.LIGHT_RED, bold=True)
+                carrying_count = 0
+                if hasattr(env, 'carrying'):
+                    if isinstance(env.carrying, list):
+                        carrying_count = len(env.carrying)
+                    elif env.carrying is not None:
+                        carrying_count = 1
+                # Note: We can't easily detect if pickup failed since we always allow multiple pickups
+                # This check is less useful now, but kept for compatibility
             
             # Last action result update
             self.last_action_result = {
@@ -1107,9 +1148,18 @@ class ScenarioExperiment:
             
             # Display carrying object information
             env = self.wrapper.env
-            if hasattr(env, 'carrying') and env.carrying is not None:
-                carrying_info = self._format_carrying_object(env.carrying)
-                tfu.cprint(f"Carrying Object: {carrying_info}", color=tfu.CYAN, bold=True)
+            if hasattr(env, 'carrying'):
+                if isinstance(env.carrying, list):
+                    if len(env.carrying) > 0:
+                        carrying_info = self._format_carrying_object(env.carrying)
+                        tfu.cprint(f"Carrying Objects ({len(env.carrying)}): {carrying_info}", color=tfu.CYAN, bold=True)
+                    else:
+                        tfu.cprint("Carrying Objects: None", color=tfu.LIGHT_BLACK)
+                elif env.carrying is not None:
+                    carrying_info = self._format_carrying_object(env.carrying)
+                    tfu.cprint(f"Carrying Object: {carrying_info}", color=tfu.CYAN, bold=True)
+                else:
+                    tfu.cprint("Carrying Object: None", color=tfu.LIGHT_BLACK)
             else:
                 tfu.cprint("Carrying Object: None", color=tfu.LIGHT_BLACK)
                 
@@ -1135,9 +1185,18 @@ class ScenarioExperiment:
             
             # Display carrying object information even on exception
             env = self.wrapper.env
-            if hasattr(env, 'carrying') and env.carrying is not None:
-                carrying_info = self._format_carrying_object(env.carrying)
-                tfu.cprint(f"Carrying Object: {carrying_info}", color=tfu.CYAN, bold=True)
+            if hasattr(env, 'carrying'):
+                if isinstance(env.carrying, list):
+                    if len(env.carrying) > 0:
+                        carrying_info = self._format_carrying_object(env.carrying)
+                        tfu.cprint(f"Carrying Objects ({len(env.carrying)}): {carrying_info}", color=tfu.CYAN, bold=True)
+                    else:
+                        tfu.cprint("Carrying Objects: None", color=tfu.LIGHT_BLACK)
+                elif env.carrying is not None:
+                    carrying_info = self._format_carrying_object(env.carrying)
+                    tfu.cprint(f"Carrying Object: {carrying_info}", color=tfu.CYAN, bold=True)
+                else:
+                    tfu.cprint("Carrying Object: None", color=tfu.LIGHT_BLACK)
             else:
                 tfu.cprint("Carrying Object: None", color=tfu.LIGHT_BLACK)
         
