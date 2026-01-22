@@ -413,13 +413,36 @@ class VLMWrapper:
                         top_logprobs.append(top_k)
                         
                         # Calculate Shannon entropy
+                        # Note: We need to account for the entire vocabulary, not just top-k
+                        # Since API only provides top-k, we approximate by:
+                        # 1. Using top-k probabilities as-is (not normalizing to sum=1)
+                        # 2. Adding a "rest" category for remaining probability mass
                         if top_k:
                             probs = [np.exp(c['log_probability']) for c in top_k]
                             probs_sum = np.sum(probs)
+                            
                             if probs_sum > 0:
-                                probs = [p / probs_sum for p in probs]
-                                entropy = -np.sum([p*np.log2(p) if p > 0 else 0 for p in probs])
-                                entropies.append(entropy)
+                                # Method 1: Use top-k probabilities directly (they sum to < 1)
+                                # This gives a lower bound on entropy
+                                # For more accurate entropy, we add a "rest" category
+                                
+                                # Estimate remaining probability mass
+                                # If top-k sum is close to 1, remaining is small
+                                # If top-k sum is small, remaining is large
+                                remaining_prob = max(0.0, 1.0 - probs_sum)
+                                
+                                # Add all probabilities including "rest" category
+                                all_probs = probs + [remaining_prob] if remaining_prob > 0 else probs
+                                
+                                # Normalize to ensure sum = 1
+                                total_prob = sum(all_probs)
+                                if total_prob > 0:
+                                    normalized_probs = [p / total_prob for p in all_probs]
+                                    # Calculate entropy
+                                    entropy = -np.sum([p*np.log2(p) if p > 0 else 0 for p in normalized_probs])
+                                    entropies.append(entropy)
+                                else:
+                                    entropies.append(0.0)
                             else:
                                 entropies.append(0.0)
                         else:

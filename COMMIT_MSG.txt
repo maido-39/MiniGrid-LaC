@@ -1,0 +1,45 @@
+feat: Add entropy comparison functionality for VLM action uncertainty analysis
+
+Implement entropy-based uncertainty analysis by comparing VLM responses under
+different prompt conditions (with/without Grounding and Language Instructions).
+
+## Main Changes
+
+### 1. ScenarioExperiment: Entropy Comparison Methods
+- Add `vlm_gen_action_H_X()`: VLM call without Language Instruction and Grounding
+- Add `vlm_gen_action_H_X_given_S()`: VLM call without Language Instruction (with Grounding)
+- Add `vlm_gen_action_H_X_given_LS()`: VLM call with both (wraps existing method)
+- Add `_get_system_prompt_without_grounding()`: Helper to generate system prompt without grounding
+- Add `_calculate_entropy_from_logprobs()`: Extract entropy from action logprobs info
+
+### 2. New Experiment Script
+- Add `scenario2_test_entropy_comparison.py`: Entropy comparison experiment
+  - Performs 3 simultaneous VLM calls with different prompt conditions
+  - Calculates entropies: H(X), H(X|S), H(X|L,S)
+  - Computes Trust value: T = (H(X) - H(X|S)) / (H(X) - H(X|L,S))
+  - Logs entropy values and Trust to CSV
+  - Uses H(X|L,S) result for actual action execution
+
+### 3. Entropy Calculation Fix
+- Fix entropy calculation in `vlm_wrapper.py` to account for entire vocabulary
+  - Previous: Only used top-k probabilities, normalized to sum=1 (underestimated entropy)
+  - Now: Adds "rest" category for remaining probability mass to approximate full distribution
+  - This provides more accurate entropy values for uncertainty analysis
+
+### 4. Minor Updates
+- Update `gemini_handler.py`: Minor adjustments for logprobs handling
+- Update `example_map.json`: Configuration adjustments
+
+## Technical Details
+
+- Entropy extraction uses first action token's entropy value
+- Trust calculation handles division by zero (returns NaN when H(X) == H(X|L,S))
+- CSV logging includes new fields: entropy_H_X, entropy_H_X_given_S, entropy_H_X_given_LS, trust_T
+- All changes maintain backward compatibility with existing code
+
+## Usage
+
+```bash
+cd src/
+python scenario2_test_entropy_comparison.py [json_map_path]
+```

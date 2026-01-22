@@ -47,15 +47,19 @@ def _resolve_path_relative_to_env(relative_path: str) -> str:
     
     If the path is already absolute, return it as-is.
     If the path is relative, resolve it relative to the .env file's directory.
+    Supports ~ (home directory) expansion.
     
     Args:
-        relative_path: Path string (can be absolute or relative)
+        relative_path: Path string (can be absolute or relative, can include ~)
     
     Returns:
         Absolute path string
     """
     if not relative_path:
         return relative_path
+    
+    # Expand ~ to home directory first
+    relative_path = os.path.expanduser(relative_path)
     
     # If already absolute, return as-is
     if os.path.isabs(relative_path):
