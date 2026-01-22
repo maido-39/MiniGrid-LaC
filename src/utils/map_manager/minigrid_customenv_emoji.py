@@ -1003,6 +1003,7 @@ class CustomRoomEnv(MiniGridEnv):
     def _apply_robot_floor_glow(self, frame: np.ndarray) -> np.ndarray:
         """
         Add green border to floor at robot position (called after robot rendering)
+        Applies glow when robot is on any non-empty cell (not just emoji objects)
         
         Args:
             frame: Frame with robot rendered
@@ -1014,6 +1015,15 @@ class CustomRoomEnv(MiniGridEnv):
             return frame
         
         agent_x, agent_y = int(self.agent_pos[0]), int(self.agent_pos[1])
+        
+        # Check if robot is on a non-empty cell (any object, not just empty floor)
+        cell = self.grid.get(agent_x, agent_y)
+        is_on_object = (cell is not None)
+        
+        # Only draw green border if robot is on a non-empty cell
+        if not is_on_object:
+            return frame
+        
         actual_tile_size = self.tile_size if hasattr(self, 'tile_size') else 32
         
         pil_frame = Image.fromarray(frame.astype(np.uint8)).convert('RGBA')

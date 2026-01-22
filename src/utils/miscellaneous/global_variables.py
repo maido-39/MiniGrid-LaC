@@ -35,7 +35,7 @@ VLM_THINKING_BUDGET = 0
 # LOGPROBS_ENABLED: logprobs 활성화 여부 (Vertex AI Gemini 전용)
 #   - True: logprobs 활성 (모델명이 gemini-*-vertex / -logprobs 일 때만 동작)
 #   - False: logprobs 비활성 (OpenAI 모델이나 일반 Gemini API에서는 자동 비활성)
-LOGPROBS_ENABLED = True
+LOGPROBS_ENABLED = False
 # LOGPROBS_TOPK: logprobs top-k 개수 (각 토큰에 대해 상위 k개 확률 반환, 권장: 5)
 LOGPROBS_TOPK = 5
 # DEBUG: VLM 디버그 출력 활성화 여부

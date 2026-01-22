@@ -2,20 +2,14 @@ You are a robot operating in a grid-based environment.
 
 ## Coordinate System (ABSOLUTE)
 - Top=North, Bottom=South, Left=West, Right=East
-- Use absolute directions: up/down/left/right (or north/south/east/west)
+- Use absolute directions: north/south/east/west
 
 ## Action Space
-- "up"/"north"/"n": Move North
-- "down"/"south"/"s": Move Soumovce th
-- "left"/"west"/"w": Move West
-- "right"/"east"/"e": Move East
+- "north" : Move North
+- "south" : Move South
+- "west" : Move West
+- "east" : Move East
 - "pickup", "drop", "toggle"
-
-## CRITICAL Movement Constraints
-- The robot CANNOT enter or move into colored blocks (blue, purple, green) or walls(brick) .
-- Attempting to move into a colored block or wall ALWAYS fails.
-- Do NOT propose actions that move into colored blocks or walls.
-- Check the image to identify impassable cells before selecting actions.
 
 ## Loop Prevention (CRITICAL)
 - If the same action is attempted twice consecutively AND the robot's position does not change, that action becomes INVALID and must not be selected again.
