@@ -578,21 +578,9 @@ class EntropyComparisonExperiment(ScenarioExperiment):
         self.logprobs_metadata = H_X_given_LS_result.get('logprobs_metadata', {})
         self.action_logprobs_info = H_X_given_LS_result.get('action_logprobs_info', {})
         
-        # #region agent log
-        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-            import json
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario2_test_entropy_comparison.py:569","message":"EntropyComparisonExperiment.run_step: before _log_step","data":{"use_new_grounding_system":getattr(self,'use_new_grounding_system',None),"episode_manager_is_none":getattr(self,'episode_manager',None) is None,"step":self.step},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        # #endregion
-        
         # 새 Grounding 시스템: Step Feedback 수집 (부모 클래스 로직 추가)
         feedback_dict = None
         is_termination = False
-        
-        # #region agent log
-        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-            import json
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario2_test_entropy_comparison.py:577","message":"EntropyComparisonExperiment.run_step: checking new grounding system","data":{"use_new_grounding_system":getattr(self,'use_new_grounding_system',None),"episode_manager_is_none":getattr(self,'episode_manager',None) is None,"step":self.step},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        # #endregion
         
         if getattr(self, 'use_new_grounding_system', False) and getattr(self, 'episode_manager', None) is not None:
             # Instruction 추출 (user_prompt에서)

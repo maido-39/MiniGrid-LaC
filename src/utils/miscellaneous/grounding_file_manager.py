@@ -102,11 +102,6 @@ class GroundingFileManager:
             status: Step 상태 ("SUCCESS" | "FAILURE" | "IN_PROGRESS")
             feedback: 타입별 feedback 딕셔너리
         """
-        # #region agent log
-        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-            import json
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H4,H5","location":"grounding_file_manager.py:88","message":"append_step_feedback: entry","data":{"step_id":step_id,"instruction":instruction,"status":status,"feedback":feedback},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        # #endregion
         with self.file_lock:
             # Status를 표준 형식으로 변환 (SUCCESS -> Success, FAILURE -> Failure, IN_PROGRESS -> WiP)
             status_display = {
@@ -127,20 +122,10 @@ class GroundingFileManager:
             # stacked_grounding에 타입별로 누적 (Status 포함)
             saved_count = 0
             for grounding_type, content in feedback.items():
-                # #region agent log
-                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                    import json
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H5","location":"grounding_file_manager.py:100","message":"append_step_feedback: checking content","data":{"step_id":step_id,"grounding_type":grounding_type,"content":content,"content_is_none":content is None,"content_stripped":content.strip() if content else None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                # #endregion
                 if content and content.strip():
                     stacked_entry = f"[ Step{step_id} - {status_display} ] : {content.strip()}"
                     self.grounding_data["stacked_grounding"][grounding_type].append(stacked_entry)
                     saved_count += 1
-            # #region agent log
-            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                import json
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H5","location":"grounding_file_manager.py:108","message":"append_step_feedback: before save","data":{"step_id":step_id,"saved_count":saved_count},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-            # #endregion
             
             # JSON 파일 저장
             with open(self.grounding_json_file, 'w', encoding='utf-8') as f:

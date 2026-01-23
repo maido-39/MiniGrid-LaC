@@ -197,18 +197,7 @@ class ScenarioExperiment:
             - feedback_dict: {"user_preference": ..., "spatial": ..., "procedural": ..., "general": ...} 또는 None
             - is_termination_command: 종료 명령 여부
         """
-        # #region agent log
-        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-            import json
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:188","message":"_parse_step_feedback: entry","data":{"feedback_input":feedback_input},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        # #endregion
-        
         if not feedback_input or not isinstance(feedback_input, str):
-            # #region agent log
-            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                import json
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:201","message":"_parse_step_feedback: empty input","data":{},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-            # #endregion
             return None, False
         
         feedback_input = feedback_input.strip()
@@ -216,11 +205,6 @@ class ScenarioExperiment:
         # 종료 명령 확인
         from utils.miscellaneous.global_variables import EPISODE_TERMINATION_KEYWORDS
         if feedback_input.lower() in [kw.lower() for kw in EPISODE_TERMINATION_KEYWORDS]:
-            # #region agent log
-            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                import json
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:207","message":"_parse_step_feedback: termination command","data":{},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-            # #endregion
             return None, True
         
         # 형식 파싱: {s/w/f} : (u: ..., s: ..., p: ..., g: ...)
@@ -229,11 +213,6 @@ class ScenarioExperiment:
         # 상태 추출 (s/w/f)
         status_match = re.match(r'^([swfSWF])\s*:\s*\(', feedback_input)
         if not status_match:
-            # #region agent log
-            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                import json
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:216","message":"_parse_step_feedback: status match failed","data":{"feedback_input":feedback_input},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-            # #endregion
             return None, False
         
         status_char = status_match.group(1).lower()
@@ -241,11 +220,6 @@ class ScenarioExperiment:
         # 괄호 안의 내용 추출
         content_match = re.search(r'\((.+)\)', feedback_input)
         if not content_match:
-            # #region agent log
-            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                import json
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:223","message":"_parse_step_feedback: content match failed","data":{"feedback_input":feedback_input},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-            # #endregion
             return None, False
         
         content = content_match.group(1)
@@ -270,12 +244,6 @@ class ScenarioExperiment:
             match = re.search(pattern, content, re.IGNORECASE)
             if match:
                 feedback_dict[feedback_type] = match.group(1).strip()
-        
-        # #region agent log
-        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-            import json
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1,H2","location":"scenario_runner.py:246","message":"_parse_step_feedback: exit","data":{"feedback_dict":feedback_dict},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        # #endregion
         
         return feedback_dict, False
     
@@ -1334,11 +1302,6 @@ class ScenarioExperiment:
         tfu.cprint("\n" + "=" * 80 + "\n", bold=True)
         
         # 새 Grounding 시스템 사용 시 Episode 번호 입력
-        # #region agent log
-        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-            import json
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H2","location":"scenario_runner.py:1242","message":"initialize: checking use_new_grounding_system","data":{"use_new_grounding_system":self.use_new_grounding_system},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        # #endregion
         if self.use_new_grounding_system:
             tfu.cprint("\n[Episode Setup]", bold=True)
             tfu.cprint("Enter Episode number:", tfu.LIGHT_WHITE)
@@ -1356,11 +1319,6 @@ class ScenarioExperiment:
                 self.episode_manager.get_episode_dir(),
                 self.episode_id
             )
-            # #region agent log
-            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                import json
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H2","location":"scenario_runner.py:1258","message":"initialize: episode_manager initialized","data":{"episode_id":self.episode_id,"episode_manager_is_none":self.episode_manager is None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-            # #endregion
             tfu.cprint(f"Episode {self.episode_id} initialized", tfu.LIGHT_GREEN)
             tfu.cprint(f"Episode directory: {self.episode_manager.get_episode_dir()}", tfu.LIGHT_BLACK, italic=True)
         
@@ -1748,25 +1706,10 @@ class ScenarioExperiment:
         feedback_dict = None
         is_termination = False
         
-        # #region agent log
-        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-            import json
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1,H3,H4","location":"scenario_runner.py:1647","message":"run_step: checking new grounding system","data":{"use_new_grounding_system":self.use_new_grounding_system,"episode_manager_is_none":self.episode_manager is None,"step":self.step},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-        # #endregion
         if self.use_new_grounding_system:
             if self.episode_manager is None:
-                # #region agent log
-                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                    import json
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H4","location":"scenario_runner.py:1650","message":"run_step: episode_manager is None","data":{"step":self.step},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                # #endregion
                 tfu.cprint(f"\n[Warning] episode_manager is None. Skipping step feedback collection.", tfu.LIGHT_RED)
             else:
-                # #region agent log
-                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                    import json
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:1653","message":"run_step: entering feedback collection","data":{"step":self.step},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                # #endregion
                 # Instruction 추출 (user_prompt에서)
                 instruction = self.user_prompt if self.user_prompt else "Continue mission"
                 
@@ -1782,12 +1725,6 @@ class ScenarioExperiment:
                     instruction=instruction
                 )
                 
-                # #region agent log
-                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                    import json
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H2","location":"scenario_runner.py:1719","message":"run_step: after _collect_step_feedback","data":{"step":self.step,"feedback_dict":feedback_dict,"is_termination":is_termination},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                # #endregion
-                
                 # 종료 명령 확인
                 if is_termination:
                     tfu.cprint("\n[Episode Termination] User requested episode end.", tfu.LIGHT_YELLOW, True)
@@ -1796,11 +1733,6 @@ class ScenarioExperiment:
                         self.episode_manager.set_termination_reason("user_command")
                 
                 # Feedback이 있으면 저장
-                # #region agent log
-                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                    import json
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H3","location":"scenario_runner.py:1733","message":"run_step: checking if feedback_dict exists","data":{"step":self.step,"feedback_dict_is_none":feedback_dict is None,"feedback_dict":feedback_dict},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                # #endregion
                 if feedback_dict:
                     # EpisodeManager에 Step 추가
                     action_info = {
@@ -1819,11 +1751,6 @@ class ScenarioExperiment:
                     }
                     image_path = f"images/step_{self.step:04d}.png"
                     
-                    # #region agent log
-                    with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                        import json
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H3","location":"scenario_runner.py:1740","message":"run_step: calling episode_manager.add_step","data":{"step":self.step,"feedback_dict":feedback_dict},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                    # #endregion
                     self.episode_manager.add_step(
                         step_id=self.step,
                         instruction=instruction,
@@ -1835,17 +1762,7 @@ class ScenarioExperiment:
                     )
                     
                     # GroundingFileManager에 Step feedback 추가
-                    # #region agent log
-                    with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                        import json
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H4","location":"scenario_runner.py:1753","message":"run_step: checking grounding_file_manager","data":{"step":self.step,"grounding_file_manager_is_none":self.grounding_file_manager is None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                    # #endregion
                     if self.grounding_file_manager:
-                        # #region agent log
-                        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                            import json
-                            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H4","location":"scenario_runner.py:1757","message":"run_step: calling grounding_file_manager.append_step_feedback","data":{"step":self.step,"instruction":instruction,"status":status,"feedback_dict":feedback_dict},"timestamp":int(__import__('time').time()*1000)}) + '\n')
-                        # #endregion
                         self.grounding_file_manager.append_step_feedback(
                             step_id=self.step,
                             instruction=instruction,

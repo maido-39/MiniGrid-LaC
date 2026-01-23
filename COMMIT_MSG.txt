@@ -1,87 +1,40 @@
-feat: Implement Grounding Memory System and partial JSON parsing
+TL;DR: API 단에서 carrying object 터미널 출력 기능 추가, gen_obs() 호출 시 리스트 호환성 버그 수정, 모든 디버깅 코드 제거
 
-## TL;DR
-- Added Grounding Memory System: EpisodeManager and GroundingFileManager for structured feedback processing and VLM-based grounding generation
-- Implemented partial JSON parsing: gracefully handles truncated VLM responses by extracting available fields
-- Enhanced logging: improved CSV/JSON serialization with entropy/trust values and numpy type handling
-- Integrated Reflexion system: post-episode VLM analysis for meta-learning
+## 주요 변경 사항
 
-This commit introduces a comprehensive Grounding Memory System for robot
-navigation VLM and adds robust partial JSON parsing for truncated VLM responses.
+### 기능 추가
+- **API 단 carrying object 출력 기능**
+  - `CustomRoomEnv`에 `_format_carrying_object()`, `_format_single_carrying_object()`, `_print_carrying_status()` 메서드 추가
+  - pickup/drop 성공 시 터미널에 `[API] Carrying Objects (count): [obj1, obj2, ...]` 형식으로 출력
+  - 리스트/단일 객체 모두 지원하며, emoji와 색상 정보 포함
 
-## Grounding Memory System
+### 버그 수정
+- **gen_obs() 호출 시 리스트 호환성 문제 해결**
+  - `self.carrying`이 리스트일 때 `gen_obs()` 호출 시 발생하는 `'list' object has no attribute 'encode'` 에러 수정
+  - pickup/drop 성공 후 `gen_obs()` 호출 전에 `self.carrying`을 임시로 단일 객체로 변환하고, 호출 후 리스트로 복원
+  - 의도하지 않은 움직임 문제 해결
 
-### Core Components
-- **EpisodeManager** (`episode_manager.py`): Manages episode data structure
-  - Episode-specific folder organization: `logs/episode_{id}_{timestamp}_{script}/`
-  - Structured JSON logging with step-by-step trajectory
-  - Initial state image capture and storage
-  - Episode termination tracking (done, max_steps, user_command)
-  
-- **GroundingFileManager** (`grounding_file_manager.py`): Handles grounding persistence
-  - Episode-specific grounding files (JSON + TXT)
-  - Global latest grounding files (`grounding_latest.json/txt`)
-  - Thread-safe file operations with locking
-  - Structured grounding data: `expr_info`, `grounding_per_step`, `stacked_grounding`, `final_grounding`
+### 호환성 개선
+- **scenario2_keyboard_control.py 리스트 지원**
+  - `env.carrying`이 리스트인 경우를 처리하도록 수정
+  - 다중 객체 carrying 상태를 올바르게 표시
 
-### Feedback Processing
-- Structured feedback parsing with format: `{s/w/f} : (u: {...}, s: {...}, p: {...}, g: {...})`
-- Pre-classification by grounding type: user_preference, spatial, procedural, general
-- Status tracking per feedback: Success, Failure, WiP
-- Flexible colon spacing handling (`s:` or `s :`)
+### 코드 정리
+- **모든 디버깅 코드 제거**
+  - `minigrid_customenv_emoji.py`: 모든 `#region agent log` 블록 제거
+  - `scenario_runner.py`: 디버깅 로그 코드 제거 (83줄 삭제)
+  - `grounding_file_manager.py`: 디버깅 로그 코드 제거 (15줄 삭제)
+  - `scenario2_test_entropy_comparison.py`: 디버깅 로그 코드 제거 (12줄 삭제)
 
-### Grounding Generation
-- Batch processing at episode end (not per-step)
-- VLM-based grounding generation using initial state image
-- Configurable VLM model for grounding (`GROUNDING_VLM_MODEL`, `GROUNDING_VLM_TEMPERATURE`, `GROUNDING_VLM_MAX_TOKENS`)
-- Grounding from current episode applied to subsequent episodes (not immediately)
-- Empty content handling: empty strings instead of placeholder text
+### 기타
+- README 파일 업데이트
+- example_map.json 수정
+- .gitignore 업데이트
 
-### Reflexion System
-- Post-episode VLM analysis: Trajectory Summary, Error Diagnosis, Correction Plan
-- Integrates with episode data and feedback for meta-learning
-
-### Logging Improvements
-- **JSON Serialization**: Added `convert_numpy_types()` to handle numpy types, LogprobsResult, and custom objects
-- **CSV Logging**: 
-  - Added `quoting=csv.QUOTE_ALL` for robust multi-line/comma handling
-  - Explicit entropy and trust value logging (`entropy_H_X`, `entropy_H_X_given_S`, `entropy_H_X_given_LS`, `trust_T`)
-  - Proper None/NaN handling in CSV output
-- **Episode Logging**: Comprehensive step-by-step data with state, action, feedback, entropy, trust
-
-### Configuration
-- `USE_NEW_GROUNDING_SYSTEM`: Toggle for new/old system compatibility
-- `GROUNDING_FILE_PATH`: Select which grounding file to use for VLM context
-- `EPISODE_TERMINATION_KEYWORDS`: Customizable episode end commands
-- Episode ID prompt at experiment start
-
-### Integration
-- Modified `VLMWrapper` to support optional grounding file input
-- Updated `PromptOrganizer` to handle grounding via file instead of system prompt
-- Enhanced `ScenarioExperiment` with grounding system integration
-- Updated `EntropyComparisonExperiment` to include new grounding features
-
-## Partial JSON Parsing
-
-### Robust Error Handling
-- **`_partial_parse_json()` method**: Extracts available fields from truncated JSON
-  - Regex-based field extraction for string, number, boolean, null, array, object
-  - Handles unclosed strings/arrays
-  - Graceful degradation with default values
-  
-- **`parse_json_response()` enhancement**:
-  - Automatic fallback to partial parsing on JSON decode errors
-  - Works in both strict and non-strict modes
-  - Warning messages for missing required fields
-  - Default values for critical fields (action: ["0"], memory: empty structure)
-
-This ensures system continues operating even when VLM responses are truncated,
-extracting maximum available information.
-
-## Files Changed
-- New: `episode_manager.py`, `grounding_file_manager.py`
-- New: `grounding_generation_prompt.txt`, `grounding_generation_user_prompt.txt`
-- New: `reflexion_prompt.txt`, `reflexion_user_prompt.txt`
-- Modified: `scenario_runner.py`, `vlm_postprocessor.py`, `vlm_processor.py`, `vlm_wrapper.py`
-- Modified: `global_variables.py`, `prompt_organizer.py`, `gemini_handler.py`
-- Modified: `scenario2_test_entropy_comparison.py`
+## 수정된 파일
+- `src/utils/map_manager/minigrid_customenv_emoji.py` (+113, -70)
+- `src/utils/miscellaneous/scenario_runner.py` (-83)
+- `src/dev-scenario_2/scenario2_keyboard_control.py` (+23, -2)
+- `src/utils/miscellaneous/grounding_file_manager.py` (-15)
+- `src/scenario2_test_entropy_comparison.py` (-12)
+- 기타 문서 및 설정 파일

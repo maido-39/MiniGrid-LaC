@@ -128,7 +128,30 @@ class Visualizer:
         # Check if agent is carrying an object
         carrying = ""
         if hasattr(env, 'carrying') and env.carrying is not None:
-            if hasattr(env.carrying, 'type'):
+            # Handle list of carrying objects (multi-object support)
+            if isinstance(env.carrying, list):
+                if len(env.carrying) > 0:
+                    # Format all carrying objects
+                    carrying_parts = []
+                    for obj in env.carrying:
+                        if hasattr(obj, 'type'):
+                            if obj.type == 'key':
+                                carrying_parts.append(f"🔑 (Key, {obj.color})")
+                            elif obj.type == 'ball':
+                                carrying_parts.append(f"⚽ (Ball, {obj.color})")
+                            elif obj.type == 'box':
+                                carrying_parts.append(f"📦 (Box, {obj.color})")
+                            elif obj.type == 'emoji' and hasattr(obj, 'emoji_name'):
+                                emoji_map = {
+                                    'box': '📦', 'apple': '🍎', 'key': '🔑', 'ball': '⚽'
+                                }
+                                emoji_char = emoji_map.get(obj.emoji_name, '❓')
+                                carrying_parts.append(f"{emoji_char} ({obj.emoji_name})")
+                            else:
+                                carrying_parts.append(f"{obj.type}")
+                    carrying = f"[{', '.join(carrying_parts)}]"
+            # Handle single carrying object
+            elif hasattr(env.carrying, 'type'):
                 if env.carrying.type == 'key':
                     carrying = f"🔑 (Key, {env.carrying.color})"
                 elif env.carrying.type == 'ball':

@@ -1,5 +1,6 @@
 # Temp
 experiments/
+COMMIT_MSG.txt
 
 # 환경 변수 파일
 .env

@@ -308,6 +308,113 @@ class CustomRoomEnv(MiniGridEnv):
     def _gen_mission(self):
         return "explore"
     
+    def _format_carrying_object(self, carrying_obj) -> str:
+        """
+        Format carrying object information for terminal display.
+        
+        Args:
+            carrying_obj: Can be a single object, a list of objects, or None
+            
+        Returns:
+            Formatted string describing the carrying object(s)
+        """
+        if carrying_obj is None:
+            return "None"
+        
+        # Handle list of objects
+        if isinstance(carrying_obj, list):
+            if len(carrying_obj) == 0:
+                return "None"
+            formatted_objects = [self._format_single_carrying_object(obj) for obj in carrying_obj]
+            return f"[{', '.join(formatted_objects)}]"
+        
+        # Handle single object
+        return self._format_single_carrying_object(carrying_obj)
+    
+    def _format_single_carrying_object(self, carrying_obj) -> str:
+        """
+        Format a single carrying object information for terminal display.
+        
+        Args:
+            carrying_obj: A single object being carried by the agent
+            
+        Returns:
+            Formatted string describing the carrying object
+        """
+        if carrying_obj is None:
+            return "None"
+        
+        # Default emoji mapping
+        emoji_map = {
+            'box': '📦',
+            'apple': '🍎',
+            'key': '🔑',
+            'ball': '⚽',
+            'chair': '🪑',
+            'tree': '🌲',
+            'mushroom': '🍄',
+            'flower': '🌼',
+            'cat': '🐈',
+            'grass': '🌾',
+            'rock': '🗿',
+            'desktop': '🖥️',
+            'workstation': '📱',
+            'brick': '🧱',
+            'tomato': '🍅',
+            'pepper': '🌶️'
+        }
+        
+        emoji_char = '❓'
+        if hasattr(carrying_obj, 'emoji_name'):
+            emoji_char = emoji_map.get(carrying_obj.emoji_name, '❓')
+        
+        if hasattr(carrying_obj, 'type'):
+            obj_type = carrying_obj.type
+            
+            # Handle emoji objects
+            if obj_type == 'emoji' and hasattr(carrying_obj, 'emoji_name'):
+                emoji_name = carrying_obj.emoji_name
+                color = getattr(carrying_obj, 'color', 'N/A')
+                return f"{emoji_char} {emoji_name} (color: {color})"
+            
+            # Handle standard MiniGrid objects
+            elif obj_type == 'key':
+                color = getattr(carrying_obj, 'color', 'N/A')
+                return f"🔑 Key (color: {color})"
+            elif obj_type == 'ball':
+                color = getattr(carrying_obj, 'color', 'N/A')
+                return f"⚽ Ball (color: {color})"
+            elif obj_type == 'box':
+                color = getattr(carrying_obj, 'color', 'N/A')
+                return f"📦 Box (color: {color})"
+            else:
+                # Generic object with color if available
+                color = getattr(carrying_obj, 'color', None)
+                if color:
+                    return f"{obj_type} (color: {color})"
+                else:
+                    return f"{obj_type}"
+        else:
+            # Fallback: just return string representation
+            return str(carrying_obj)
+    
+    def _print_carrying_status(self):
+        """Print current carrying status to terminal"""
+        if hasattr(self, 'carrying'):
+            if isinstance(self.carrying, list):
+                if len(self.carrying) > 0:
+                    carrying_info = self._format_carrying_object(self.carrying)
+                    print(f"[API] Carrying Objects ({len(self.carrying)}): {carrying_info}")
+                else:
+                    print("[API] Carrying Objects: None")
+            elif self.carrying is not None:
+                carrying_info = self._format_carrying_object(self.carrying)
+                print(f"[API] Carrying Object: {carrying_info}")
+            else:
+                print("[API] Carrying Object: None")
+        else:
+            print("[API] Carrying Object: None")
+    
     def _gen_grid(self, width, height):
         self.grid = Grid(width, height)
         self.grid.wall_rect(0, 0, width, height)
@@ -414,12 +521,6 @@ class CustomRoomEnv(MiniGridEnv):
         # Initialize carrying as a list to support multiple objects
         self.carrying = []
         
-        # #region agent log
-        import json, time
-        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H5","location":"minigrid_customenv_emoji.py:415","message":"_gen_grid carrying init","data":{"carrying_type":type(self.carrying).__name__,"carrying_len":len(self.carrying)},"timestamp":int(time.time()*1000)}) + '\n')
-        # #endregion
-        
         self.mission = self._gen_mission()
     
     def step(self, action):
@@ -436,23 +537,9 @@ class CustomRoomEnv(MiniGridEnv):
         
         # Handle pickup action (action 3 in MiniGrid's action space)
         if action == 3:  # MiniGrid's pickup action
-            # #region agent log
-            import json, time
-            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                agent_x, agent_y = int(self.agent_pos[0]), int(self.agent_pos[1])
-                agent_dir = self.agent_dir
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1,H2,H3","location":"minigrid_customenv_emoji.py:432","message":"pickup action entry","data":{"action":action,"agent_pos":[agent_x,agent_y],"agent_dir":agent_dir,"carrying_type":type(self.carrying).__name__,"carrying_len":len(self.carrying) if isinstance(self.carrying,list) else 0},"timestamp":int(time.time()*1000)}) + '\n')
-            # #endregion
-            
             # Get front cell position
             fwd_pos = self.front_pos
             fwd_cell = self.grid.get(*fwd_pos)
-            
-            # #region agent log
-            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                agent_x, agent_y = int(self.agent_pos[0]), int(self.agent_pos[1])
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1,H2","location":"minigrid_customenv_emoji.py:437","message":"front cell check","data":{"fwd_pos":list(fwd_pos),"fwd_cell_is_none":fwd_cell is None,"fwd_cell_type":getattr(fwd_cell,'type',None) if fwd_cell else None,"fwd_cell_emoji_name":getattr(fwd_cell,'emoji_name',None) if fwd_cell else None},"timestamp":int(time.time()*1000)}) + '\n')
-            # #endregion
             
             # Check if front cell has an object that can be picked up
             if fwd_cell:
@@ -460,37 +547,28 @@ class CustomRoomEnv(MiniGridEnv):
                 if hasattr(fwd_cell, 'can_pickup'):
                     can_pickup = fwd_cell.can_pickup()
                 
-                # #region agent log
-                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H3","location":"minigrid_customenv_emoji.py:444","message":"can_pickup check","data":{"has_can_pickup_method":hasattr(fwd_cell,'can_pickup'),"can_pickup_result":can_pickup,"_can_pickup_attr":getattr(fwd_cell,'_can_pickup',None) if hasattr(fwd_cell,'_can_pickup') else None},"timestamp":int(time.time()*1000)}) + '\n')
-                # #endregion
-                
                 if can_pickup:
                     # Remove object from grid
                     self.grid.set(*fwd_pos, None)
                     # Add to carrying list
                     self.carrying.append(fwd_cell)
-                    # #region agent log
-                    with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1,H2,H3","location":"minigrid_customenv_emoji.py:451","message":"pickup success","data":{"carrying_len_after":len(self.carrying)},"timestamp":int(time.time()*1000)}) + '\n')
-                    # #endregion
+                    # Print carrying status to terminal
+                    self._print_carrying_status()
                     # Return success (no reward change, just pickup)
+                    # Temporarily set carrying to single object for gen_obs() compatibility
+                    temp_carrying = self.carrying
+                    if len(self.carrying) > 0:
+                        self.carrying = self.carrying[-1]  # Use last picked object
+                    else:
+                        self.carrying = None
                     obs = self.gen_obs()
+                    # Restore carrying list
+                    self.carrying = temp_carrying
                     reward = 0.0
                     terminated = False
                     truncated = False
                     info = {}
                     return obs, reward, terminated, truncated, info
-                else:
-                    # #region agent log
-                    with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H3","location":"minigrid_customenv_emoji.py:463","message":"pickup failed - can_pickup false","data":{},"timestamp":int(time.time()*1000)}) + '\n')
-                    # #endregion
-            else:
-                # #region agent log
-                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H2","location":"minigrid_customenv_emoji.py:467","message":"pickup failed - no object in front","data":{},"timestamp":int(time.time()*1000)}) + '\n')
-                # #endregion
         
         # Handle drop action (action 4 in MiniGrid's action space)
         if action == 4:  # MiniGrid's drop action
@@ -505,8 +583,18 @@ class CustomRoomEnv(MiniGridEnv):
                     obj_to_drop = self.carrying.pop()
                     # Place object on grid
                     self.grid.set(*fwd_pos, obj_to_drop)
+                    # Print carrying status to terminal
+                    self._print_carrying_status()
                     # Return success
+                    # Temporarily set carrying to single object (or None) for gen_obs() compatibility
+                    temp_carrying = self.carrying
+                    if len(self.carrying) > 0:
+                        self.carrying = self.carrying[-1]  # Use last remaining object
+                    else:
+                        self.carrying = None
                     obs = self.gen_obs()
+                    # Restore carrying list
+                    self.carrying = temp_carrying
                     reward = 0.0
                     terminated = False
                     truncated = False
@@ -1447,12 +1535,6 @@ class MiniGridEmojiWrapper:
         
         # For non-movement actions (pickup, drop, toggle), execute directly
         if action >= 4:
-            # #region agent log
-            import json, time
-            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H4","location":"minigrid_customenv_emoji.py:1410","message":"step_absolute pickup entry","data":{"action":action,"action_name":self.get_absolute_action_space()['action_mapping'].get(action,"unknown")},"timestamp":int(time.time()*1000)}) + '\n')
-            # #endregion
-            
             # Convert action 4 (pickup in absolute) to action 3 (pickup in MiniGrid)
             # MiniGrid uses: 0=turn left, 1=turn right, 2=move forward, 3=pickup, 4=drop, 5=toggle
             minigrid_action = action
@@ -1463,19 +1545,8 @@ class MiniGridEmojiWrapper:
             elif action == 6:  # toggle in our system
                 minigrid_action = 5  # toggle in MiniGrid
             
-            # #region agent log
-            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H4","location":"minigrid_customenv_emoji.py:1421","message":"action conversion","data":{"original_action":action,"minigrid_action":minigrid_action},"timestamp":int(time.time()*1000)}) + '\n')
-            # #endregion
-            
             # Call env.step() directly in relative movement mode (prevent recursion)
             obs, reward, terminated, truncated, info = self.env.step(minigrid_action)
-            
-            # #region agent log
-            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
-                env_carrying = getattr(self.env, 'carrying', None)
-                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1,H2,H3,H5","location":"minigrid_customenv_emoji.py:1425","message":"after env.step","data":{"carrying_type":type(env_carrying).__name__ if env_carrying is not None else "None","carrying_len":len(env_carrying) if isinstance(env_carrying,list) else (1 if env_carrying is not None else 0),"reward":reward},"timestamp":int(time.time()*1000)}) + '\n')
-            # #endregion
             self.current_obs = obs
             self.current_info = info
             return obs, reward, terminated, truncated, info
