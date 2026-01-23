@@ -55,5 +55,23 @@ DEFAULT_MISSION = "Pursue your current mission!"
 # Path Directory to Prompts Text Files
 PROMPT_DIR = "utils/prompts"
 
+# Grounding System Configuration
+USE_NEW_GROUNDING_SYSTEM = True  # 새 Grounding 시스템 사용 여부
+GROUNDING_GENERATION_MODE = "episode"  # "episode"만 지원 (에피소드 종료 시 일괄 처리)
+GROUNDING_SAVE_FORMAT = "both"  # "json" | "txt" | "both"
+EPISODE_TERMINATION_KEYWORDS = ["end"]  # Episode 종료 키워드
+
+# Grounding Generation VLM Configuration
+# Grounding 생성 전용 모델 설정 (None이면 VLM_MODEL 사용)
+GROUNDING_VLM_MODEL = None  # None | "gpt-4o" | "gemini-2.5-flash" | etc.
+GROUNDING_VLM_TEMPERATURE = 0.3  # Grounding 생성용 temperature (기본값: 0.3)
+GROUNDING_VLM_MAX_TOKENS = 2000  # Grounding 생성용 max_tokens (기본값: 2000)
+# Note: Grounding은 에피소드 종료 시 일괄 처리되므로 비동기 옵션 제거
+
+# Grounding 사용 설정
+# 사용할 Grounding 파일 경로 (None이면 Grounding 사용 안 함)
+GROUNDING_FILE_PATH = None  # None | "logs/grounding/grounding_latest.txt" | etc.
+# 현재 에피소드에서 생성된 Grounding은 다음 에피소드부터 사용 가능 (즉석 적용 안 됨)
+
 #
 ENV_ID = "MyCustomEnv-v0"

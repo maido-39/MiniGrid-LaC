@@ -141,6 +141,7 @@ class VLMWrapper:
         image: Optional[Union[str, Path, np.ndarray, Image.Image]] = None,
         system_prompt: str = "",
         user_prompt: str = "",
+        grounding_file: Optional[Union[str, Path]] = None,
         debug: bool = False
     ) -> str:
         """Generate a response from the VLM using image and text prompts.
@@ -163,6 +164,9 @@ class VLMWrapper:
             user_prompt: User-level prompt containing the specific request
                 or question. This is the main input that the VLM will respond to.
                 Defaults to "".
+            grounding_file: Optional path to grounding file to include as additional context.
+                If provided, file contents will be appended to user_prompt.
+                Defaults to None (no grounding file).
             debug: If True, print detailed debug information about the response.
                 Defaults to False.
         
@@ -213,6 +217,21 @@ class VLMWrapper:
         """
         # Measure inference time
         start_time = time.time()
+        
+        # Read grounding file if provided
+        if grounding_file:
+            try:
+                grounding_path = Path(grounding_file)
+                if grounding_path.exists():
+                    grounding_content = grounding_path.read_text(encoding='utf-8')
+                    # Append grounding content to user_prompt
+                    user_prompt = f"{user_prompt}\n\n## Grounding Knowledge (Reference)\n{grounding_content}"
+                else:
+                    if debug:
+                        print(f"[Warning] Grounding file not found: {grounding_file}")
+            except Exception as e:
+                if debug:
+                    print(f"[Warning] Failed to read grounding file: {e}")
         
         # Call handler with metadata if debug is enabled
         if debug:
@@ -307,6 +326,7 @@ class VLMWrapper:
         image: Optional[Union[str, Path, np.ndarray, Image.Image]] = None,
         system_prompt: str = "",
         user_prompt: str = "",
+        grounding_file: Optional[Union[str, Path]] = None,
         debug: bool = False
     ) -> tuple:
         """Generate a response with logprobs from the VLM.
@@ -364,6 +384,21 @@ class VLMWrapper:
         
         # Measure inference time
         start_time = time.time()
+        
+        # Read grounding file if provided
+        if grounding_file:
+            try:
+                grounding_path = Path(grounding_file)
+                if grounding_path.exists():
+                    grounding_content = grounding_path.read_text(encoding='utf-8')
+                    # Append grounding content to user_prompt
+                    user_prompt = f"{user_prompt}\n\n## Grounding Knowledge (Reference)\n{grounding_content}"
+                else:
+                    if debug:
+                        print(f"[Warning] Grounding file not found: {grounding_file}")
+            except Exception as e:
+                if debug:
+                    print(f"[Warning] Failed to read grounding file: {e}")
         
         # Call handler with metadata (logprobs will be included)
         result = self._handler.generate(

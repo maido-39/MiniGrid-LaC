@@ -6,6 +6,7 @@ Handles JSON parsing and validation for robot control command extraction.
 """
 
 import json
+import re
 from typing import Dict, Optional, List, Union, Any
 
 
@@ -109,10 +110,173 @@ class VLMResponsePostProcessor:
             return result
             
         except json.JSONDecodeError as e:
-            raise ValueError(
-                f"Failed to parse response as JSON: {e}\n"
-                f"Original response: {response_text[:200]}..."
-            )
+            # JSON 파싱 실패 시 부분 파싱 시도 (strict 여부와 관계없이)
+            partial_result = self._partial_parse_json(response_text, e)
+            
+            # strict=True일 때 필수 필드 확인
+            if strict:
+                missing_fields = [field for field in self.required_fields 
+                                if partial_result.get(field) is None or partial_result.get(field) == ""]
+                if missing_fields:
+                    # 필수 필드가 없어도 부분 파싱 결과 반환 (기본값 사용)
+                    # 경고만 출력하고 계속 진행
+                    import warnings
+                    warnings.warn(
+                        f"JSON parsing failed (truncated response). "
+                        f"Missing required fields: {missing_fields}. "
+                        f"Using partial parse result with defaults.",
+                        UserWarning
+                    )
+            
+            return partial_result
+    
+    def _partial_parse_json(self, response_text: str, error: json.JSONDecodeError) -> Dict[str, Any]:
+        """
+        부분 JSON 파싱: 잘린 JSON에서 추출 가능한 필드만 추출하고 나머지는 None으로 설정
+        
+        Args:
+            response_text: 잘린 JSON 문자열
+            error: JSONDecodeError 객체
+            
+        Returns:
+            부분적으로 파싱된 딕셔너리 (추출 가능한 필드만 포함, 나머지는 None)
+        """
+        result = {}
+        
+        # 모든 필드 초기화 (None으로)
+        all_fields = set(self.required_fields)
+        # response_text에서 필드 이름 추출 시도
+        field_pattern = r'"([^"]+)"\s*:\s*'
+        found_fields = re.findall(field_pattern, response_text)
+        all_fields.update(found_fields)
+        
+        # 각 필드를 None으로 초기화
+        for field in all_fields:
+            result[field] = None
+        
+        # 정규식으로 개별 필드 추출 시도
+        for field in all_fields:
+            # 문자열 필드: "field": "value" (닫히지 않은 따옴표도 처리)
+            # 패턴 1: 완전한 문자열 "field": "complete_value"
+            str_pattern1 = rf'"{re.escape(field)}"\s*:\s*"([^"]*)"'
+            str_match1 = re.search(str_pattern1, response_text, re.DOTALL)
+            if str_match1:
+                try:
+                    # JSON 이스케이프 처리
+                    value = str_match1.group(1)
+                    # 간단한 이스케이프 처리 (\n, \t, \\, \")
+                    value = value.replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\').replace('\\"', '"')
+                    result[field] = value
+                    continue
+                except:
+                    pass
+            
+            # 패턴 2: 닫히지 않은 문자열 "field": "incomplete_value... (끝이 잘림)
+            str_pattern2 = rf'"{re.escape(field)}"\s*:\s*"([^"]*?)(?:"|$)'
+            str_match2 = re.search(str_pattern2, response_text, re.DOTALL)
+            if str_match2 and result.get(field) is None:
+                try:
+                    value = str_match2.group(1)
+                    # 이스케이프 처리
+                    value = value.replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\').replace('\\"', '"')
+                    result[field] = value
+                    continue
+                except:
+                    pass
+            
+            # 숫자 필드: "field": 123 또는 "field": 123.45
+            num_pattern = rf'"{re.escape(field)}"\s*:\s*(-?\d+\.?\d*)'
+            num_match = re.search(num_pattern, response_text)
+            if num_match:
+                try:
+                    num_str = num_match.group(1)
+                    if '.' in num_str:
+                        result[field] = float(num_str)
+                    else:
+                        result[field] = int(num_str)
+                    continue
+                except:
+                    pass
+            
+            # 불리언 필드: "field": true/false
+            bool_pattern = rf'"{re.escape(field)}"\s*:\s*(true|false)'
+            bool_match = re.search(bool_pattern, response_text, re.IGNORECASE)
+            if bool_match:
+                result[field] = bool_match.group(1).lower() == 'true'
+                continue
+            
+            # null 필드: "field": null
+            null_pattern = rf'"{re.escape(field)}"\s*:\s*null'
+            null_match = re.search(null_pattern, response_text, re.IGNORECASE)
+            if null_match:
+                result[field] = None
+                continue
+            
+            # 배열 필드: "field": [...] (부분 추출 시도)
+            # 닫히지 않은 배열도 처리: "field": [item1, item2, ... (끝이 잘림)
+            array_pattern = rf'"{re.escape(field)}"\s*:\s*\[(.*?)(?:\]|$)'
+            array_match = re.search(array_pattern, response_text, re.DOTALL)
+            if array_match:
+                array_content = array_match.group(1)
+                # 간단한 배열 파싱 (문자열 요소만)
+                str_items = re.findall(r'"([^"]*)"', array_content)
+                if str_items:
+                    result[field] = str_items
+                    continue
+                # 숫자 요소
+                num_items = re.findall(r'(-?\d+\.?\d*)', array_content)
+                if num_items:
+                    try:
+                        result[field] = [float(n) if '.' in n else int(n) for n in num_items]
+                        continue
+                    except:
+                        pass
+                # 빈 배열 또는 부분 배열
+                if array_content.strip() == "" or array_content.strip().startswith(('"', "'", "-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9")):
+                    # 최소한 배열 시작은 있음
+                    result[field] = str_items if str_items else []
+                    continue
+            
+            # 객체 필드: "field": {...} (부분 추출 시도)
+            obj_pattern = rf'"{re.escape(field)}"\s*:\s*\{{(.*?)(?:\}}|$)'
+            obj_match = re.search(obj_pattern, response_text, re.DOTALL)
+            if obj_match:
+                obj_content = obj_match.group(1)
+                # 간단한 객체 파싱 시도
+                try:
+                    # 닫는 괄호 추가 시도
+                    partial_obj = '{' + obj_content + '}'
+                    partial_parsed = json.loads(partial_obj)
+                    result[field] = partial_parsed
+                    continue
+                except:
+                    # 실패하면 빈 딕셔너리
+                    result[field] = {}
+                    continue
+        
+        # required_fields에 대해 기본값 적용
+        for field in self.required_fields:
+            if result.get(field) is None:
+                if field in self.default_fields:
+                    default_value = self.default_fields[field]
+                    if isinstance(default_value, (list, dict)):
+                        result[field] = default_value
+                    else:
+                        result[field] = str(default_value)
+                else:
+                    # 기본값이 없으면 빈 문자열 또는 빈 리스트/딕셔너리
+                    if field == "action":
+                        result[field] = ["0"]  # 기본 액션
+                    elif field == "memory":
+                        result[field] = {
+                            "spatial_description": "",
+                            "task_process": {"goal": "", "status": ""},
+                            "previous_action": ""
+                        }
+                    else:
+                        result[field] = ""
+        
+        return result
     
     def extract_robot_action(
         self,

@@ -1,0 +1,87 @@
+feat: Implement Grounding Memory System and partial JSON parsing
+
+## TL;DR
+- Added Grounding Memory System: EpisodeManager and GroundingFileManager for structured feedback processing and VLM-based grounding generation
+- Implemented partial JSON parsing: gracefully handles truncated VLM responses by extracting available fields
+- Enhanced logging: improved CSV/JSON serialization with entropy/trust values and numpy type handling
+- Integrated Reflexion system: post-episode VLM analysis for meta-learning
+
+This commit introduces a comprehensive Grounding Memory System for robot
+navigation VLM and adds robust partial JSON parsing for truncated VLM responses.
+
+## Grounding Memory System
+
+### Core Components
+- **EpisodeManager** (`episode_manager.py`): Manages episode data structure
+  - Episode-specific folder organization: `logs/episode_{id}_{timestamp}_{script}/`
+  - Structured JSON logging with step-by-step trajectory
+  - Initial state image capture and storage
+  - Episode termination tracking (done, max_steps, user_command)
+  
+- **GroundingFileManager** (`grounding_file_manager.py`): Handles grounding persistence
+  - Episode-specific grounding files (JSON + TXT)
+  - Global latest grounding files (`grounding_latest.json/txt`)
+  - Thread-safe file operations with locking
+  - Structured grounding data: `expr_info`, `grounding_per_step`, `stacked_grounding`, `final_grounding`
+
+### Feedback Processing
+- Structured feedback parsing with format: `{s/w/f} : (u: {...}, s: {...}, p: {...}, g: {...})`
+- Pre-classification by grounding type: user_preference, spatial, procedural, general
+- Status tracking per feedback: Success, Failure, WiP
+- Flexible colon spacing handling (`s:` or `s :`)
+
+### Grounding Generation
+- Batch processing at episode end (not per-step)
+- VLM-based grounding generation using initial state image
+- Configurable VLM model for grounding (`GROUNDING_VLM_MODEL`, `GROUNDING_VLM_TEMPERATURE`, `GROUNDING_VLM_MAX_TOKENS`)
+- Grounding from current episode applied to subsequent episodes (not immediately)
+- Empty content handling: empty strings instead of placeholder text
+
+### Reflexion System
+- Post-episode VLM analysis: Trajectory Summary, Error Diagnosis, Correction Plan
+- Integrates with episode data and feedback for meta-learning
+
+### Logging Improvements
+- **JSON Serialization**: Added `convert_numpy_types()` to handle numpy types, LogprobsResult, and custom objects
+- **CSV Logging**: 
+  - Added `quoting=csv.QUOTE_ALL` for robust multi-line/comma handling
+  - Explicit entropy and trust value logging (`entropy_H_X`, `entropy_H_X_given_S`, `entropy_H_X_given_LS`, `trust_T`)
+  - Proper None/NaN handling in CSV output
+- **Episode Logging**: Comprehensive step-by-step data with state, action, feedback, entropy, trust
+
+### Configuration
+- `USE_NEW_GROUNDING_SYSTEM`: Toggle for new/old system compatibility
+- `GROUNDING_FILE_PATH`: Select which grounding file to use for VLM context
+- `EPISODE_TERMINATION_KEYWORDS`: Customizable episode end commands
+- Episode ID prompt at experiment start
+
+### Integration
+- Modified `VLMWrapper` to support optional grounding file input
+- Updated `PromptOrganizer` to handle grounding via file instead of system prompt
+- Enhanced `ScenarioExperiment` with grounding system integration
+- Updated `EntropyComparisonExperiment` to include new grounding features
+
+## Partial JSON Parsing
+
+### Robust Error Handling
+- **`_partial_parse_json()` method**: Extracts available fields from truncated JSON
+  - Regex-based field extraction for string, number, boolean, null, array, object
+  - Handles unclosed strings/arrays
+  - Graceful degradation with default values
+  
+- **`parse_json_response()` enhancement**:
+  - Automatic fallback to partial parsing on JSON decode errors
+  - Works in both strict and non-strict modes
+  - Warning messages for missing required fields
+  - Default values for critical fields (action: ["0"], memory: empty structure)
+
+This ensures system continues operating even when VLM responses are truncated,
+extracting maximum available information.
+
+## Files Changed
+- New: `episode_manager.py`, `grounding_file_manager.py`
+- New: `grounding_generation_prompt.txt`, `grounding_generation_user_prompt.txt`
+- New: `reflexion_prompt.txt`, `reflexion_user_prompt.txt`
+- Modified: `scenario_runner.py`, `vlm_postprocessor.py`, `vlm_processor.py`, `vlm_wrapper.py`
+- Modified: `global_variables.py`, `prompt_organizer.py`, `gemini_handler.py`
+- Modified: `scenario2_test_entropy_comparison.py`

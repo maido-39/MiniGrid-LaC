@@ -92,7 +92,8 @@ class EntropyComparisonExperiment(ScenarioExperiment):
         file_exists = csv_path.exists()
         
         self.csv_file = open(csv_path, 'a', newline='', encoding='utf-8')
-        self.csv_writer = csv.writer(self.csv_file)
+        # CSV에 특수문자(줄바꿈, 쉼표 등)가 포함된 경우를 위해 QUOTE_ALL 사용
+        self.csv_writer = csv.writer(self.csv_file, quoting=csv.QUOTE_ALL)
         
         if not file_exists:
             self.csv_writer.writerow([
@@ -211,12 +212,19 @@ class EntropyComparisonExperiment(ScenarioExperiment):
             "reward": float(self.reward),
             "done": bool(self.done),
             "image_path": image_path,
-            "action_logprobs_info": self.action_logprobs_info,
+            "action_logprobs_info": self.action_logprobs_info if self.action_logprobs_info else None,
             "entropy_H_X": self.entropy_H_X,
             "entropy_H_X_given_S": self.entropy_H_X_given_S,
             "entropy_H_X_given_LS": self.entropy_H_X_given_LS,
             "trust_T": self.trust_T
         }
+        
+        # Optional fields 추가 (있을 수도, 없을 수도 있음)
+        if self.vlm_response_parsed.get('reasoning'):
+            json_data["reasoning"] = self.vlm_response_parsed.get('reasoning')
+        
+        if hasattr(self, 'logprobs_metadata') and self.logprobs_metadata:
+            json_data["logprobs_metadata"] = self.logprobs_metadata
         
         all_data = []
         if json_path.exists():
@@ -230,8 +238,12 @@ class EntropyComparisonExperiment(ScenarioExperiment):
         
         all_data.append(json_data)
         
+        # Convert non-serializable types before saving
+        from utils.miscellaneous.episode_manager import convert_numpy_types
+        all_data_serializable = convert_numpy_types(all_data)
+        
         with open(json_path, 'w', encoding='utf-8') as f:
-            json.dump(all_data, f, indent=2, ensure_ascii=False)
+            json.dump(all_data_serializable, f, indent=2, ensure_ascii=False)
         
         image_path_full = self.log_dir / image_path
         img_pil = Image.fromarray(self.image)
@@ -565,6 +577,90 @@ class EntropyComparisonExperiment(ScenarioExperiment):
         # Update logprobs info from H(X|L,S) result for logging
         self.logprobs_metadata = H_X_given_LS_result.get('logprobs_metadata', {})
         self.action_logprobs_info = H_X_given_LS_result.get('action_logprobs_info', {})
+        
+        # #region agent log
+        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+            import json
+            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario2_test_entropy_comparison.py:569","message":"EntropyComparisonExperiment.run_step: before _log_step","data":{"use_new_grounding_system":getattr(self,'use_new_grounding_system',None),"episode_manager_is_none":getattr(self,'episode_manager',None) is None,"step":self.step},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+        # #endregion
+        
+        # 새 Grounding 시스템: Step Feedback 수집 (부모 클래스 로직 추가)
+        feedback_dict = None
+        is_termination = False
+        
+        # #region agent log
+        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+            import json
+            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario2_test_entropy_comparison.py:577","message":"EntropyComparisonExperiment.run_step: checking new grounding system","data":{"use_new_grounding_system":getattr(self,'use_new_grounding_system',None),"episode_manager_is_none":getattr(self,'episode_manager',None) is None,"step":self.step},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+        # #endregion
+        
+        if getattr(self, 'use_new_grounding_system', False) and getattr(self, 'episode_manager', None) is not None:
+            # Instruction 추출 (user_prompt에서)
+            instruction = self.user_prompt if self.user_prompt else "Continue mission"
+            
+            # Status 결정
+            if self.last_action_result.get("success", True):
+                status = "SUCCESS"
+            else:
+                status = "FAILURE"
+            
+            # Step Feedback 수집
+            feedback_dict, is_termination = self._collect_step_feedback(
+                step_id=self.step,
+                instruction=instruction
+            )
+            
+            # 종료 명령 확인
+            if is_termination:
+                tfu.cprint("\n[Episode Termination] User requested episode end.", tfu.LIGHT_YELLOW, True)
+                self.done = True
+                if self.episode_manager:
+                    self.episode_manager.set_termination_reason("user_command")
+            
+            # Feedback이 있으면 저장
+            if feedback_dict:
+                # EpisodeManager에 Step 추가
+                action_info = {
+                    "index": int(self.action_index),
+                    "name": str(self.action_name)
+                }
+                # Convert numpy types to Python native types
+                agent_pos = self.state['agent_pos']
+                if isinstance(agent_pos, np.ndarray):
+                    agent_pos = [int(x) for x in agent_pos.tolist()]
+                else:
+                    agent_pos = [int(x) for x in list(agent_pos)]
+                state_info = {
+                    "agent_pos": agent_pos,
+                    "agent_dir": int(self.state['agent_dir'])
+                }
+                image_path = f"images/step_{self.step:04d}.png"
+                
+                self.episode_manager.add_step(
+                    step_id=self.step,
+                    instruction=instruction,
+                    status=status,
+                    feedback=feedback_dict,
+                    action=action_info,
+                    state=state_info,
+                    image_path=image_path
+                )
+                
+                # GroundingFileManager에 Step feedback 추가
+                if getattr(self, 'grounding_file_manager', None):
+                    self.grounding_file_manager.append_step_feedback(
+                        step_id=self.step,
+                        instruction=instruction,
+                        status=status,
+                        feedback=feedback_dict
+                    )
+                
+                # 이미지 저장 (Episode 폴더 내)
+                if self.episode_manager:
+                    episode_images_dir = self.episode_manager.get_episode_dir() / "images"
+                    image_path_full = episode_images_dir / f"step_{self.step:04d}.png"
+                    img_pil = Image.fromarray(updated_image)
+                    img_pil.save(image_path_full)
         
         self._log_step()
         

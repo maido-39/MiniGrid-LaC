@@ -20,13 +20,14 @@
 
 import numpy as np
 from typing import Optional, Union
+from pathlib import Path
 
 from utils.prompt_manager.prompt_interp import *
 import utils.prompt_manager.terminal_formatting_utils as tfu
 from utils.vlm.vlm_wrapper import VLMWrapper
 from utils.vlm.vlm_postprocessor import VLMResponsePostProcessor
 
-from utils.miscellaneous.global_variables import VLM_MAX_TOKENS, VLM_MODEL, VLM_TEMPERATURE
+from utils.miscellaneous.global_variables import VLM_MAX_TOKENS, VLM_MODEL, VLM_TEMPERATURE, VLM_THINKING_BUDGET
 
 
 
@@ -50,11 +51,17 @@ class VLMProcessor:
                  credentials: Optional[Union[str, object]] = None,
                  project_id: Optional[str] = None,
                  location: Optional[str] = None,
-                 logprobs: Optional[int] = None
+                 logprobs: Optional[int] = None,
+                 thinking_budget: Optional[int] = None
                 ):
+        # thinking_budget이 명시적으로 제공되지 않으면 global_variables에서 가져오기
+        if thinking_budget is None:
+            thinking_budget = VLM_THINKING_BUDGET
+        
         self.vlm = VLMWrapper(model=model,
                                        temperature=temperature,
                                        max_tokens=max_tokens,
+                                       thinking_budget=thinking_budget,
                                        vertexai=vertexai,
                                        credentials=credentials,
                                        project_id=project_id,
@@ -70,6 +77,7 @@ class VLMProcessor:
                   image: np.ndarray,
                   system_prompt: str,
                   user_prompt: str,
+                  grounding_file: Optional[Union[str, Path]] = None,
                   debug: bool = None
                  ) -> str:
         """Send Request to VLM (Default Method)
@@ -90,6 +98,7 @@ class VLMProcessor:
             response = self.vlm.generate(image=image,
                                          system_prompt=system_prompt,
                                          user_prompt=user_prompt,
+                                         grounding_file=grounding_file,
                                          debug=debug_flag
                                         )
             return response
@@ -130,6 +139,7 @@ class VLMProcessor:
                                 image: np.ndarray,
                                 system_prompt: str,
                                 user_prompt: str,
+                                grounding_file: Optional[Union[str, Path]] = None,
                                 debug: bool = None
                                ) -> tuple:
         """Send Request to VLM with logprobs (Vertex AI only)
@@ -157,6 +167,7 @@ class VLMProcessor:
                 image=image,
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
+                grounding_file=grounding_file,
                 debug=debug_flag
             )
             return response, logprobs_metadata

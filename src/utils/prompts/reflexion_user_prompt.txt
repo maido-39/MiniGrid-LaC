@@ -1,0 +1,19 @@
+## Episode Information
+
+Episode ID: $episode_id
+Total Steps: $total_steps
+Termination Reason: $termination_reason
+
+## Episode Trajectory
+
+$episode_trajectory
+
+## Step Feedbacks
+
+$step_feedbacks
+
+## Final Grounding Knowledge
+
+$final_grounding
+
+Please analyze this episode and generate trajectory summary, error diagnosis, and correction plan.

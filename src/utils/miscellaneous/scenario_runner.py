@@ -24,7 +24,7 @@ import json
 import numpy as np
 from PIL import Image
 from pathlib import Path
-from typing import Union, Optional  # Union is used in visualize_grid_cli
+from typing import Union, Optional, Tuple, Dict, Any  # Union is used in visualize_grid_cli
 from datetime import datetime
 
 from utils.miscellaneous.visualizer import Visualizer
@@ -43,7 +43,15 @@ from utils.miscellaneous.global_variables import (
     LOGPROBS_TOPK,
     MAP_FILE_NAME,
     DEBUG,
+    USE_NEW_GROUNDING_SYSTEM,
+    GROUNDING_VLM_MODEL,
+    GROUNDING_VLM_TEMPERATURE,
+    GROUNDING_VLM_MAX_TOKENS,
+    GROUNDING_FILE_PATH,
 )
+
+from utils.miscellaneous.episode_manager import EpisodeManager
+from utils.miscellaneous.grounding_file_manager import GroundingFileManager
 
 
 
@@ -105,6 +113,12 @@ class ScenarioExperiment:
         self.done = False
         self.state = None
         self.image = None
+        
+        # 새 Grounding 시스템 관련 초기화
+        self.use_new_grounding_system = USE_NEW_GROUNDING_SYSTEM
+        self.episode_manager = None
+        self.grounding_file_manager = None
+        self.episode_id = None
         self.user_prompt = ""
         self.vlm_response_raw = ""
         self.vlm_response_parsed = {}
@@ -170,6 +184,139 @@ class ScenarioExperiment:
                 return True
         
         return False
+    
+    def _parse_step_feedback(self, feedback_input: str) -> Tuple[Optional[Dict[str, Optional[str]]], bool]:
+        """
+        Step Feedback 파싱
+        
+        Args:
+            feedback_input: 사용자 입력 문자열
+            
+        Returns:
+            (feedback_dict, is_termination_command)
+            - feedback_dict: {"user_preference": ..., "spatial": ..., "procedural": ..., "general": ...} 또는 None
+            - is_termination_command: 종료 명령 여부
+        """
+        # #region agent log
+        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+            import json
+            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:188","message":"_parse_step_feedback: entry","data":{"feedback_input":feedback_input},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+        # #endregion
+        
+        if not feedback_input or not isinstance(feedback_input, str):
+            # #region agent log
+            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                import json
+                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:201","message":"_parse_step_feedback: empty input","data":{},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+            # #endregion
+            return None, False
+        
+        feedback_input = feedback_input.strip()
+        
+        # 종료 명령 확인
+        from utils.miscellaneous.global_variables import EPISODE_TERMINATION_KEYWORDS
+        if feedback_input.lower() in [kw.lower() for kw in EPISODE_TERMINATION_KEYWORDS]:
+            # #region agent log
+            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                import json
+                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:207","message":"_parse_step_feedback: termination command","data":{},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+            # #endregion
+            return None, True
+        
+        # 형식 파싱: {s/w/f} : (u: ..., s: ..., p: ..., g: ...)
+        import re
+        
+        # 상태 추출 (s/w/f)
+        status_match = re.match(r'^([swfSWF])\s*:\s*\(', feedback_input)
+        if not status_match:
+            # #region agent log
+            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                import json
+                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:216","message":"_parse_step_feedback: status match failed","data":{"feedback_input":feedback_input},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+            # #endregion
+            return None, False
+        
+        status_char = status_match.group(1).lower()
+        
+        # 괄호 안의 내용 추출
+        content_match = re.search(r'\((.+)\)', feedback_input)
+        if not content_match:
+            # #region agent log
+            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                import json
+                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:223","message":"_parse_step_feedback: content match failed","data":{"feedback_input":feedback_input},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+            # #endregion
+            return None, False
+        
+        content = content_match.group(1)
+        
+        # 각 타입별 피드백 추출
+        feedback_dict = {
+            "user_preference": None,
+            "spatial": None,
+            "procedural": None,
+            "general": None
+        }
+        
+        # u:, s:, p:, g: 패턴으로 추출
+        type_patterns = {
+            "user_preference": r'u\s*:\s*([^,)]+)',
+            "spatial": r's\s*:\s*([^,)]+)',
+            "procedural": r'p\s*:\s*([^,)]+)',
+            "general": r'g\s*:\s*([^,)]+)'
+        }
+        
+        for feedback_type, pattern in type_patterns.items():
+            match = re.search(pattern, content, re.IGNORECASE)
+            if match:
+                feedback_dict[feedback_type] = match.group(1).strip()
+        
+        # #region agent log
+        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+            import json
+            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1,H2","location":"scenario_runner.py:246","message":"_parse_step_feedback: exit","data":{"feedback_dict":feedback_dict},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+        # #endregion
+        
+        return feedback_dict, False
+    
+    def _collect_step_feedback(self, step_id: int, instruction: str) -> tuple[Optional[Dict[str, Optional[str]]], bool]:
+        """
+        Step Feedback 수집
+        
+        Args:
+            step_id: Step 번호
+            instruction: Instruction 내용
+            
+        Returns:
+            (feedback_dict, is_termination_command)
+        """
+        tfu.cprint("\n" + "=" * 80, bold=True)
+        tfu.cprint(f"[Step {step_id} Feedback]", bold=True, indent=8)
+        tfu.cprint("=" * 80 + "\n", bold=True)
+        
+        tfu.cprint(f"Instruction: {instruction}", tfu.LIGHT_BLUE)
+        tfu.cprint("Status changed image displayed above.\n", tfu.LIGHT_BLACK)
+        
+        # 양식과 예시 제시
+        tfu.cprint("양식: {s/w/f} : (u: {due to _ , failed/success}, s: {due to _ , failed/success}, p: {due to _ , failed/success}, g: {due to _ , failed/success})", tfu.LIGHT_WHITE)
+        tfu.cprint("(참고: 콜론(:) 앞뒤 스페이스는 선택사항입니다. 's:' 또는 's :' 모두 가능합니다)", tfu.LIGHT_BLACK, italic=True)
+        tfu.cprint("\n예시:", tfu.LIGHT_WHITE)
+        tfu.cprint("  - s: (u: i like spicy food. good job, s: tomato is B7 and you correctly arrived at there. goodjob!)", tfu.LIGHT_BLACK)
+        tfu.cprint("  - s : (u : gj)  # 스페이스 있어도 됨", tfu.LIGHT_BLACK)
+        tfu.cprint("  - f: (g: due to wall blocking movement, failed)", tfu.LIGHT_BLACK)
+        tfu.cprint("  - w: (p: in progress, continue)", tfu.LIGHT_BLACK)
+        tfu.cprint("\n종료하려면: end", tfu.LIGHT_YELLOW)
+        tfu.cprint("\nEnter feedback:", tfu.LIGHT_WHITE)
+        
+        user_input = input("> ").strip()
+        
+        if not user_input:
+            return None, False
+        
+        # 파싱
+        feedback_dict, is_termination = self._parse_step_feedback(user_input)
+        
+        return feedback_dict, is_termination
     
     def _format_carrying_object(self, carrying_obj) -> str:
         """
@@ -287,7 +434,8 @@ class ScenarioExperiment:
                        image: np.ndarray,
                        system_prompt: str,
                        user_prompt: str,
-                       use_logprobs: bool = None
+                       use_logprobs: bool = None,
+                       grounding_file: Optional[Union[str, Path]] = None
                       ) -> dict:
         """
         VLM call for Action creation.
@@ -303,6 +451,7 @@ class ScenarioExperiment:
                     image=image,
                     system_prompt=system_prompt,
                     user_prompt=user_prompt,
+                    grounding_file=grounding_file,
                     debug=self.debug
                 )
 
@@ -337,6 +486,7 @@ class ScenarioExperiment:
             image=image,
             system_prompt=system_prompt,
             user_prompt=user_prompt,
+            grounding_file=grounding_file,
             debug=self.debug
         )
 
@@ -402,6 +552,243 @@ class ScenarioExperiment:
             tfu.cprint("\n" + "=" * 80, bold=True)
         
         return knowledge
+    
+    def _create_grounding_vlm_processor(self) -> VLMProcessor:
+        """
+        Grounding 생성 전용 VLMProcessor 생성
+        
+        Returns:
+            VLMProcessor 인스턴스
+        """
+        grounding_model = GROUNDING_VLM_MODEL if GROUNDING_VLM_MODEL else VLM_MODEL
+        
+        return VLMProcessor(
+            model=grounding_model,
+            temperature=GROUNDING_VLM_TEMPERATURE,
+            max_tokens=GROUNDING_VLM_MAX_TOKENS,
+            debug=self.debug
+        )
+    
+    def _generate_grounding_from_episode(self):
+        """
+        에피소드 종료 시 일괄 Grounding 생성
+        """
+        if not self.episode_manager or not self.grounding_file_manager:
+            return
+        
+        tfu.cprint("\n" + "=" * 80, bold=True)
+        tfu.cprint("[Grounding Generation]", bold=True)
+        tfu.cprint("=" * 80 + "\n", bold=True)
+        tfu.cprint("Generating grounding from episode feedbacks...", tfu.LIGHT_BLACK)
+        
+        # GroundingFileManager에서 stacked_grounding 데이터 가져오기 (Status 포함)
+        stacked_grounding = self.grounding_file_manager.get_stacked_grounding()
+        
+        # 이전 Grounding 파일 읽기 (있는 경우)
+        previous_grounding = ""
+        if GROUNDING_FILE_PATH and Path(GROUNDING_FILE_PATH).exists():
+            try:
+                previous_grounding = Path(GROUNDING_FILE_PATH).read_text(encoding='utf-8')
+            except Exception as e:
+                tfu.cprint(f"[Warning] Failed to read previous grounding: {e}", tfu.LIGHT_RED)
+        
+        # 프롬프트 준비
+        system_prompt = system_prompt_interp(
+            file_name="grounding_generation_prompt.txt",
+            strict=True
+        )
+        
+        # User prompt 준비 (stacked_grounding에서 가져오기, 이미 Status 포함된 형식)
+        user_preference_feedbacks = "\n".join(stacked_grounding.get("user_preference", [])) or "None"
+        spatial_feedbacks = "\n".join(stacked_grounding.get("spatial", [])) or "None"
+        procedural_feedbacks = "\n".join(stacked_grounding.get("procedural", [])) or "None"
+        general_feedbacks = "\n".join(stacked_grounding.get("general", [])) or "None"
+        
+        user_prompt = system_prompt_interp(
+            file_name="grounding_generation_user_prompt.txt",
+            strict=True,
+            episode_id=self.episode_id,
+            total_steps=self.episode_manager.episode_data["total_steps"],
+            user_preference_feedbacks=user_preference_feedbacks,
+            spatial_feedbacks=spatial_feedbacks,
+            procedural_feedbacks=procedural_feedbacks,
+            general_feedbacks=general_feedbacks,
+            previous_grounding=previous_grounding or "None"
+        )
+        
+        # 초기 상태 이미지 가져오기
+        initial_image_path = self.episode_manager.get_initial_state_image_path()
+        initial_image = None
+        if initial_image_path and self.episode_manager:
+            episode_dir = self.episode_manager.get_episode_dir()
+            full_image_path = episode_dir / initial_image_path
+            if full_image_path.exists():
+                initial_image = np.array(Image.open(full_image_path))
+        
+        # VLM 호출
+        grounding_processor = self._create_grounding_vlm_processor()
+        
+        tfu.cprint("\n[Sending Grounding Generation Request to VLM...]", tfu.LIGHT_BLACK)
+        
+        raw_response = grounding_processor.requester(
+            image=initial_image,
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            debug=self.debug
+        )
+        
+        if not raw_response:
+            tfu.cprint("[Warning] Grounding VLM response is empty!", tfu.LIGHT_RED)
+            return
+        
+        tfu.cprint("Grounding VLM Response Received", tfu.LIGHT_GREEN, indent=8)
+        
+        # 파싱
+        tfu.cprint("\n[Parsing Grounding Response...]\n", tfu.LIGHT_BLACK)
+        
+        # JSON 파싱 시도
+        try:
+            import json
+            # JSON 블록 추출
+            json_match = None
+            if "```json" in raw_response:
+                import re
+                json_match = re.search(r'```json\s*(.*?)\s*```', raw_response, re.DOTALL)
+            elif "```" in raw_response:
+                import re
+                json_match = re.search(r'```\s*(.*?)\s*```', raw_response, re.DOTALL)
+            else:
+                json_match = re.search(r'\{.*\}', raw_response, re.DOTALL)
+            
+            if json_match:
+                parsed = json.loads(json_match.group(1))
+            else:
+                parsed = json.loads(raw_response)
+        except Exception as e:
+            tfu.cprint(f"[Error] Failed to parse grounding response: {e}", tfu.RED, True)
+            tfu.cprint(f"Raw response: {raw_response[:500]}...", tfu.LIGHT_RED)
+            return
+        
+        # Final Grounding 저장
+        if parsed:
+            # 입력이 없으면 빈 문자열로 설정 (임의의 내용 채우지 않음)
+            for key in ["user_preference_grounding", "spatial_grounding", "procedural_grounding", "general_grounding_rules"]:
+                if key in parsed and isinstance(parsed[key], dict):
+                    content = parsed[key].get("content", "")
+                    # "No specific", "None provided" 등의 placeholder 텍스트를 빈 문자열로 변환
+                    if content and any(placeholder in content.lower() for placeholder in ["no specific", "none provided", "no ", "were provided"]):
+                        parsed[key]["content"] = ""
+            
+            self.episode_manager.set_final_grounding(parsed)
+            self.grounding_file_manager.save_final_grounding(parsed)
+            tfu.cprint("\n[Grounding Generation Complete]", tfu.LIGHT_GREEN, True)
+        else:
+            tfu.cprint("[Warning] No grounding generated", tfu.LIGHT_RED)
+    
+    def _generate_reflexion(self):
+        """
+        Reflexion 생성 (에피소드 종료 시)
+        """
+        if not self.episode_manager:
+            return
+        
+        tfu.cprint("\n" + "=" * 80, bold=True)
+        tfu.cprint("[Reflexion Generation]", bold=True)
+        tfu.cprint("=" * 80 + "\n", bold=True)
+        tfu.cprint("Generating reflexion from episode trajectory...", tfu.LIGHT_BLACK)
+        
+        # Episode 데이터 가져오기
+        episode_data = self.episode_manager.episode_data
+        all_steps = self.episode_manager.get_all_steps()
+        final_grounding = episode_data.get("final_grounding", {})
+        
+        # Trajectory 요약 생성
+        trajectory_str = "\n".join([
+            f"Step {step['step_id']}: {step['instruction']} - {step['status']}"
+            for step in all_steps
+        ])
+        
+        # Feedbacks 요약 (grounding_per_step에서 가져오기)
+        all_steps = self.episode_manager.get_all_steps()
+        feedbacks_str = "\n".join([
+            f"Step {step['step_id']} ({step['status']}): {step.get('instruction', '')} - {', '.join([f'{k}: {v}' for k, v in step.get('feedback', {}).items() if v])}"
+            for step in all_steps
+            if step.get('feedback')
+        ]) or "None"
+        
+        # Final Grounding 문자열화
+        final_grounding_str = ""
+        if final_grounding:
+            for key, value in final_grounding.items():
+                if isinstance(value, dict) and "content" in value:
+                    final_grounding_str += f"{key}: {value['content']}\n"
+        
+        # 프롬프트 준비
+        system_prompt = system_prompt_interp(
+            file_name="reflexion_prompt.txt",
+            strict=True
+        )
+        
+        user_prompt = system_prompt_interp(
+            file_name="reflexion_user_prompt.txt",
+            strict=True,
+            episode_id=self.episode_id,
+            total_steps=episode_data["total_steps"],
+            termination_reason=episode_data.get("termination_reason", "unknown"),
+            episode_trajectory=trajectory_str,
+            step_feedbacks=feedbacks_str,
+            final_grounding=final_grounding_str or "None"
+        )
+        
+        # VLM 호출
+        tfu.cprint("\n[Sending Reflexion Generation Request to VLM...]", tfu.LIGHT_BLACK)
+        
+        raw_response = self.vlm_processor.requester(
+            image=None,
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            debug=self.debug
+        )
+        
+        if not raw_response:
+            tfu.cprint("[Warning] Reflexion VLM response is empty!", tfu.LIGHT_RED)
+            return
+        
+        tfu.cprint("Reflexion VLM Response Received", tfu.LIGHT_GREEN, indent=8)
+        
+        # 파싱
+        tfu.cprint("\n[Parsing Reflexion Response...]\n", tfu.LIGHT_BLACK)
+        
+        try:
+            import json
+            import re
+            # JSON 블록 추출
+            json_match = None
+            if "```json" in raw_response:
+                json_match = re.search(r'```json\s*(.*?)\s*```', raw_response, re.DOTALL)
+            elif "```" in raw_response:
+                json_match = re.search(r'```\s*(.*?)\s*```', raw_response, re.DOTALL)
+            else:
+                json_match = re.search(r'\{.*\}', raw_response, re.DOTALL)
+            
+            if json_match:
+                parsed = json.loads(json_match.group(1))
+            else:
+                parsed = json.loads(raw_response)
+            
+            # 필수 필드 확인
+            reflexion = {
+                "trajectory_summary": parsed.get("trajectory_summary", ""),
+                "error_diagnosis": parsed.get("error_diagnosis", ""),
+                "correction_plan": parsed.get("correction_plan", "")
+            }
+            
+            self.episode_manager.set_reflexion(reflexion)
+            tfu.cprint("\n[Reflexion Generation Complete]", tfu.LIGHT_GREEN, True)
+            
+        except Exception as e:
+            tfu.cprint(f"[Error] Failed to parse reflexion response: {e}", tfu.RED, True)
+            tfu.cprint(f"Raw response: {raw_response[:500]}...", tfu.LIGHT_RED)
     
     def _get_system_prompt_without_grounding(self, wrapper=None, last_action_result=None) -> str:
         """
@@ -681,7 +1068,8 @@ class ScenarioExperiment:
         file_exists = csv_path.exists()
         
         self.csv_file = open(csv_path, 'a', newline='', encoding='utf-8')
-        self.csv_writer = csv.writer(self.csv_file)
+        # CSV에 특수문자(줄바꿈, 쉼표 등)가 포함된 경우를 위해 QUOTE_ALL 사용
+        self.csv_writer = csv.writer(self.csv_file, quoting=csv.QUOTE_ALL)
         
         if not file_exists:
             self.csv_writer.writerow([
@@ -691,7 +1079,8 @@ class ScenarioExperiment:
                 "memory_spatial_description", "memory_task_goal", "memory_task_status", "memory_task_blocked_reason", "memory_previous_action",
                 "last_action_result_action", "last_action_result_success", "last_action_result_failure_reason", "last_action_result_position_changed",
                 "reward", "done", "image_path", "vlm_action_logprobs_info",
-                "carrying_object", "is_pickup", "is_drop"
+                "carrying_object", "is_pickup", "is_drop",
+                "entropy_H_X", "entropy_H_X_given_S", "entropy_H_X_given_LS", "trust_T"
             ])
     
     def _log_step(self):
@@ -755,6 +1144,36 @@ class ScenarioExperiment:
         is_pickup = (self.action_name.lower() in ['pickup', 'pick up'] or self.action_index == 4)
         is_drop = (self.action_name.lower() in ['drop'] or self.action_index == 5)
         
+        # CSV에 기록할 값들을 준비 (여러 줄, 콤마 등을 포함한 문자열도 안전하게 처리)
+        # QUOTE_ALL을 사용하므로 모든 필드가 자동으로 따옴표로 감싸짐
+        # 하지만 json.dumps()로 변환된 문자열은 이미 이스케이프되어 있으므로 그대로 사용
+        
+        # Entropy와 Trust 값 (None이어도 빈 문자열로 기록)
+        entropy_H_X_val = ""
+        entropy_H_X_given_S_val = ""
+        entropy_H_X_given_LS_val = ""
+        trust_T_val = ""
+        
+        if hasattr(self, 'entropy_H_X') and self.entropy_H_X is not None:
+            import math
+            if not math.isnan(self.entropy_H_X):
+                entropy_H_X_val = str(self.entropy_H_X)
+        
+        if hasattr(self, 'entropy_H_X_given_S') and self.entropy_H_X_given_S is not None:
+            import math
+            if not math.isnan(self.entropy_H_X_given_S):
+                entropy_H_X_given_S_val = str(self.entropy_H_X_given_S)
+        
+        if hasattr(self, 'entropy_H_X_given_LS') and self.entropy_H_X_given_LS is not None:
+            import math
+            if not math.isnan(self.entropy_H_X_given_LS):
+                entropy_H_X_given_LS_val = str(self.entropy_H_X_given_LS)
+        
+        if hasattr(self, 'trust_T') and self.trust_T is not None:
+            import math
+            if not (isinstance(self.trust_T, float) and math.isnan(self.trust_T)):
+                trust_T_val = str(self.trust_T)
+        
         self.csv_writer.writerow([
             self.step,
             timestamp,
@@ -763,26 +1182,30 @@ class ScenarioExperiment:
             int(self.state['agent_dir']),
             self.action_index,
             self.action_name,
-            self.user_prompt,
-            json.dumps(action_chunk, ensure_ascii=False),
-            self.vlm_response_parsed.get('reasoning', ''),
-            self.vlm_response_parsed.get('grounding', ''),
-            memory.get('spatial_description', ''),
-            task_process.get('goal', ''),
-            task_process.get('status', ''),
-            task_process.get('blocked_reason', ''),
-            memory.get('previous_action', ''),
-            last_action_result.get('action', ''),
+            self.user_prompt,  # QUOTE_ALL이 자동으로 처리
+            json.dumps(action_chunk, ensure_ascii=False),  # JSON 문자열은 이미 이스케이프됨
+            self.vlm_response_parsed.get('reasoning', ''),  # QUOTE_ALL이 자동으로 처리
+            self.vlm_response_parsed.get('grounding', ''),  # QUOTE_ALL이 자동으로 처리
+            memory.get('spatial_description', ''),  # QUOTE_ALL이 자동으로 처리
+            task_process.get('goal', ''),  # QUOTE_ALL이 자동으로 처리
+            task_process.get('status', ''),  # QUOTE_ALL이 자동으로 처리
+            task_process.get('blocked_reason', ''),  # QUOTE_ALL이 자동으로 처리
+            memory.get('previous_action', ''),  # QUOTE_ALL이 자동으로 처리
+            last_action_result.get('action', ''),  # QUOTE_ALL이 자동으로 처리
             bool(last_action_result.get('success', True)),
-            last_action_result.get('failure_reason', ''),
+            last_action_result.get('failure_reason', ''),  # QUOTE_ALL이 자동으로 처리
             bool(last_action_result.get('position_changed', True)),
             float(self.reward),
             bool(self.done),
             image_path,
-            json.dumps(self.action_logprobs_info, ensure_ascii=False),
-            carrying_object,
+            json.dumps(self.action_logprobs_info, ensure_ascii=False) if self.action_logprobs_info else "",  # JSON 문자열은 이미 이스케이프됨
+            carrying_object,  # QUOTE_ALL이 자동으로 처리
             bool(is_pickup),
-            bool(is_drop)
+            bool(is_drop),
+            entropy_H_X_val,
+            entropy_H_X_given_S_val,
+            entropy_H_X_given_LS_val,
+            trust_T_val
         ])
         self.csv_file.flush()
         
@@ -801,6 +1224,24 @@ class ScenarioExperiment:
         # Check if action is pickup or drop for JSON log
         is_pickup_json = (self.action_name.lower() in ['pickup', 'pick up'] or self.action_index == 4)
         is_drop_json = (self.action_name.lower() in ['drop'] or self.action_index == 5)
+        
+        # 새 Grounding 시스템: 현재 step의 feedback 정보 가져오기
+        step_feedback_info = None
+        if self.use_new_grounding_system and self.episode_manager:
+            # 현재 step_id와 일치하는 step 찾기
+            all_steps = self.episode_manager.get_all_steps()
+            current_step_data = None
+            for step_data in all_steps:
+                if step_data.get("step_id") == self.step:
+                    current_step_data = step_data
+                    break
+            
+            if current_step_data:
+                step_feedback_info = {
+                    "feedback": current_step_data.get("feedback", {}),
+                    "status": current_step_data.get("status", ""),
+                    "instruction": current_step_data.get("instruction", "")
+                }
         
         json_data = {
             "step": self.step,
@@ -822,11 +1263,43 @@ class ScenarioExperiment:
             "reward": float(self.reward),
             "done": bool(self.done),
             "image_path": image_path,
-            "action_logprobs_info": self.action_logprobs_info,
+            "action_logprobs_info": self.action_logprobs_info if self.action_logprobs_info else None,
             "carrying_object": carrying_object_json,
             "is_pickup": bool(is_pickup_json),
             "is_drop": bool(is_drop_json)
         }
+        
+        # Optional fields 추가 (있을 수도, 없을 수도 있음)
+        if self.vlm_response_parsed.get('reasoning'):
+            json_data["reasoning"] = self.vlm_response_parsed.get('reasoning')
+        
+        if hasattr(self, 'logprobs_metadata') and self.logprobs_metadata:
+            json_data["logprobs_metadata"] = self.logprobs_metadata
+        
+        # Entropy와 Trust 값은 항상 포함 (None이어도)
+        if hasattr(self, 'entropy_H_X'):
+            json_data["entropy_H_X"] = self.entropy_H_X
+        else:
+            json_data["entropy_H_X"] = None
+        
+        if hasattr(self, 'entropy_H_X_given_S'):
+            json_data["entropy_H_X_given_S"] = self.entropy_H_X_given_S
+        else:
+            json_data["entropy_H_X_given_S"] = None
+        
+        if hasattr(self, 'entropy_H_X_given_LS'):
+            json_data["entropy_H_X_given_LS"] = self.entropy_H_X_given_LS
+        else:
+            json_data["entropy_H_X_given_LS"] = None
+        
+        if hasattr(self, 'trust_T'):
+            json_data["trust_T"] = self.trust_T
+        else:
+            json_data["trust_T"] = None
+        
+        # 새 Grounding 시스템: step feedback 정보 추가
+        if step_feedback_info:
+            json_data["step_feedback"] = step_feedback_info
         
         all_data = []
         if json_path.exists():
@@ -840,8 +1313,12 @@ class ScenarioExperiment:
         
         all_data.append(json_data)
         
+        # Convert non-serializable types before saving
+        from utils.miscellaneous.episode_manager import convert_numpy_types
+        all_data_serializable = convert_numpy_types(all_data)
+        
         with open(json_path, 'w', encoding='utf-8') as f:
-            json.dump(all_data, f, indent=2, ensure_ascii=False)
+            json.dump(all_data_serializable, f, indent=2, ensure_ascii=False)
         
         image_path_full = self.log_dir / image_path
         img_pil = Image.fromarray(self.image)
@@ -855,6 +1332,38 @@ class ScenarioExperiment:
         tfu.cprint("\n\n" + "=" * 80 + "\n", bold=True)
         tfu.cprint("Scenario 2: VLM Control Experiment (Absolute Coordinate Movement Version)", bold=True)
         tfu.cprint("\n" + "=" * 80 + "\n", bold=True)
+        
+        # 새 Grounding 시스템 사용 시 Episode 번호 입력
+        # #region agent log
+        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+            import json
+            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H2","location":"scenario_runner.py:1242","message":"initialize: checking use_new_grounding_system","data":{"use_new_grounding_system":self.use_new_grounding_system},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+        # #endregion
+        if self.use_new_grounding_system:
+            tfu.cprint("\n[Episode Setup]", bold=True)
+            tfu.cprint("Enter Episode number:", tfu.LIGHT_WHITE)
+            episode_input = input("> ").strip()
+            
+            try:
+                self.episode_id = int(episode_input)
+            except ValueError:
+                tfu.cprint(f"[Warning] Invalid episode number '{episode_input}'. Using episode 1.", tfu.LIGHT_RED)
+                self.episode_id = 1
+            
+            # EpisodeManager 및 GroundingFileManager 초기화
+            self.episode_manager = EpisodeManager(self.episode_id, self.log_dir)
+            self.grounding_file_manager = GroundingFileManager(
+                self.episode_manager.get_episode_dir(),
+                self.episode_id
+            )
+            # #region agent log
+            with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                import json
+                f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H2","location":"scenario_runner.py:1258","message":"initialize: episode_manager initialized","data":{"episode_id":self.episode_id,"episode_manager_is_none":self.episode_manager is None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+            # #endregion
+            tfu.cprint(f"Episode {self.episode_id} initialized", tfu.LIGHT_GREEN)
+            tfu.cprint(f"Episode directory: {self.episode_manager.get_episode_dir()}", tfu.LIGHT_BLACK, italic=True)
+        
         tfu.cprint(f"\nMission: {DEFAULT_MISSION}", tfu.LIGHT_BLACK, italic=True)
         tfu.cprint("\nAction Space: Direct movement possible up/down/left/right (absolute coordinates)", tfu.LIGHT_BLACK, italic=True)
         tfu.cprint(f"\nLog directory: {self.log_dir}", tfu.LIGHT_BLACK, italic=True)
@@ -881,6 +1390,11 @@ class ScenarioExperiment:
             "failure_reason": "",
             "position_changed": True
         }
+        
+        # 새 Grounding 시스템: 초기 상태 이미지 저장
+        if self.use_new_grounding_system and self.episode_manager:
+            initial_image = self.wrapper.get_image()
+            self.episode_manager.save_initial_state_image(initial_image)
         
         # Action Spatial Information Output
         action_space = self.wrapper.get_absolute_action_space()
@@ -949,11 +1463,29 @@ class ScenarioExperiment:
         # Create a General Action
         system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper, self.last_action_result)
         
+        # Grounding 파일 경로 가져오기 (새 Grounding 시스템 사용 시)
+        grounding_file_path = None
+        if self.use_new_grounding_system and GROUNDING_FILE_PATH:
+            grounding_file_path = GROUNDING_FILE_PATH
+            # 상대 경로인 경우 절대 경로로 변환
+            if not Path(grounding_file_path).is_absolute():
+                # logs/grounding/grounding_latest.txt 형식인 경우
+                if grounding_file_path.startswith("logs/"):
+                    grounding_file_path = Path(grounding_file_path)
+                else:
+                    # 현재 log_dir 기준으로 찾기
+                    potential_path = self.log_dir.parent / grounding_file_path
+                    if potential_path.exists():
+                        grounding_file_path = potential_path
+                    else:
+                        grounding_file_path = None
+        
         self.vlm_response_parsed = self.vlm_gen_action(
             image=self.image,
             system_prompt=system_prompt,
             user_prompt=self.user_prompt,
-            use_logprobs=self.logprobs_active
+            use_logprobs=self.logprobs_active,
+            grounding_file=grounding_file_path
         )
         
         if not self.vlm_response_parsed:
@@ -1212,6 +1744,122 @@ class ScenarioExperiment:
         self.image = updated_image
         self.visualizer.display_image(updated_image)
         
+        # 새 Grounding 시스템: Step Feedback 수집
+        feedback_dict = None
+        is_termination = False
+        
+        # #region agent log
+        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+            import json
+            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1,H3,H4","location":"scenario_runner.py:1647","message":"run_step: checking new grounding system","data":{"use_new_grounding_system":self.use_new_grounding_system,"episode_manager_is_none":self.episode_manager is None,"step":self.step},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+        # #endregion
+        if self.use_new_grounding_system:
+            if self.episode_manager is None:
+                # #region agent log
+                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                    import json
+                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H4","location":"scenario_runner.py:1650","message":"run_step: episode_manager is None","data":{"step":self.step},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+                # #endregion
+                tfu.cprint(f"\n[Warning] episode_manager is None. Skipping step feedback collection.", tfu.LIGHT_RED)
+            else:
+                # #region agent log
+                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                    import json
+                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H1","location":"scenario_runner.py:1653","message":"run_step: entering feedback collection","data":{"step":self.step},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+                # #endregion
+                # Instruction 추출 (user_prompt에서)
+                instruction = self.user_prompt if self.user_prompt else "Continue mission"
+                
+                # Status 결정
+                if self.last_action_result.get("success", True):
+                    status = "SUCCESS"
+                else:
+                    status = "FAILURE"
+                
+                # Step Feedback 수집
+                feedback_dict, is_termination = self._collect_step_feedback(
+                    step_id=self.step,
+                    instruction=instruction
+                )
+                
+                # #region agent log
+                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                    import json
+                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H2","location":"scenario_runner.py:1719","message":"run_step: after _collect_step_feedback","data":{"step":self.step,"feedback_dict":feedback_dict,"is_termination":is_termination},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+                # #endregion
+                
+                # 종료 명령 확인
+                if is_termination:
+                    tfu.cprint("\n[Episode Termination] User requested episode end.", tfu.LIGHT_YELLOW, True)
+                    self.done = True
+                    if self.episode_manager:
+                        self.episode_manager.set_termination_reason("user_command")
+                
+                # Feedback이 있으면 저장
+                # #region agent log
+                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                    import json
+                    f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H3","location":"scenario_runner.py:1733","message":"run_step: checking if feedback_dict exists","data":{"step":self.step,"feedback_dict_is_none":feedback_dict is None,"feedback_dict":feedback_dict},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+                # #endregion
+                if feedback_dict:
+                    # EpisodeManager에 Step 추가
+                    action_info = {
+                        "index": int(self.action_index),
+                        "name": str(self.action_name)
+                    }
+                    # Convert numpy types to Python native types
+                    agent_pos = self.state['agent_pos']
+                    if isinstance(agent_pos, np.ndarray):
+                        agent_pos = [int(x) for x in agent_pos.tolist()]
+                    else:
+                        agent_pos = [int(x) for x in list(agent_pos)]
+                    state_info = {
+                        "agent_pos": agent_pos,
+                        "agent_dir": int(self.state['agent_dir'])
+                    }
+                    image_path = f"images/step_{self.step:04d}.png"
+                    
+                    # #region agent log
+                    with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                        import json
+                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H3","location":"scenario_runner.py:1740","message":"run_step: calling episode_manager.add_step","data":{"step":self.step,"feedback_dict":feedback_dict},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+                    # #endregion
+                    self.episode_manager.add_step(
+                        step_id=self.step,
+                        instruction=instruction,
+                        status=status,
+                        feedback=feedback_dict,
+                        action=action_info,
+                        state=state_info,
+                        image_path=image_path
+                    )
+                    
+                    # GroundingFileManager에 Step feedback 추가
+                    # #region agent log
+                    with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                        import json
+                        f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H4","location":"scenario_runner.py:1753","message":"run_step: checking grounding_file_manager","data":{"step":self.step,"grounding_file_manager_is_none":self.grounding_file_manager is None},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+                    # #endregion
+                    if self.grounding_file_manager:
+                        # #region agent log
+                        with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                            import json
+                            f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"H4","location":"scenario_runner.py:1757","message":"run_step: calling grounding_file_manager.append_step_feedback","data":{"step":self.step,"instruction":instruction,"status":status,"feedback_dict":feedback_dict},"timestamp":int(__import__('time').time()*1000)}) + '\n')
+                        # #endregion
+                        self.grounding_file_manager.append_step_feedback(
+                            step_id=self.step,
+                            instruction=instruction,
+                            status=status,
+                            feedback=feedback_dict
+                        )
+                    
+                    # 이미지 저장 (Episode 폴더 내)
+                    if self.episode_manager:
+                        episode_images_dir = self.episode_manager.get_episode_dir() / "images"
+                        image_path_full = episode_images_dir / f"step_{self.step:04d}.png"
+                        img_pil = Image.fromarray(updated_image)
+                        img_pil.save(image_path_full)
+        
         self._log_step()
         
         return True
@@ -1236,10 +1884,14 @@ class ScenarioExperiment:
                 tfu.cprint("\n" + "=" * 80)
                 tfu.cprint("Goal scored! Game ended.")
                 tfu.cprint("=" * 80)
+                if self.use_new_grounding_system and self.episode_manager:
+                    self.episode_manager.set_termination_reason("done")
                 break
             
             if self.step >= 100:
                 tfu.cprint("\nThe maximum number of steps (100) has been reached..")
+                if self.use_new_grounding_system and self.episode_manager:
+                    self.episode_manager.set_termination_reason("max_steps")
                 break
             
             if self.step >= 1:
@@ -1251,6 +1903,17 @@ class ScenarioExperiment:
         """
         Resource Cleanup
         """
+        
+        # 새 Grounding 시스템: 에피소드 종료 시 처리
+        if self.use_new_grounding_system and self.episode_manager:
+            # Grounding 생성 (일괄 처리)
+            self._generate_grounding_from_episode()
+            
+            # Reflexion 생성
+            self._generate_reflexion()
+            
+            # Episode 저장
+            self.episode_manager.save()
         
         self.visualizer.cleanup()
         if self.wrapper:

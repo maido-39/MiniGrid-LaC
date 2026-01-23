@@ -21,7 +21,7 @@
 from utils.prompt_manager.prompt_interp import *
 import utils.prompt_manager.terminal_formatting_utils as tfu
 
-from utils.miscellaneous.global_variables import DEFAULT_INITIAL_MISSION, DEFAULT_MISSION
+from utils.miscellaneous.global_variables import DEFAULT_INITIAL_MISSION, DEFAULT_MISSION, USE_NEW_GROUNDING_SYSTEM
 
 
 
@@ -46,7 +46,11 @@ class PromptOrganizer:
         
         ## For handling prompt errors
         # Grounding Content (Always displayed; if empty, displays an empty string)
-        grounding_content = self.grounding if self.grounding else ""
+        # 새 Grounding 시스템 사용 시 grounding은 파일로 전달되므로 system prompt에는 포함하지 않음
+        if USE_NEW_GROUNDING_SYSTEM:
+            grounding_content = ""
+        else:
+            grounding_content = self.grounding if self.grounding else ""
         
         # Previous Action (Always displayed, “None” if empty)
         previous_action = self.previous_action if self.previous_action else "None"

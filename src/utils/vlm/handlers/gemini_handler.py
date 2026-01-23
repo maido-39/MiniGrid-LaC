@@ -390,16 +390,23 @@ class GeminiHandler(VLMHandler):
         if system_prompt:
             config_kwargs["system_instruction"] = system_prompt
         
-        # Add thinking_config for gemini-2.5-flash
+        # Add thinking_config for gemini-2.5-flash (including Vertex AI versions)
         model_lower = self.model.lower()
-        if model_lower == "gemini-2.5-flash":
+        thinking_supported_models = ["gemini-2.5-flash", "gemini-2.5-flash-vertex", "gemini-2.5-flash-logprobs"]
+        
+        if model_lower in thinking_supported_models:
             if self.thinking_budget is not None:
-                # Explicit thinking_budget specified
-                # include_thoughts=True to get thinking content in response
-                config_kwargs["thinking_config"] = types.ThinkingConfig(
-                    thinking_budget=self.thinking_budget,
-                    include_thoughts=True
-                )
+                if self.thinking_budget == 0:
+                    # thinking_budget = 0: Disable thinking (no thinking_config)
+                    # Do not set thinking_config at all
+                    pass
+                else:
+                    # Explicit thinking_budget > 0: Enable thinking with specified budget
+                    # include_thoughts=True to get thinking content in response
+                    config_kwargs["thinking_config"] = types.ThinkingConfig(
+                        thinking_budget=self.thinking_budget,
+                        include_thoughts=True
+                    )
             else:
                 # None: Use default dynamic thinking (-1)
                 # include_thoughts=True to get thinking content in response
@@ -407,8 +414,8 @@ class GeminiHandler(VLMHandler):
                     thinking_budget=-1,
                     include_thoughts=True
                 )
-        elif self.thinking_budget is not None:
-            print("[WARNING] thinking_budget is only supported for gemini-2.5-flash. Ignoring setting.")
+        elif self.thinking_budget is not None and self.thinking_budget != 0:
+            print(f"[WARNING] thinking_budget is only supported for {', '.join(thinking_supported_models)}. Ignoring setting.")
         
         # Disable all safety filters
         safety_settings = [
