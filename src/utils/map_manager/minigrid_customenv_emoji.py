@@ -547,6 +547,19 @@ class CustomRoomEnv(MiniGridEnv):
                 if hasattr(fwd_cell, 'can_pickup'):
                     can_pickup = fwd_cell.can_pickup()
                 
+                # #region agent log
+                with open('/home/syaro/DeepL_WS/multigrid-LaC/.cursor/debug.log', 'a') as f:
+                    f.write(json.dumps({
+                        'sessionId': 'debug-session',
+                        'runId': 'run1',
+                        'hypothesisId': 'D',
+                        'location': 'minigrid_customenv_emoji.py:548',
+                        'message': 'can_pickup check',
+                        'data': {'can_pickup': can_pickup, 'has_can_pickup_method': hasattr(fwd_cell, 'can_pickup')},
+                        'timestamp': int(__import__('time').time() * 1000)
+                    }) + '\n')
+                # #endregion
+                
                 if can_pickup:
                     # Remove object from grid
                     self.grid.set(*fwd_pos, None)
@@ -1392,7 +1405,7 @@ class MiniGridEmojiWrapper:
         self.current_obs, self.current_info = self.env.reset(seed=seed)
         return self.current_obs, self.current_info
     
-    def step(self, action: Union[int, str]) -> Tuple[Dict, float, bool, bool, Dict]:
+    def step(self, action: Union[int, str, Dict]) -> Tuple[Dict, float, bool, bool, Dict]:
         """Execute an action in the environment.
         
         Executes the given action and returns the new observation, reward,
@@ -1408,9 +1421,10 @@ class MiniGridEmojiWrapper:
         Args:
             action: Action to execute. Can be:
                 - Integer: Action index (0-6 for absolute, 0-6 for relative)
-                - String: Action name (e.g., "move up", "turn left", "pickup")
+                - String: Action name (e.g., "move up", "turn left", "pickup", "pickup:north")
+                - Dict: {"pickup": "north/south/west/east"} for directional pickup
                 For absolute movement: "move up", "move down", "move left",
-                "move right", "pickup", "drop", "toggle"
+                "move right", "pickup", "pickup:north/south/west/east", "drop", "toggle"
                 For relative movement: "turn left", "turn right", "move forward",
                 "move backward", "pickup", "drop", "toggle"
         
@@ -1435,6 +1449,10 @@ class MiniGridEmojiWrapper:
             >>> 
             >>> # Or use integer index
             >>> obs, reward, done, truncated, info = wrapper.step(0)  # move up
+            >>> 
+            >>> # Pickup with direction
+            >>> obs, reward, done, truncated, info = wrapper.step("pickup:north")
+            >>> obs, reward, done, truncated, info = wrapper.step({"pickup": "north"})
             >>> 
             >>> # With relative movement mode
             >>> wrapper_rel = MiniGridEmojiWrapper(size=10, use_absolute_movement=False)
@@ -1474,7 +1492,7 @@ class MiniGridEmojiWrapper:
         
         return []
     
-    def step_absolute(self, action: Union[int, str]) -> Tuple[Dict, float, bool, bool, Dict]:
+    def step_absolute(self, action: Union[int, str, Dict]) -> Tuple[Dict, float, bool, bool, Dict]:
         """Execute an absolute direction action.
         
         Moves the robot in an absolute direction (North/South/East/West)
@@ -1500,9 +1518,11 @@ class MiniGridEmojiWrapper:
                     - "move down", "down", "south", "s": Move down
                     - "move left", "left", "west", "w": Move left
                     - "move right", "right", "east", "e": Move right
-                    - "pickup", "pick up", "grab": Pick up object
+                    - "pickup", "pick up", "grab": Pick up object (front direction)
+                    - "pickup:north/south/west/east": Pick up object in specified direction
                     - "drop", "put down", "release": Drop object
                     - "toggle", "interact", "use": Toggle/interact
+                - Dict: {"pickup": "north/south/west/east"} for directional pickup
         
         Returns:
             Tuple containing:
@@ -1533,8 +1553,40 @@ class MiniGridEmojiWrapper:
         if isinstance(action, str):
             action = self.parse_absolute_action(action)
         
+        # Handle directional pickup: {"pickup": "north/south/west/east"}
+        if isinstance(action, dict) and "pickup" in action:
+            pickup_direction = action["pickup"].lower()
+            # Map direction to MiniGrid direction (0=East, 1=South, 2=West, 3=North)
+            direction_map = {
+                "north": 3,
+                "east": 0,
+                "south": 1,
+                "west": 2
+            }
+            target_dir = direction_map.get(pickup_direction)
+            if target_dir is None:
+                raise ValueError(f"Invalid pickup direction: {pickup_direction}. Must be north, south, west, or east.")
+            
+            # Rotate to face the target direction
+            current_dir = self.env.agent_dir
+            rotation_actions = self._calculate_rotation(current_dir, target_dir)
+            
+            # Execute rotation actions
+            for rot_action in rotation_actions:
+                obs, reward, terminated, truncated, info = self.env.step(rot_action)
+                self.current_obs = obs
+                self.current_info = info
+                if terminated or truncated:
+                    return obs, reward, terminated, truncated, info
+            
+            # After rotation, perform pickup (MiniGrid action 3)
+            obs, reward, terminated, truncated, info = self.env.step(3)  # pickup in MiniGrid
+            self.current_obs = obs
+            self.current_info = info
+            return obs, reward, terminated, truncated, info
+        
         # For non-movement actions (pickup, drop, toggle), execute directly
-        if action >= 4:
+        if isinstance(action, int) and action >= 4:
             # Convert action 4 (pickup in absolute) to action 3 (pickup in MiniGrid)
             # MiniGrid uses: 0=turn left, 1=turn right, 2=move forward, 3=pickup, 4=drop, 5=toggle
             minigrid_action = action
@@ -1768,12 +1820,13 @@ class MiniGridEmojiWrapper:
             f"Available actions: {list(self.ACTION_ALIASES.keys())} or numbers 0-{self.env.action_space.n-1}"
         )
     
-    def parse_absolute_action(self, action_str: str) -> int:
-        """Parse an absolute direction action string to its integer index.
+    def parse_absolute_action(self, action_str: str) -> Union[int, Dict[str, str]]:
+        """Parse an absolute direction action string to its integer index or dict.
         
         Converts a string representation of an absolute direction action
-        (e.g., "move up", "north", "up") to its corresponding integer index
-        (0-6). This is useful when receiving action commands from VLMs or
+        (e.g., "move up", "north", "up", "pickup:north") to its corresponding 
+        integer index (0-6) or dict format for directional pickup.
+        This is useful when receiving action commands from VLMs or
         other text-based sources.
         
         Args:
@@ -1782,17 +1835,19 @@ class MiniGridEmojiWrapper:
                 - Action name: "move up", "move down", "move left", "move right"
                 - Alias: "up", "down", "left", "right", "north", "south", etc.
                 - Other actions: "pickup", "drop", "toggle"
+                - Directional pickup: "pickup:north", "pickup:south", "pickup:west", "pickup:east"
                 Case-insensitive.
         
         Returns:
-            Integer action index (0-6):
+            Integer action index (0-6) for regular actions, or dict {"pickup": "north/south/west/east"} for directional pickup:
                 - 0: move up (North)
                 - 1: move down (South)
                 - 2: move left (West)
                 - 3: move right (East)
-                - 4: pickup
+                - 4: pickup (without direction, for backward compatibility)
                 - 5: drop
                 - 6: toggle
+                - {"pickup": "north/south/west/east"}: pickup with direction
         
         Raises:
             ValueError: If the action string is not recognized.
@@ -1808,10 +1863,43 @@ class MiniGridEmojiWrapper:
             >>> wrapper.parse_absolute_action("move right")  # 3
             >>> wrapper.parse_absolute_action("east")     # 3
             >>> wrapper.parse_absolute_action("pickup")   # 4
+            >>> wrapper.parse_absolute_action("pickup:north")  # {"pickup": "north"}
             >>> wrapper.parse_absolute_action("0")        # 0
         """
         action_str = action_str.strip()
         
+        # Handle dict format: {"pickup": "north"} or {"pickup": "south"} etc.
+        if isinstance(action_str, dict):
+            if "pickup" in action_str:
+                direction = action_str["pickup"].lower().strip()
+                # Only accept north/south/west/east
+                if direction in ["north", "south", "west", "east"]:
+                    return {"pickup": direction}
+                else:
+                    raise ValueError(
+                        f"Invalid direction for pickup: '{direction}'. "
+                        f"Must be one of: north, south, west, east"
+                    )
+            return action_str
+        
+        # Handle string format: "pickup:north", "pickup:south", etc.
+        if ":" in action_str:
+            parts = action_str.split(":", 1)
+            if len(parts) == 2:
+                action_part = parts[0].strip().lower()
+                direction_part = parts[1].strip().lower()
+                
+                if action_part in ["pickup", "pick up", "pick_up", "grab"]:
+                    # Only accept north/south/west/east
+                    if direction_part in ["north", "south", "west", "east"]:
+                        return {"pickup": direction_part}
+                    else:
+                        raise ValueError(
+                            f"Invalid direction for pickup: '{direction_part}'. "
+                            f"Must be one of: north, south, west, east"
+                        )
+        
+        # Handle regular integer strings
         try:
             action_int = int(action_str)
             if 0 <= action_int <= 6:
@@ -1830,7 +1918,7 @@ class MiniGridEmojiWrapper:
         
         raise ValueError(
             f"Unknown absolute action: '{action_str}'. "
-            f"Available actions: {list(self.ABSOLUTE_ACTION_ALIASES.keys())} or numbers 0-6"
+            f"Available actions: {list(self.ABSOLUTE_ACTION_ALIASES.keys())} or numbers 0-6, or pickup:north/south/west/east"
         )
     
     def get_state(self) -> Dict:

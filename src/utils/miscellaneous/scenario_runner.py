@@ -269,16 +269,21 @@ class ScenarioExperiment:
         
         # Feedback format and examples - visually enhanced
         tfu.cprint("─" * 80, tfu.LIGHT_WHITE)
-        tfu.cprint("📋 Feedback Format", tfu.LIGHT_WHITE, bold=True)
+        tfu.cprint("📋 Feedback Format & Grounding Stacking", tfu.LIGHT_WHITE, bold=True)
         tfu.cprint("─" * 80, tfu.LIGHT_WHITE)
         
         tfu.cprint("\n  Format:", tfu.LIGHT_CYAN, bold=True)
         tfu.cprint("    >> {s/f/w}:(u: (feedback), s: (feedback), p: (feedback), g: (feedback))", tfu.LIGHT_YELLOW)
         
-        tfu.cprint("\n  Status Codes:", tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("    " + "s".ljust(5) + "= Success", tfu.LIGHT_GREEN)
-        tfu.cprint("    " + "f".ljust(5) + "= Failure", tfu.LIGHT_RED)
-        tfu.cprint("    " + "w".ljust(5) + "= Work in Progress", tfu.LIGHT_YELLOW)
+        tfu.cprint("\n  Status Codes & Elements:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    " + "s (Success)".ljust(25) + ": Entering the target area", tfu.LIGHT_GREEN)
+        tfu.cprint("      " + "→ Reasons for Success", tfu.LIGHT_BLACK)
+        tfu.cprint("      " + "  Example: " + "[Reason]", tfu.LIGHT_YELLOW, bold=True, underline=True)
+        tfu.cprint("    " + "f (Failure)".ljust(25) + ": Taking an abnormal path as judged by a human observer", tfu.LIGHT_RED)
+        tfu.cprint("      " + "→ Reasons for Failure and Next Plan", tfu.LIGHT_BLACK)
+        tfu.cprint("      " + "  Example: " + "[Reason]. [The PLAN to be carried out in the next episode].", tfu.LIGHT_YELLOW, bold=True, underline=True)
+        tfu.cprint("    " + "w (Work in Progress)".ljust(25) + ": When simply moving to the target room", tfu.LIGHT_YELLOW)
+        tfu.cprint("      " + "→ Feedback not required (Null)", tfu.LIGHT_BLACK)
         
         tfu.cprint("\n  Feedback Types:", tfu.LIGHT_CYAN, bold=True)
         tfu.cprint("    " + "u".ljust(5) + "= User Preference", tfu.LIGHT_BLUE)
@@ -290,35 +295,10 @@ class ScenarioExperiment:
         tfu.cprint("    • You only need to write the necessary elements (u, s, p, g)", tfu.LIGHT_BLACK, italic=True)
         tfu.cprint("    • Colon spacing is optional: 's:' or 's :' both work", tfu.LIGHT_BLACK, italic=True)
         
-        # Grounding Stacking Section
-        tfu.cprint("\n" + "─" * 80, tfu.LIGHT_WHITE)
-        tfu.cprint("📚 Grounding Stacking", tfu.LIGHT_WHITE, bold=True)
-        tfu.cprint("─" * 80, tfu.LIGHT_WHITE)
-        
-        tfu.cprint("\n  Status Criteria:", tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("    " + "Success".ljust(20) + ": Entering the target area", tfu.LIGHT_GREEN)
-        tfu.cprint("    " + "Failure".ljust(20) + ": Taking an abnormal path as judged by a human observer", tfu.LIGHT_RED)
-        tfu.cprint("    " + "While In Progress".ljust(20) + ": When simply moving to the target room", tfu.LIGHT_YELLOW)
-        
-        tfu.cprint("\n  Elements for Each Step:", tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("    " + "Success, Failure:", tfu.LIGHT_WHITE, bold=True)
-        tfu.cprint("      " + "Reasons for Success/Failure and Next Plan", tfu.LIGHT_BLACK)
-        tfu.cprint("      " + "Format: " + "[Reason]. [Next plan].", tfu.LIGHT_YELLOW, bold=True)
-        tfu.cprint("      " + "Example: " + "[Reason]. [Next plan].", tfu.LIGHT_YELLOW, bold=True, underline=True)
-        tfu.cprint("    " + "While In Progress:", tfu.LIGHT_WHITE, bold=True)
-        tfu.cprint("      " + "Feedback not required (Null)", tfu.LIGHT_BLACK)
-        
-        tfu.cprint("\n  Final Grounding Examples:", tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("    u: User prefers food with Pepper and Tomato", tfu.LIGHT_BLUE)
-        tfu.cprint("    s: Restroom at (3,0), Storage at (2,2) contains Apple, Tomato, Pepper", tfu.LIGHT_MAGENTA)
-        tfu.cprint("    p: Sequence: Restroom → Storage → Preparation → Kitchen → Plating → Goal", tfu.LIGHT_CYAN)
-        tfu.cprint("    g: You mustn't hit the wall", tfu.LIGHT_WHITE)
-        
-        tfu.cprint("\n  Quick Examples:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("\n  Examples:", tfu.LIGHT_CYAN, bold=True)
         tfu.cprint("    " + ">> s:(u: Spicy preference. Add Pepper., s: , p: )", tfu.LIGHT_BLACK)
         tfu.cprint("    " + ">> f:(u: , s: , g: Wall blocking movement, failed)", tfu.LIGHT_BLACK)
-        tfu.cprint("    " + ">> w:(p: In progress, continue)", tfu.LIGHT_BLACK)
-        tfu.cprint("    " + ">> s : (u : Good job!)  # Space around colon is optional", tfu.LIGHT_BLACK)
+        tfu.cprint("    " + ">> w:", tfu.LIGHT_BLACK)
         
         tfu.cprint("\n" + "─" * 80, tfu.LIGHT_WHITE)
         tfu.cprint("종료하려면: end", tfu.LIGHT_YELLOW, bold=True)
@@ -1513,12 +1493,17 @@ class ScenarioExperiment:
             except Exception:
                 action_chunk = [action_chunk] if action_chunk else []
         if not isinstance(action_chunk, list):
-            action_chunk = [str(action_chunk)]
+            action_chunk = [action_chunk]
         
         if len(action_chunk) == 0:
             action_str = '0'  # Default value: move up
         else:
-            action_str = str(action_chunk[0])
+            first_action = action_chunk[0]
+            # Handle dict format for directional pickup: {"pickup": "north"}
+            if isinstance(first_action, dict):
+                action_str = first_action
+            else:
+                action_str = str(first_action)
         
         # Memory Parsing
         memory = self.vlm_response_parsed.get('memory', {})
@@ -1629,13 +1614,23 @@ class ScenarioExperiment:
             current_pos_before = (int(current_pos_before[0]), int(current_pos_before[1]))
         
         try:
-            self.action_index = self.wrapper.parse_absolute_action(action_str)
-            action_space = self.wrapper.get_absolute_action_space()
-            self.action_name = action_space['action_mapping'].get(self.action_index, f"action_{self.action_index}")
+            parsed_action = self.wrapper.parse_absolute_action(action_str)
+            
+            # Handle dict format for directional pickup: {"pickup": "north"}
+            if isinstance(parsed_action, dict) and "pickup" in parsed_action:
+                self.action_index = 4  # pickup action index
+                direction = parsed_action["pickup"]
+                self.action_name = f"pickup:{direction}"
+            else:
+                self.action_index = parsed_action
+                action_space = self.wrapper.get_absolute_action_space()
+                self.action_name = action_space['action_mapping'].get(self.action_index, f"action_{self.action_index}")
             tfu.cprint(f"Action to execute: {self.action_name} (Index: {self.action_index})")
             
             # Since use_absolute_movement=True, step() handles absolute movement.
-            _, self.reward, terminated, truncated, _ = self.wrapper.step(self.action_index)
+            # Pass parsed_action if it's a dict (for directional pickup), otherwise use action_index
+            action_to_execute = parsed_action if isinstance(parsed_action, dict) else self.action_index
+            _, self.reward, terminated, truncated, _ = self.wrapper.step(action_to_execute)
             self.done = terminated or truncated
             
             # Confirm location after action execution

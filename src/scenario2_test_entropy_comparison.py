@@ -30,6 +30,7 @@ import numpy as np
 from typing import Optional
 from datetime import datetime
 from PIL import Image
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Import modularized components
 import utils.prompt_manager.terminal_formatting_utils as tfu
@@ -306,31 +307,73 @@ class EntropyComparisonExperiment(ScenarioExperiment):
         # Get system prompt for all VLM calls
         system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper, self.last_action_result)
         
-        # ===== ENTROPY COMPARISON: 3 Simultaneous VLM Calls =====
+        # ===== ENTROPY COMPARISON: 3 Parallel VLM Calls =====
         tfu.cprint("\n" + "=" * 80, bold=True)
-        tfu.cprint("[Entropy Comparison] Performing 3 VLM calls...", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("[Entropy Comparison] Performing 3 parallel VLM calls...", tfu.LIGHT_CYAN, bold=True)
         tfu.cprint("=" * 80 + "\n", bold=True)
         
-        # 1. H(X) - No Language Instruction, No Grounding
-        H_X_result = self.vlm_gen_action_H_X(
-            image=self.image,
-            system_prompt=system_prompt,
-            user_prompt=self.user_prompt
-        )
+        # Prepare arguments for each VLM call
+        vlm_calls = [
+            ("H(X)", self.vlm_gen_action_H_X, {
+                "image": self.image,
+                "system_prompt": system_prompt,
+                "user_prompt": self.user_prompt
+            }),
+            ("H(X|S)", self.vlm_gen_action_H_X_given_S, {
+                "image": self.image,
+                "system_prompt": system_prompt,
+                "user_prompt": self.user_prompt
+            }),
+            ("H(X|L,S)", self.vlm_gen_action_H_X_given_LS, {
+                "image": self.image,
+                "system_prompt": system_prompt,
+                "user_prompt": self.user_prompt
+            })
+        ]
         
-        # 2. H(X|S) - No Language Instruction, With Grounding
-        H_X_given_S_result = self.vlm_gen_action_H_X_given_S(
-            image=self.image,
-            system_prompt=system_prompt,
-            user_prompt=self.user_prompt
-        )
+        # Execute all VLM calls in parallel
+        results = {}
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            # Submit all tasks
+            future_to_name = {
+                executor.submit(func, **kwargs): name 
+                for name, func, kwargs in vlm_calls
+            }
+            
+            # Collect results as they complete
+            for future in as_completed(future_to_name):
+                name = future_to_name[future]
+                try:
+                    result = future.result()
+                    results[name] = result
+                    tfu.cprint(f"[{name}] VLM call completed", tfu.LIGHT_GREEN)
+                except Exception as e:
+                    tfu.cprint(f"[{name}] VLM call failed: {e}", tfu.LIGHT_RED, bold=True)
+                    # Return empty result on failure
+                    results[name] = {
+                        'parsed': {},
+                        'logprobs_metadata': {},
+                        'action_logprobs_info': {}
+                    }
         
-        # 3. H(X|L,S) - With Language Instruction, With Grounding
-        H_X_given_LS_result = self.vlm_gen_action_H_X_given_LS(
-            image=self.image,
-            system_prompt=system_prompt,
-            user_prompt=self.user_prompt
-        )
+        # Extract results
+        H_X_result = results.get("H(X)", {
+            'parsed': {},
+            'logprobs_metadata': {},
+            'action_logprobs_info': {}
+        })
+        H_X_given_S_result = results.get("H(X|S)", {
+            'parsed': {},
+            'logprobs_metadata': {},
+            'action_logprobs_info': {}
+        })
+        H_X_given_LS_result = results.get("H(X|L,S)", {
+            'parsed': {},
+            'logprobs_metadata': {},
+            'action_logprobs_info': {}
+        })
+        
+        tfu.cprint("\n[Entropy Comparison] All 3 VLM calls completed", tfu.LIGHT_GREEN, bold=True)
         
         # Calculate entropies
         self.entropy_H_X = self._calculate_entropy_from_logprobs(H_X_result.get('action_logprobs_info', {}))
