@@ -1,40 +1,17 @@
-TL;DR: API 단에서 carrying object 터미널 출력 기능 추가, gen_obs() 호출 시 리스트 호환성 버그 수정, 모든 디버깅 코드 제거
+TL;DR: Add goal rendering toggle configuration and update map
 
-## 주요 변경 사항
+## Changes
 
-### 기능 추가
-- **API 단 carrying object 출력 기능**
-  - `CustomRoomEnv`에 `_format_carrying_object()`, `_format_single_carrying_object()`, `_print_carrying_status()` 메서드 추가
-  - pickup/drop 성공 시 터미널에 `[API] Carrying Objects (count): [obj1, obj2, ...]` 형식으로 출력
-  - 리스트/단일 객체 모두 지원하며, emoji와 색상 정보 포함
+### Feature Addition
+- **Goal rendering configuration** (`global_variables.py`, `minigrid_customenv_emoji.py`)
+  - Added `RENDER_GOAL` configuration variable (default: `False`)
+  - When `True`, green goal is rendered; when `False`, goal is hidden
+  - Can be easily toggled via `global_variables.py`
 
-### 버그 수정
-- **gen_obs() 호출 시 리스트 호환성 문제 해결**
-  - `self.carrying`이 리스트일 때 `gen_obs()` 호출 시 발생하는 `'list' object has no attribute 'encode'` 에러 수정
-  - pickup/drop 성공 후 `gen_obs()` 호출 전에 `self.carrying`을 임시로 단일 객체로 변환하고, 호출 후 리스트로 복원
-  - 의도하지 않은 움직임 문제 해결
+### Map Update
+- **example_map.json**: Removed unnecessary emoji (🟠)
 
-### 호환성 개선
-- **scenario2_keyboard_control.py 리스트 지원**
-  - `env.carrying`이 리스트인 경우를 처리하도록 수정
-  - 다중 객체 carrying 상태를 올바르게 표시
-
-### 코드 정리
-- **모든 디버깅 코드 제거**
-  - `minigrid_customenv_emoji.py`: 모든 `#region agent log` 블록 제거
-  - `scenario_runner.py`: 디버깅 로그 코드 제거 (83줄 삭제)
-  - `grounding_file_manager.py`: 디버깅 로그 코드 제거 (15줄 삭제)
-  - `scenario2_test_entropy_comparison.py`: 디버깅 로그 코드 제거 (12줄 삭제)
-
-### 기타
-- README 파일 업데이트
-- example_map.json 수정
-- .gitignore 업데이트
-
-## 수정된 파일
-- `src/utils/map_manager/minigrid_customenv_emoji.py` (+113, -70)
-- `src/utils/miscellaneous/scenario_runner.py` (-83)
-- `src/dev-scenario_2/scenario2_keyboard_control.py` (+23, -2)
-- `src/utils/miscellaneous/grounding_file_manager.py` (-15)
-- `src/scenario2_test_entropy_comparison.py` (-12)
-- 기타 문서 및 설정 파일
+## Modified Files
+- `src/utils/miscellaneous/global_variables.py`: Added `RENDER_GOAL` configuration
+- `src/utils/map_manager/minigrid_customenv_emoji.py`: Added conditional goal rendering logic
+- `src/config/example_map.json`: Cleaned up map emoji

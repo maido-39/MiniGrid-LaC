@@ -26,6 +26,7 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import hashlib
 from imagetext_py import FontDB, Writer, Paint, TextAlign
+from utils.miscellaneous.global_variables import RENDER_GOAL
 
 # Register MiniGrid environments
 register_minigrid_envs()
@@ -440,7 +441,8 @@ class CustomRoomEnv(MiniGridEnv):
                     if 0 <= wall_x < width and 0 <= wall_y < height:
                         self.grid.set(wall_x, wall_y, Wall(wall_color))
             
-            if 'goal_pos' in self.room_config:
+            # Goal 렌더링 (RENDER_GOAL 설정에 따라 켜고 끄기)
+            if RENDER_GOAL and 'goal_pos' in self.room_config:
                 goal_x, goal_y = self.room_config['goal_pos']
                 if 0 <= goal_x < width and 0 <= goal_y < height:
                     self.put_obj(Goal(), goal_x, goal_y)

@@ -76,5 +76,11 @@ GROUNDING_VLM_MAX_TOKENS = 2000  # Grounding 생성용 max_tokens (기본값: 20
 GROUNDING_FILE_PATH = None
 # 현재 에피소드에서 생성된 Grounding은 다음 에피소드부터 사용 가능 (즉석 적용 안 됨)
 
+# Environment Rendering Configuration
+# RENDER_GOAL: Goal (초록색 목표 지점) 렌더링 여부
+#   - True: Goal 렌더링 (초록색으로 표시)
+#   - False: Goal 렌더링 안 함 (시각적으로 표시되지 않음)
+RENDER_GOAL = False
+
 #
 ENV_ID = "MyCustomEnv-v0"
