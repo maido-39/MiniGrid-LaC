@@ -234,18 +234,36 @@ class ScenarioExperiment:
             "general": None
         }
         
-        # u:, s:, p:, g: 패턴으로 추출
-        type_patterns = {
-            "user_preference": r'u\s*:\s*([^,)]+)',
-            "spatial": r's\s*:\s*([^,)]+)',
-            "procedural": r'p\s*:\s*([^,)]+)',
-            "general": r'g\s*:\s*([^,)]+)'
+        # 타입 매핑
+        type_mapping = {
+            'u': 'user_preference',
+            's': 'spatial',
+            'p': 'procedural',
+            'g': 'general'
         }
+        type_keys = list(type_mapping.keys())
         
-        for feedback_type, pattern in type_patterns.items():
+        # 각 타입별로 다음 타입 구분자나 끝까지 추출
+        for key, feedback_type in type_mapping.items():
+            # 현재 타입 구분자 찾기
+            pattern = rf'{key}\s*:\s*'
             match = re.search(pattern, content, re.IGNORECASE)
             if match:
-                feedback_dict[feedback_type] = match.group(1).strip()
+                start = match.end()
+                # 다음 타입 구분자 찾기 (현재 타입이 아닌 다른 타입들)
+                next_keys = [k for k in type_keys if k.lower() != key.lower()]
+                next_pattern = '|'.join([rf'\s*{k}\s*:' for k in next_keys])
+                end_match = re.search(next_pattern, content[start:], re.IGNORECASE)
+                
+                if end_match:
+                    end = start + end_match.start()
+                else:
+                    end = len(content)
+                
+                # 추출 후 앞뒤 공백 및 마지막 쉼표 제거
+                feedback_text = content[start:end].strip().rstrip(',')
+                if feedback_text:
+                    feedback_dict[feedback_type] = feedback_text
         
         return feedback_dict, False
     
@@ -588,11 +606,36 @@ class ScenarioExperiment:
         # GroundingFileManager에서 stacked_grounding 데이터 가져오기 (Status 포함)
         stacked_grounding = self.grounding_file_manager.get_stacked_grounding()
         
-        # 이전 Grounding 파일 읽기 (있는 경우)
+        # 이전 Grounding 파일 읽기 (있는 경우) - 여러 파일 지원
         previous_grounding = ""
-        if GROUNDING_FILE_PATH and Path(GROUNDING_FILE_PATH).exists():
+        if GROUNDING_FILE_PATH:
             try:
-                previous_grounding = Path(GROUNDING_FILE_PATH).read_text(encoding='utf-8')
+                # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열 처리
+                if isinstance(GROUNDING_FILE_PATH, str):
+                    if ',' in GROUNDING_FILE_PATH:
+                        file_paths = [p.strip() for p in GROUNDING_FILE_PATH.split(',')]
+                    else:
+                        file_paths = [GROUNDING_FILE_PATH]
+                elif isinstance(GROUNDING_FILE_PATH, list):
+                    file_paths = GROUNDING_FILE_PATH
+                else:
+                    file_paths = []
+                
+                # 각 파일 읽기 및 병합
+                grounding_contents = []
+                for file_path in file_paths:
+                    grounding_path = Path(file_path)
+                    if grounding_path.exists():
+                        content = grounding_path.read_text(encoding='utf-8')
+                        grounding_contents.append(content)
+                        tfu.cprint(f"[Grounding] Loaded for generation: {grounding_path}", tfu.LIGHT_GREEN)
+                    else:
+                        tfu.cprint(f"[Warning] Grounding file not found: {grounding_path}", tfu.LIGHT_YELLOW)
+                
+                # 모든 파일 내용 병합
+                if grounding_contents:
+                    previous_grounding = "\n\n---\n\n".join(grounding_contents)
+                    tfu.cprint(f"[Grounding] Merged {len(grounding_contents)} file(s) for grounding generation", tfu.LIGHT_CYAN)
             except Exception as e:
                 tfu.cprint(f"[Warning] Failed to read previous grounding: {e}", tfu.LIGHT_RED)
         
@@ -1458,21 +1501,87 @@ class ScenarioExperiment:
         system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper, self.last_action_result)
         
         # Grounding 파일 경로 가져오기 (새 Grounding 시스템 사용 시)
+        # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열
         grounding_file_path = None
         if self.use_new_grounding_system and GROUNDING_FILE_PATH:
-            grounding_file_path = GROUNDING_FILE_PATH
-            # 상대 경로인 경우 절대 경로로 변환
-            if not Path(grounding_file_path).is_absolute():
-                # logs/grounding/grounding_latest.txt 형식인 경우
-                if grounding_file_path.startswith("logs/"):
-                    grounding_file_path = Path(grounding_file_path)
+            # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열 처리
+            if isinstance(GROUNDING_FILE_PATH, str):
+                # 쉼표로 구분된 문자열인 경우 리스트로 변환
+                if ',' in GROUNDING_FILE_PATH:
+                    file_paths = [p.strip() for p in GROUNDING_FILE_PATH.split(',')]
                 else:
-                    # 현재 log_dir 기준으로 찾기
-                    potential_path = self.log_dir.parent / grounding_file_path
-                    if potential_path.exists():
-                        grounding_file_path = potential_path
-                    else:
-                        grounding_file_path = None
+                    file_paths = [GROUNDING_FILE_PATH]
+            elif isinstance(GROUNDING_FILE_PATH, list):
+                file_paths = GROUNDING_FILE_PATH
+            else:
+                file_paths = []
+            
+            # 각 파일 경로를 절대 경로로 변환하고 존재 여부 확인
+            resolved_paths = []
+            for file_path in file_paths:
+                file_path_str = str(file_path).strip()
+                potential_path = None
+                tried_paths = []
+                
+                # 절대 경로인 경우
+                if Path(file_path_str).is_absolute():
+                    potential_path = Path(file_path_str)
+                    tried_paths.append(str(potential_path))
+                # logs/grounding/grounding_latest.txt 형식인 경우 (상대 경로)
+                elif file_path_str.startswith("logs/"):
+                    # 1. 프로젝트 루트 기준 (src/utils/miscellaneous -> project root)
+                    project_root = Path(__file__).parent.parent.parent
+                    potential_path = project_root / file_path_str
+                    tried_paths.append(str(potential_path))
+                    
+                    # 2. src/ 기준으로도 시도
+                    if not potential_path.exists():
+                        src_root = Path(__file__).parent.parent.parent / "src"
+                        potential_path = src_root / file_path_str
+                        tried_paths.append(str(potential_path))
+                    
+                    # 3. 현재 log_dir 기준으로도 시도
+                    if not potential_path.exists() and hasattr(self, 'log_dir'):
+                        potential_path = self.log_dir.parent / file_path_str
+                        tried_paths.append(str(potential_path))
+                else:
+                    # 1. 현재 log_dir 기준으로 찾기
+                    if hasattr(self, 'log_dir'):
+                        potential_path = self.log_dir.parent / file_path_str
+                        tried_paths.append(str(potential_path))
+                    
+                    # 2. 프로젝트 루트 기준으로도 시도
+                    if (not potential_path or not potential_path.exists()):
+                        project_root = Path(__file__).parent.parent.parent
+                        potential_path = project_root / file_path_str
+                        tried_paths.append(str(potential_path))
+                    
+                    # 3. src/ 기준으로도 시도
+                    if not potential_path.exists():
+                        src_root = Path(__file__).parent.parent.parent / "src"
+                        potential_path = src_root / file_path_str
+                        tried_paths.append(str(potential_path))
+                
+                if potential_path and potential_path.exists():
+                    resolved_paths.append(str(potential_path.resolve()))
+                    tfu.cprint(f"[Grounding] ✓ Loaded: {potential_path.resolve()}", tfu.LIGHT_GREEN)
+                else:
+                    tfu.cprint(f"[Grounding] ✗ File not found: {file_path_str}", tfu.LIGHT_RED)
+                    tfu.cprint(f"  Tried paths: {', '.join(tried_paths[:3])}", tfu.LIGHT_BLACK)
+            
+            # 여러 파일이 있으면 리스트로 전달 (vlm_wrapper에서 여러 파일 처리)
+            if resolved_paths:
+                if len(resolved_paths) == 1:
+                    grounding_file_path = resolved_paths[0]
+                    tfu.cprint(f"[Grounding] Using single file: {grounding_file_path}", tfu.LIGHT_CYAN)
+                else:
+                    grounding_file_path = resolved_paths
+                    tfu.cprint(f"[Grounding] Using {len(resolved_paths)} files (will be merged):", tfu.LIGHT_CYAN)
+                    for i, path in enumerate(resolved_paths, 1):
+                        tfu.cprint(f"  {i}. {path}", tfu.LIGHT_BLACK)
+            else:
+                tfu.cprint(f"[Grounding] No valid grounding files found", tfu.LIGHT_YELLOW)
+                grounding_file_path = None
         
         self.vlm_response_parsed = self.vlm_gen_action(
             image=self.image,

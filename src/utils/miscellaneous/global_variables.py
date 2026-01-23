@@ -70,7 +70,10 @@ GROUNDING_VLM_MAX_TOKENS = 2000  # Grounding 생성용 max_tokens (기본값: 20
 
 # Grounding 사용 설정
 # 사용할 Grounding 파일 경로 (None이면 Grounding 사용 안 함)
-GROUNDING_FILE_PATH = None  # None | "logs/grounding/grounding_latest.txt" | etc.
+# 단일 파일: "logs/grounding/grounding_latest.txt"
+# 여러 파일: ["logs/grounding/grounding_latest.txt", "logs/grounding/custom_grounding.txt"] 또는 쉼표로 구분된 문자열
+# GROUNDING_FILE_PATH = "logs/scenario2_absolute_example_map_20260123_170550/episode_1_20260123_170552_scenario2_test_absolutemove_modularized/grounding_episode_1.txt,logs/scenario2_absolute_example_map_20260123_165532/episode_1_20260123_165535_scenario2_test_absolutemove_modularized/grounding_episode_1.txt"  # None | str | List[str] | "file1.txt,file2.txt"
+GROUNDING_FILE_PATH = None
 # 현재 에피소드에서 생성된 Grounding은 다음 에피소드부터 사용 가능 (즉석 적용 안 됨)
 
 #
