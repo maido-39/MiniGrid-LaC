@@ -21,11 +21,13 @@
 import csv
 import cv2
 import json
+import sys
 import numpy as np
 from PIL import Image
 from pathlib import Path
 from typing import Union, Optional, Tuple, Dict, Any  # Union is used in visualize_grid_cli
 from datetime import datetime
+from colorama import Fore, Style
 
 from utils.miscellaneous.visualizer import Visualizer
 from utils.vlm.vlm_processor import VLMProcessor
@@ -265,18 +267,72 @@ class ScenarioExperiment:
         tfu.cprint(f"Instruction: {instruction}", tfu.LIGHT_BLUE)
         tfu.cprint("Status changed image displayed above.\n", tfu.LIGHT_BLACK)
         
-        # 양식과 예시 제시
-        tfu.cprint("양식: {s/w/f} : (u: {due to _ , failed/success}, s: {due to _ , failed/success}, p: {due to _ , failed/success}, g: {due to _ , failed/success})", tfu.LIGHT_WHITE)
-        tfu.cprint("(참고: 콜론(:) 앞뒤 스페이스는 선택사항입니다. 's:' 또는 's :' 모두 가능합니다)", tfu.LIGHT_BLACK, italic=True)
-        tfu.cprint("\n예시:", tfu.LIGHT_WHITE)
-        tfu.cprint("  - s: (u: i like spicy food. good job, s: tomato is B7 and you correctly arrived at there. goodjob!)", tfu.LIGHT_BLACK)
-        tfu.cprint("  - s : (u : gj)  # 스페이스 있어도 됨", tfu.LIGHT_BLACK)
-        tfu.cprint("  - f: (g: due to wall blocking movement, failed)", tfu.LIGHT_BLACK)
-        tfu.cprint("  - w: (p: in progress, continue)", tfu.LIGHT_BLACK)
-        tfu.cprint("\n종료하려면: end", tfu.LIGHT_YELLOW)
-        tfu.cprint("\nEnter feedback:", tfu.LIGHT_WHITE)
+        # Feedback format and examples - visually enhanced
+        tfu.cprint("─" * 80, tfu.LIGHT_WHITE)
+        tfu.cprint("📋 Feedback Format", tfu.LIGHT_WHITE, bold=True)
+        tfu.cprint("─" * 80, tfu.LIGHT_WHITE)
         
-        user_input = input("> ").strip()
+        tfu.cprint("\n  Format:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    >> {s/f/w}:(u: (feedback), s: (feedback), p: (feedback), g: (feedback))", tfu.LIGHT_YELLOW)
+        
+        tfu.cprint("\n  Status Codes:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    " + "s".ljust(5) + "= Success", tfu.LIGHT_GREEN)
+        tfu.cprint("    " + "f".ljust(5) + "= Failure", tfu.LIGHT_RED)
+        tfu.cprint("    " + "w".ljust(5) + "= Work in Progress", tfu.LIGHT_YELLOW)
+        
+        tfu.cprint("\n  Feedback Types:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    " + "u".ljust(5) + "= User Preference", tfu.LIGHT_BLUE)
+        tfu.cprint("    " + "s".ljust(5) + "= Spatial", tfu.LIGHT_MAGENTA)
+        tfu.cprint("    " + "p".ljust(5) + "= Procedural", tfu.LIGHT_CYAN)
+        tfu.cprint("    " + "g".ljust(5) + "= General", tfu.LIGHT_WHITE)
+        
+        tfu.cprint("\n  Notes:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    • You only need to write the necessary elements (u, s, p, g)", tfu.LIGHT_BLACK, italic=True)
+        tfu.cprint("    • Colon spacing is optional: 's:' or 's :' both work", tfu.LIGHT_BLACK, italic=True)
+        
+        # Grounding Stacking Section
+        tfu.cprint("\n" + "─" * 80, tfu.LIGHT_WHITE)
+        tfu.cprint("📚 Grounding Stacking", tfu.LIGHT_WHITE, bold=True)
+        tfu.cprint("─" * 80, tfu.LIGHT_WHITE)
+        
+        tfu.cprint("\n  Status Criteria:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    " + "Success".ljust(20) + ": Entering the target area", tfu.LIGHT_GREEN)
+        tfu.cprint("    " + "Failure".ljust(20) + ": Taking an abnormal path as judged by a human observer", tfu.LIGHT_RED)
+        tfu.cprint("    " + "While In Progress".ljust(20) + ": When simply moving to the target room", tfu.LIGHT_YELLOW)
+        
+        tfu.cprint("\n  Elements for Each Step:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    " + "Success, Failure:", tfu.LIGHT_WHITE, bold=True)
+        tfu.cprint("      " + "Reasons for Success/Failure and Next Plan", tfu.LIGHT_BLACK)
+        tfu.cprint("      " + "Format: " + "[Reason]. [Next plan].", tfu.LIGHT_YELLOW, bold=True)
+        tfu.cprint("      " + "Example: " + "[Reason]. [Next plan].", tfu.LIGHT_YELLOW, bold=True, underline=True)
+        tfu.cprint("    " + "While In Progress:", tfu.LIGHT_WHITE, bold=True)
+        tfu.cprint("      " + "Feedback not required (Null)", tfu.LIGHT_BLACK)
+        
+        tfu.cprint("\n  Final Grounding Examples:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    u: User prefers food with Pepper and Tomato", tfu.LIGHT_BLUE)
+        tfu.cprint("    s: Restroom at (3,0), Storage at (2,2) contains Apple, Tomato, Pepper", tfu.LIGHT_MAGENTA)
+        tfu.cprint("    p: Sequence: Restroom → Storage → Preparation → Kitchen → Plating → Goal", tfu.LIGHT_CYAN)
+        tfu.cprint("    g: You mustn't hit the wall", tfu.LIGHT_WHITE)
+        
+        tfu.cprint("\n  Quick Examples:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    " + ">> s:(u: Spicy preference. Add Pepper., s: , p: )", tfu.LIGHT_BLACK)
+        tfu.cprint("    " + ">> f:(u: , s: , g: Wall blocking movement, failed)", tfu.LIGHT_BLACK)
+        tfu.cprint("    " + ">> w:(p: In progress, continue)", tfu.LIGHT_BLACK)
+        tfu.cprint("    " + ">> s : (u : Good job!)  # Space around colon is optional", tfu.LIGHT_BLACK)
+        
+        tfu.cprint("\n" + "─" * 80, tfu.LIGHT_WHITE)
+        tfu.cprint("종료하려면: end", tfu.LIGHT_YELLOW, bold=True)
+        
+        # 눈에 띄는 feedback 입력 프롬프트
+        tfu.cprint("\n" + "═" * 80, tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("📝 " + " " * 28 + "FEEDBACK 입력" + " " * 28, tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("═" * 80, tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("\nEnter feedback:", tfu.LIGHT_CYAN, bold=True)
+        
+        # 색상이 적용된 입력 프롬프트
+        sys.stdout.write(f"{Fore.LIGHTCYAN_EX}{Style.BRIGHT}> {Style.RESET_ALL}")
+        sys.stdout.flush()
+        user_input = input().strip()
         
         if not user_input:
             return None, False
