@@ -40,6 +40,8 @@ class PromptOrganizer:
         self.grounding = ""
         self.previous_action = ""
         self.task_process = {"goal": "", "status": ""}  # status: pending | in_progress | completed | blocked
+        # User prompt input cache (for reusing previous input with Enter key)
+        self.user_prompt_cache = None
     
     def get_system_prompt(self, wrapper=None, last_action_result=None) -> str:
         """Generate Entire System Prompt (Absolute Coordinate Version)"""
@@ -124,7 +126,19 @@ class PromptOrganizer:
         tfu.cprint("- or enter the .txt file path", tfu.LIGHT_WHITE, italic=True)
         tfu.cprint(f"(Example >> {actual_default})\n", tfu.LIGHT_BLACK, italic=True)
         
+        # Show cached value if available
+        if self.user_prompt_cache:
+            tfu.cprint(f"Previous input (press Enter to reuse): {self.user_prompt_cache}", tfu.LIGHT_BLACK, italic=True)
+        
         user_input = input("> ").strip()
+        
+        # Empty input and cache exists: use cache
+        if not user_input and self.user_prompt_cache:
+            user_input = self.user_prompt_cache
+            tfu.cprint(f"Using cached input: {user_input}", tfu.LIGHT_BLACK, italic=True)
+        elif user_input:
+            # New input: update cache
+            self.user_prompt_cache = user_input
         
         # Store raw input for feedback detection
         self._raw_user_input = user_input

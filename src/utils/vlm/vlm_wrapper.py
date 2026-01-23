@@ -218,20 +218,57 @@ class VLMWrapper:
         # Measure inference time
         start_time = time.time()
         
-        # Read grounding file if provided
+        # Read grounding file(s) if provided
+        # Support multiple files: list or comma-separated string
         if grounding_file:
             try:
-                grounding_path = Path(grounding_file)
-                if grounding_path.exists():
-                    grounding_content = grounding_path.read_text(encoding='utf-8')
+                # Handle multiple files: list or comma-separated string
+                if isinstance(grounding_file, list):
+                    file_paths = [Path(f) for f in grounding_file]
+                elif isinstance(grounding_file, str) and ',' in grounding_file:
+                    file_paths = [Path(f.strip()) for f in grounding_file.split(',')]
+                else:
+                    file_paths = [Path(grounding_file)]
+                
+                # Read all files and merge content
+                grounding_contents = []
+                for grounding_path in file_paths:
+                    if grounding_path.exists():
+                        content = grounding_path.read_text(encoding='utf-8')
+                        grounding_contents.append(content)
+                        if debug:
+                            print(f"[Grounding] Loaded file: {grounding_path}")
+                    else:
+                        if debug:
+                            print(f"[Warning] Grounding file not found: {grounding_path}")
+                
+                # Merge all grounding contents
+                if grounding_contents:
+                    merged_content = "\n\n---\n\n".join(grounding_contents)
                     # Append grounding content to user_prompt
-                    user_prompt = f"{user_prompt}\n\n## Grounding Knowledge (Reference)\n{grounding_content}"
+                    original_user_prompt = user_prompt
+                    user_prompt = f"{user_prompt}\n\n## Grounding Knowledge (Reference)\n{merged_content}"
+                    if debug:
+                        print("\n" + "=" * 80)
+                        print("[DEBUG] Grounding File Loading")
+                        print("=" * 80)
+                        print(f"Loaded {len(grounding_contents)} file(s)")
+                        print(f"\n[Original User Prompt]")
+                        print("-" * 80)
+                        print(original_user_prompt)
+                        print(f"\n[Merged Grounding Content]")
+                        print("-" * 80)
+                        print(merged_content)
+                        print(f"\n[Final User Prompt (with Grounding)]")
+                        print("-" * 80)
+                        print(user_prompt)
+                        print("=" * 80 + "\n")
                 else:
                     if debug:
-                        print(f"[Warning] Grounding file not found: {grounding_file}")
+                        print(f"[Warning] No valid grounding files found")
             except Exception as e:
                 if debug:
-                    print(f"[Warning] Failed to read grounding file: {e}")
+                    print(f"[Warning] Failed to read grounding file(s): {e}")
         
         # Call handler with metadata if debug is enabled
         if debug:
@@ -385,20 +422,57 @@ class VLMWrapper:
         # Measure inference time
         start_time = time.time()
         
-        # Read grounding file if provided
+        # Read grounding file(s) if provided
+        # Support multiple files: list or comma-separated string
         if grounding_file:
             try:
-                grounding_path = Path(grounding_file)
-                if grounding_path.exists():
-                    grounding_content = grounding_path.read_text(encoding='utf-8')
+                # Handle multiple files: list or comma-separated string
+                if isinstance(grounding_file, list):
+                    file_paths = [Path(f) for f in grounding_file]
+                elif isinstance(grounding_file, str) and ',' in grounding_file:
+                    file_paths = [Path(f.strip()) for f in grounding_file.split(',')]
+                else:
+                    file_paths = [Path(grounding_file)]
+                
+                # Read all files and merge content
+                grounding_contents = []
+                for grounding_path in file_paths:
+                    if grounding_path.exists():
+                        content = grounding_path.read_text(encoding='utf-8')
+                        grounding_contents.append(content)
+                        if debug:
+                            print(f"[Grounding] Loaded file: {grounding_path}")
+                    else:
+                        if debug:
+                            print(f"[Warning] Grounding file not found: {grounding_path}")
+                
+                # Merge all grounding contents
+                if grounding_contents:
+                    merged_content = "\n\n---\n\n".join(grounding_contents)
                     # Append grounding content to user_prompt
-                    user_prompt = f"{user_prompt}\n\n## Grounding Knowledge (Reference)\n{grounding_content}"
+                    original_user_prompt = user_prompt
+                    user_prompt = f"{user_prompt}\n\n## Grounding Knowledge (Reference)\n{merged_content}"
+                    if debug:
+                        print("\n" + "=" * 80)
+                        print("[DEBUG] Grounding File Loading (with logprobs)")
+                        print("=" * 80)
+                        print(f"Loaded {len(grounding_contents)} file(s)")
+                        print(f"\n[Original User Prompt]")
+                        print("-" * 80)
+                        print(original_user_prompt)
+                        print(f"\n[Merged Grounding Content]")
+                        print("-" * 80)
+                        print(merged_content)
+                        print(f"\n[Final User Prompt (with Grounding)]")
+                        print("-" * 80)
+                        print(user_prompt)
+                        print("=" * 80 + "\n")
                 else:
                     if debug:
-                        print(f"[Warning] Grounding file not found: {grounding_file}")
+                        print(f"[Warning] No valid grounding files found")
             except Exception as e:
                 if debug:
-                    print(f"[Warning] Failed to read grounding file: {e}")
+                    print(f"[Warning] Failed to read grounding file(s): {e}")
         
         # Call handler with metadata (logprobs will be included)
         result = self._handler.generate(

@@ -21,11 +21,13 @@
 import csv
 import cv2
 import json
+import sys
 import numpy as np
 from PIL import Image
 from pathlib import Path
 from typing import Union, Optional, Tuple, Dict, Any  # Union is used in visualize_grid_cli
 from datetime import datetime
+from colorama import Fore, Style
 
 from utils.miscellaneous.visualizer import Visualizer
 from utils.vlm.vlm_processor import VLMProcessor
@@ -232,18 +234,36 @@ class ScenarioExperiment:
             "general": None
         }
         
-        # u:, s:, p:, g: 패턴으로 추출
-        type_patterns = {
-            "user_preference": r'u\s*:\s*([^,)]+)',
-            "spatial": r's\s*:\s*([^,)]+)',
-            "procedural": r'p\s*:\s*([^,)]+)',
-            "general": r'g\s*:\s*([^,)]+)'
+        # 타입 매핑
+        type_mapping = {
+            'u': 'user_preference',
+            's': 'spatial',
+            'p': 'procedural',
+            'g': 'general'
         }
+        type_keys = list(type_mapping.keys())
         
-        for feedback_type, pattern in type_patterns.items():
+        # 각 타입별로 다음 타입 구분자나 끝까지 추출
+        for key, feedback_type in type_mapping.items():
+            # 현재 타입 구분자 찾기
+            pattern = rf'{key}\s*:\s*'
             match = re.search(pattern, content, re.IGNORECASE)
             if match:
-                feedback_dict[feedback_type] = match.group(1).strip()
+                start = match.end()
+                # 다음 타입 구분자 찾기 (현재 타입이 아닌 다른 타입들)
+                next_keys = [k for k in type_keys if k.lower() != key.lower()]
+                next_pattern = '|'.join([rf'\s*{k}\s*:' for k in next_keys])
+                end_match = re.search(next_pattern, content[start:], re.IGNORECASE)
+                
+                if end_match:
+                    end = start + end_match.start()
+                else:
+                    end = len(content)
+                
+                # 추출 후 앞뒤 공백 및 마지막 쉼표 제거
+                feedback_text = content[start:end].strip().rstrip(',')
+                if feedback_text:
+                    feedback_dict[feedback_type] = feedback_text
         
         return feedback_dict, False
     
@@ -265,18 +285,52 @@ class ScenarioExperiment:
         tfu.cprint(f"Instruction: {instruction}", tfu.LIGHT_BLUE)
         tfu.cprint("Status changed image displayed above.\n", tfu.LIGHT_BLACK)
         
-        # 양식과 예시 제시
-        tfu.cprint("양식: {s/w/f} : (u: {due to _ , failed/success}, s: {due to _ , failed/success}, p: {due to _ , failed/success}, g: {due to _ , failed/success})", tfu.LIGHT_WHITE)
-        tfu.cprint("(참고: 콜론(:) 앞뒤 스페이스는 선택사항입니다. 's:' 또는 's :' 모두 가능합니다)", tfu.LIGHT_BLACK, italic=True)
-        tfu.cprint("\n예시:", tfu.LIGHT_WHITE)
-        tfu.cprint("  - s: (u: i like spicy food. good job, s: tomato is B7 and you correctly arrived at there. goodjob!)", tfu.LIGHT_BLACK)
-        tfu.cprint("  - s : (u : gj)  # 스페이스 있어도 됨", tfu.LIGHT_BLACK)
-        tfu.cprint("  - f: (g: due to wall blocking movement, failed)", tfu.LIGHT_BLACK)
-        tfu.cprint("  - w: (p: in progress, continue)", tfu.LIGHT_BLACK)
-        tfu.cprint("\n종료하려면: end", tfu.LIGHT_YELLOW)
-        tfu.cprint("\nEnter feedback:", tfu.LIGHT_WHITE)
+        # Feedback format and examples - visually enhanced
+        tfu.cprint("─" * 80, tfu.LIGHT_WHITE)
+        tfu.cprint("📋 Feedback Format & Grounding Stacking", tfu.LIGHT_WHITE, bold=True)
+        tfu.cprint("─" * 80, tfu.LIGHT_WHITE)
         
-        user_input = input("> ").strip()
+        tfu.cprint("\n  Format:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    >> {s/f/w}:(u: (feedback), s: (feedback), p: (feedback), g: (feedback))", tfu.LIGHT_YELLOW)
+        
+        tfu.cprint("\n  Status Codes & Elements:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    " + "s (Success)".ljust(25) + ": Entering the target area", tfu.LIGHT_GREEN)
+        tfu.cprint("      " + "→ Reasons for Success", tfu.LIGHT_BLACK)
+        tfu.cprint("      " + "  Example: " + "[Reason]", tfu.LIGHT_YELLOW, bold=True, underline=True)
+        tfu.cprint("    " + "f (Failure)".ljust(25) + ": Taking an abnormal path as judged by a human observer", tfu.LIGHT_RED)
+        tfu.cprint("      " + "→ Reasons for Failure and Next Plan", tfu.LIGHT_BLACK)
+        tfu.cprint("      " + "  Example: " + "[Reason]. [The PLAN to be carried out in the next episode].", tfu.LIGHT_YELLOW, bold=True, underline=True)
+        tfu.cprint("    " + "w (Work in Progress)".ljust(25) + ": When simply moving to the target room", tfu.LIGHT_YELLOW)
+        tfu.cprint("      " + "→ Feedback not required (Null)", tfu.LIGHT_BLACK)
+        
+        tfu.cprint("\n  Feedback Types:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    " + "u".ljust(5) + "= User Preference", tfu.LIGHT_BLUE)
+        tfu.cprint("    " + "s".ljust(5) + "= Spatial", tfu.LIGHT_MAGENTA)
+        tfu.cprint("    " + "p".ljust(5) + "= Procedural", tfu.LIGHT_CYAN)
+        tfu.cprint("    " + "g".ljust(5) + "= General", tfu.LIGHT_WHITE)
+        
+        tfu.cprint("\n  Notes:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    • You only need to write the necessary elements (u, s, p, g)", tfu.LIGHT_BLACK, italic=True)
+        tfu.cprint("    • Colon spacing is optional: 's:' or 's :' both work", tfu.LIGHT_BLACK, italic=True)
+        
+        tfu.cprint("\n  Examples:", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("    " + ">> s:(u: Spicy preference. Add Pepper., s: , p: )", tfu.LIGHT_BLACK)
+        tfu.cprint("    " + ">> f:(u: , s: , g: Wall blocking movement, failed)", tfu.LIGHT_BLACK)
+        tfu.cprint("    " + ">> w:", tfu.LIGHT_BLACK)
+        
+        tfu.cprint("\n" + "─" * 80, tfu.LIGHT_WHITE)
+        tfu.cprint("종료하려면: end", tfu.LIGHT_YELLOW, bold=True)
+        
+        # 눈에 띄는 feedback 입력 프롬프트
+        tfu.cprint("\n" + "═" * 80, tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("📝 " + " " * 28 + "FEEDBACK 입력" + " " * 28, tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("═" * 80, tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("\nEnter feedback:", tfu.LIGHT_CYAN, bold=True)
+        
+        # 색상이 적용된 입력 프롬프트
+        sys.stdout.write(f"{Fore.LIGHTCYAN_EX}{Style.BRIGHT}> {Style.RESET_ALL}")
+        sys.stdout.flush()
+        user_input = input().strip()
         
         if not user_input:
             return None, False
@@ -552,11 +606,36 @@ class ScenarioExperiment:
         # GroundingFileManager에서 stacked_grounding 데이터 가져오기 (Status 포함)
         stacked_grounding = self.grounding_file_manager.get_stacked_grounding()
         
-        # 이전 Grounding 파일 읽기 (있는 경우)
+        # 이전 Grounding 파일 읽기 (있는 경우) - 여러 파일 지원
         previous_grounding = ""
-        if GROUNDING_FILE_PATH and Path(GROUNDING_FILE_PATH).exists():
+        if GROUNDING_FILE_PATH:
             try:
-                previous_grounding = Path(GROUNDING_FILE_PATH).read_text(encoding='utf-8')
+                # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열 처리
+                if isinstance(GROUNDING_FILE_PATH, str):
+                    if ',' in GROUNDING_FILE_PATH:
+                        file_paths = [p.strip() for p in GROUNDING_FILE_PATH.split(',')]
+                    else:
+                        file_paths = [GROUNDING_FILE_PATH]
+                elif isinstance(GROUNDING_FILE_PATH, list):
+                    file_paths = GROUNDING_FILE_PATH
+                else:
+                    file_paths = []
+                
+                # 각 파일 읽기 및 병합
+                grounding_contents = []
+                for file_path in file_paths:
+                    grounding_path = Path(file_path)
+                    if grounding_path.exists():
+                        content = grounding_path.read_text(encoding='utf-8')
+                        grounding_contents.append(content)
+                        tfu.cprint(f"[Grounding] Loaded for generation: {grounding_path}", tfu.LIGHT_GREEN)
+                    else:
+                        tfu.cprint(f"[Warning] Grounding file not found: {grounding_path}", tfu.LIGHT_YELLOW)
+                
+                # 모든 파일 내용 병합
+                if grounding_contents:
+                    previous_grounding = "\n\n---\n\n".join(grounding_contents)
+                    tfu.cprint(f"[Grounding] Merged {len(grounding_contents)} file(s) for grounding generation", tfu.LIGHT_CYAN)
             except Exception as e:
                 tfu.cprint(f"[Warning] Failed to read previous grounding: {e}", tfu.LIGHT_RED)
         
@@ -1422,21 +1501,87 @@ class ScenarioExperiment:
         system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper, self.last_action_result)
         
         # Grounding 파일 경로 가져오기 (새 Grounding 시스템 사용 시)
+        # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열
         grounding_file_path = None
         if self.use_new_grounding_system and GROUNDING_FILE_PATH:
-            grounding_file_path = GROUNDING_FILE_PATH
-            # 상대 경로인 경우 절대 경로로 변환
-            if not Path(grounding_file_path).is_absolute():
-                # logs/grounding/grounding_latest.txt 형식인 경우
-                if grounding_file_path.startswith("logs/"):
-                    grounding_file_path = Path(grounding_file_path)
+            # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열 처리
+            if isinstance(GROUNDING_FILE_PATH, str):
+                # 쉼표로 구분된 문자열인 경우 리스트로 변환
+                if ',' in GROUNDING_FILE_PATH:
+                    file_paths = [p.strip() for p in GROUNDING_FILE_PATH.split(',')]
                 else:
-                    # 현재 log_dir 기준으로 찾기
-                    potential_path = self.log_dir.parent / grounding_file_path
-                    if potential_path.exists():
-                        grounding_file_path = potential_path
-                    else:
-                        grounding_file_path = None
+                    file_paths = [GROUNDING_FILE_PATH]
+            elif isinstance(GROUNDING_FILE_PATH, list):
+                file_paths = GROUNDING_FILE_PATH
+            else:
+                file_paths = []
+            
+            # 각 파일 경로를 절대 경로로 변환하고 존재 여부 확인
+            resolved_paths = []
+            for file_path in file_paths:
+                file_path_str = str(file_path).strip()
+                potential_path = None
+                tried_paths = []
+                
+                # 절대 경로인 경우
+                if Path(file_path_str).is_absolute():
+                    potential_path = Path(file_path_str)
+                    tried_paths.append(str(potential_path))
+                # logs/grounding/grounding_latest.txt 형식인 경우 (상대 경로)
+                elif file_path_str.startswith("logs/"):
+                    # 1. 프로젝트 루트 기준 (src/utils/miscellaneous -> project root)
+                    project_root = Path(__file__).parent.parent.parent
+                    potential_path = project_root / file_path_str
+                    tried_paths.append(str(potential_path))
+                    
+                    # 2. src/ 기준으로도 시도
+                    if not potential_path.exists():
+                        src_root = Path(__file__).parent.parent.parent / "src"
+                        potential_path = src_root / file_path_str
+                        tried_paths.append(str(potential_path))
+                    
+                    # 3. 현재 log_dir 기준으로도 시도
+                    if not potential_path.exists() and hasattr(self, 'log_dir'):
+                        potential_path = self.log_dir.parent / file_path_str
+                        tried_paths.append(str(potential_path))
+                else:
+                    # 1. 현재 log_dir 기준으로 찾기
+                    if hasattr(self, 'log_dir'):
+                        potential_path = self.log_dir.parent / file_path_str
+                        tried_paths.append(str(potential_path))
+                    
+                    # 2. 프로젝트 루트 기준으로도 시도
+                    if (not potential_path or not potential_path.exists()):
+                        project_root = Path(__file__).parent.parent.parent
+                        potential_path = project_root / file_path_str
+                        tried_paths.append(str(potential_path))
+                    
+                    # 3. src/ 기준으로도 시도
+                    if not potential_path.exists():
+                        src_root = Path(__file__).parent.parent.parent / "src"
+                        potential_path = src_root / file_path_str
+                        tried_paths.append(str(potential_path))
+                
+                if potential_path and potential_path.exists():
+                    resolved_paths.append(str(potential_path.resolve()))
+                    tfu.cprint(f"[Grounding] ✓ Loaded: {potential_path.resolve()}", tfu.LIGHT_GREEN)
+                else:
+                    tfu.cprint(f"[Grounding] ✗ File not found: {file_path_str}", tfu.LIGHT_RED)
+                    tfu.cprint(f"  Tried paths: {', '.join(tried_paths[:3])}", tfu.LIGHT_BLACK)
+            
+            # 여러 파일이 있으면 리스트로 전달 (vlm_wrapper에서 여러 파일 처리)
+            if resolved_paths:
+                if len(resolved_paths) == 1:
+                    grounding_file_path = resolved_paths[0]
+                    tfu.cprint(f"[Grounding] Using single file: {grounding_file_path}", tfu.LIGHT_CYAN)
+                else:
+                    grounding_file_path = resolved_paths
+                    tfu.cprint(f"[Grounding] Using {len(resolved_paths)} files (will be merged):", tfu.LIGHT_CYAN)
+                    for i, path in enumerate(resolved_paths, 1):
+                        tfu.cprint(f"  {i}. {path}", tfu.LIGHT_BLACK)
+            else:
+                tfu.cprint(f"[Grounding] No valid grounding files found", tfu.LIGHT_YELLOW)
+                grounding_file_path = None
         
         self.vlm_response_parsed = self.vlm_gen_action(
             image=self.image,
@@ -1457,12 +1602,17 @@ class ScenarioExperiment:
             except Exception:
                 action_chunk = [action_chunk] if action_chunk else []
         if not isinstance(action_chunk, list):
-            action_chunk = [str(action_chunk)]
+            action_chunk = [action_chunk]
         
         if len(action_chunk) == 0:
             action_str = '0'  # Default value: move up
         else:
-            action_str = str(action_chunk[0])
+            first_action = action_chunk[0]
+            # Handle dict format for directional pickup: {"pickup": "north"}
+            if isinstance(first_action, dict):
+                action_str = first_action
+            else:
+                action_str = str(first_action)
         
         # Memory Parsing
         memory = self.vlm_response_parsed.get('memory', {})
@@ -1573,13 +1723,23 @@ class ScenarioExperiment:
             current_pos_before = (int(current_pos_before[0]), int(current_pos_before[1]))
         
         try:
-            self.action_index = self.wrapper.parse_absolute_action(action_str)
-            action_space = self.wrapper.get_absolute_action_space()
-            self.action_name = action_space['action_mapping'].get(self.action_index, f"action_{self.action_index}")
+            parsed_action = self.wrapper.parse_absolute_action(action_str)
+            
+            # Handle dict format for directional pickup: {"pickup": "north"}
+            if isinstance(parsed_action, dict) and "pickup" in parsed_action:
+                self.action_index = 4  # pickup action index
+                direction = parsed_action["pickup"]
+                self.action_name = f"pickup:{direction}"
+            else:
+                self.action_index = parsed_action
+                action_space = self.wrapper.get_absolute_action_space()
+                self.action_name = action_space['action_mapping'].get(self.action_index, f"action_{self.action_index}")
             tfu.cprint(f"Action to execute: {self.action_name} (Index: {self.action_index})")
             
             # Since use_absolute_movement=True, step() handles absolute movement.
-            _, self.reward, terminated, truncated, _ = self.wrapper.step(self.action_index)
+            # Pass parsed_action if it's a dict (for directional pickup), otherwise use action_index
+            action_to_execute = parsed_action if isinstance(parsed_action, dict) else self.action_index
+            _, self.reward, terminated, truncated, _ = self.wrapper.step(action_to_execute)
             self.done = terminated or truncated
             
             # Confirm location after action execution
