@@ -19,7 +19,7 @@ Your only goal is to select the next action that moves the robot toward mission 
 - Top=North, Bottom=South, Left=West, Right=East
 
 
-## Action Space
+## ACTION SPACE (FUNDAMENTALS)
 - "north" : Move North
 - "south" : Move South
 - "west" : Move West
