@@ -4,7 +4,7 @@
 #   pip install -r requirements.txt
 #
 # 또는 conda 환경에서:
-#   conda create -n minigrid python=3.9
+#   conda create -n minigrid python=3.10
 #   conda activate minigrid
 #   pip install -r requirements.txt
 
@@ -17,12 +17,15 @@ minigrid>=3.0.0
 gymnasium>=1.1.0
 
 # Image processing
-numpy>=2.0.0  # Note: NumPy 2.0+ may have compatibility issues with some packages
-pillow>=11.0.0  # PIL (Python Imaging Library)
-opencv-python>=4.12.0  # OpenCV for image processing
+numpy>=1.24.0,<2.0.0  # NumPy 2.0+ has compatibility issues with some packages
+pillow>=10.0.0  # PIL (Python Imaging Library)
+opencv-python>=4.8.0  # OpenCV for image processing
+
+# Text rendering on images (for emoji rendering)
+imagetext-py>=2.1.0  # Fast text/emoji rendering on images
 
 # Visualization
-matplotlib>=3.9.0
+matplotlib>=3.7.0
 
 # Environment variables
 python-dotenv>=1.0.0  # Load .env files for API keys
@@ -40,14 +43,15 @@ colorama>=0.4.6  # Cross-platform colored terminal text
 # OpenAI VLM (Primary)
 openai>=1.0.0  # GPT-4o Vision API
 
-# Gemini VLM (Optional - via Google Generative AI)
-google-generativeai>=0.3.0  # Google Gemini API
+# Gemini VLM (Optional - via Google GenAI SDK)
+google-genai>=0.4.0  # Google Gemini API (new SDK)
+google-auth>=2.0.0  # Google authentication (for service account support)
 
 # Qwen VLM (Optional - via DashScope API)
 dashscope>=1.0.0  # Alibaba DashScope API for Qwen models
 
 # Qwen/Gemma VLM (Optional - via HuggingFace)
-transformers>=4.0.0  # HuggingFace Transformers library
+transformers>=4.40.0  # HuggingFace Transformers library
 torch>=2.0.0  # PyTorch (required for local model inference)
 torchvision>=0.15.0  # Required for Qwen2-VL models via HuggingFace
 
