@@ -13,9 +13,49 @@ import json
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 from pathlib import Path
 import re
 from typing import List, Dict, Tuple, Optional
+
+# 한글 폰트 설정 (Noto Sans CJK)
+try:
+    # 시스템에 설치된 폰트 찾기
+    font_paths = []
+    for font in fm.fontManager.ttflist:
+        if 'noto' in font.name.lower() and 'sans' in font.name.lower():
+            font_paths.append((font.name, font.fname))
+    
+    # Noto Sans CJK KR 우선, 없으면 다른 Noto Sans 사용
+    preferred_names = ['Noto Sans CJK KR', 'Noto Sans CJK', 'Noto Sans']
+    font_name = None
+    font_path = None
+    
+    for preferred in preferred_names:
+        for name, path in font_paths:
+            if preferred.lower() in name.lower():
+                font_name = name
+                font_path = path
+                break
+        if font_name:
+            break
+    
+    if font_name:
+        # 폰트 직접 설정
+        font_prop = fm.FontProperties(fname=font_path)
+        plt.rcParams['font.family'] = font_name
+        # 한글 깨짐 방지를 위한 추가 설정
+        plt.rcParams['axes.unicode_minus'] = False
+        print(f"폰트 설정: {font_name}")
+    else:
+        # 기본 폰트 사용
+        plt.rcParams['font.family'] = 'DejaVu Sans'
+        plt.rcParams['axes.unicode_minus'] = False
+        print("Noto Sans 폰트를 찾을 수 없어 기본 폰트를 사용합니다.")
+except Exception as e:
+    print(f"폰트 설정 중 오류: {e}")
+    plt.rcParams['font.family'] = 'DejaVu Sans'
+    plt.rcParams['axes.unicode_minus'] = False
 
 
 def parse_logprob_string(logprob_str: str) -> float:
