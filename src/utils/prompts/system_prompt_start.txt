@@ -8,12 +8,6 @@ Your only goal is to select the next action that moves the robot toward mission 
   EMPTY, WALL, TARGET, OBJECT_X, AGENT
 - The provided image is a top-down orthographic projection.
 - Image orientation is always north-up.
-- Rooms:
-  - Purple -> restroom / bathroom
-  - Yellow -> preparation room
-  - Green -> kitchen
-  - Orange -> plating room
-  - Blue -> dining room
 
 ## COORDINATE SYSTEM = ABSOLUTE
 - Top=North, Bottom=South, Left=West, Right=East
