@@ -21,7 +21,7 @@
 from utils.prompt_manager.prompt_interp import *
 import utils.prompt_manager.terminal_formatting_utils as tfu
 
-from utils.miscellaneous.global_variables import DEFAULT_INITIAL_MISSION, DEFAULT_MISSION, USE_NEW_GROUNDING_SYSTEM
+from utils.miscellaneous.global_variables import DEFAULT_INITIAL_MISSION, DEFAULT_MISSION, USE_NEW_GROUNDING_SYSTEM, USE_VERBALIZED_ENTROPY
 
 
 
@@ -83,6 +83,53 @@ class PromptOrganizer:
                                     task_process_str=task_process_str,
                                     previous_action=previous_action
                                    )
+    
+    def get_verbalized_entropy_system_prompt(self, wrapper=None, last_action_result=None) -> str:
+        """
+        Generate System Prompt for Verbalized Entropy mode
+        Uses step1/step2/step3 probability distributions instead of action array
+        """
+        
+        # Grounding Content
+        if USE_NEW_GROUNDING_SYSTEM:
+            grounding_content = ""
+        else:
+            grounding_content = self.grounding if self.grounding else ""
+        
+        # Previous Action
+        previous_action = self.previous_action if self.previous_action else "None"
+        
+        # Task Process
+        task_goal = self.task_process.get("goal", "") if self.task_process.get("goal") else "None"
+        task_status = self.task_process.get("status", "") if self.task_process.get("status") else "None"
+        task_process_str = f"Goal: {task_goal}, Status: {task_status}"
+        
+        return system_prompt_interp(file_name="system_prompt_verbalized_entropy.txt",
+                                    strict=True,
+                                    grounding_content=grounding_content,
+                                    task_process_str=task_process_str,
+                                    previous_action=previous_action
+                                   )
+    
+    def get_system_prompt_by_mode(self, wrapper=None, last_action_result=None, use_verbalized: bool = None) -> str:
+        """
+        Get system prompt based on mode (verbalized entropy or standard)
+        
+        Args:
+            wrapper: Environment wrapper
+            last_action_result: Last action result dictionary
+            use_verbalized: Override for USE_VERBALIZED_ENTROPY (None = use global setting)
+        
+        Returns:
+            System prompt string
+        """
+        if use_verbalized is None:
+            use_verbalized = USE_VERBALIZED_ENTROPY
+        
+        if use_verbalized:
+            return self.get_verbalized_entropy_system_prompt(wrapper, last_action_result)
+        else:
+            return self.get_system_prompt(wrapper, last_action_result)
     
     def get_feedback_system_prompt(self) -> str:
         """
