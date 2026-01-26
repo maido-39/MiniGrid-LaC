@@ -1,0 +1,3077 @@
+[
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.2,
+    "n_runs": 5,
+    "success_count": 3,
+    "entropy_mean": 0.847584679824574,
+    "entropy_std": 0.0,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 0.847584679824574,
+    "exec_mean": 0.6999999999999998,
+    "exec_std": 1.1102230246251565e-16,
+    "best_guess_ratio": {
+      "north": 0.0,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 1.0
+    },
+    "raw_results": [
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green room is toilet, move east to get there.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green room is toilet, move east to get there.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green room is toilet. Move east to get there.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green room is toilet. Move east to get there.\"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "The green room is the toilet. Move east.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"The green room is the toilet. Move east.\"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.2,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.2,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.35,
+    "n_runs": 5,
+    "success_count": 3,
+    "entropy_mean": 0.847584679824574,
+    "entropy_std": 0.0,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 0.847584679824574,
+    "exec_mean": 0.6666666666666666,
+    "exec_std": 0.04714045207910316,
+    "best_guess_ratio": {
+      "north": 0.0,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 1.0
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": true,
+        "executability": 0.6,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "The green room is the toilet, move east 3 times.",
+        "raw": "{\n  \"executability\": 0.6,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"The green room is the toilet, move east 3 times.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green room is toilet, move east to get there.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green room is toilet, move east to get there.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "The green room is the toilet. Move east to reach it.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"The green room is the toilet. Move east to reach it.\"\n}"
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.35,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.35,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.5,
+    "n_runs": 5,
+    "success_count": 4,
+    "entropy_mean": 0.9845539709280109,
+    "entropy_std": 0.2372377712678447,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 1.395461844238322,
+    "exec_mean": 0.6499999999999999,
+    "exec_std": 0.04999999999999999,
+    "best_guess_ratio": {
+      "north": 0.0,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 1.0
+    },
+    "raw_results": [
+      {
+        "success": true,
+        "executability": 0.6,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green room is toilet, move to the right.",
+        "raw": "{\n  \"executability\": 0.6,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green room is toilet, move to the right.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.6,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green room at top right. Move east to get there.",
+        "raw": "{\n  \"executability\": 0.6,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green room at top right. Move east to get there.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.3,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.6
+          },
+          "step2": {
+            "north": 0.3,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.6
+          },
+          "step3": {
+            "north": 0.3,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.6
+          }
+        },
+        "entropies": [
+          1.395461844238322,
+          1.395461844238322,
+          1.395461844238322
+        ],
+        "weighted_entropy": 1.395461844238322,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "The green room is the toilet. Go east to reach it.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.3,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.6\n  },\n  \"step2\": {\n    \"north\": 0.3,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.6\n  },\n  \"step3\": {\n    \"north\": 0.3,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.6\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"The green room is the toilet. Go east to reach it.\"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "The green room is likely the toilet. Move east.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"The green room is likely the toilet. Move east.\"\n}"
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.5,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.5,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.65,
+    "n_runs": 5,
+    "success_count": 4,
+    "entropy_mean": 0.847584679824574,
+    "entropy_std": 0.0,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 0.847584679824574,
+    "exec_mean": 0.7,
+    "exec_std": 0.0,
+    "best_guess_ratio": {
+      "north": 0.0,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 1.0
+    },
+    "raw_results": [
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Move east towards green room, likely the toilet.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Move east towards green room, likely the toilet.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "The green room is usually the toilet. Move east.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"The green room is usually the toilet. Move east.\"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green room is toilet. Move east to reach it.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green room is toilet. Move east to reach it.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Toilet is usually colored. Green is coloted.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Toilet is usually colored. Green is coloted.\"\n}"
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.65,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.65,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.8,
+    "n_runs": 5,
+    "success_count": 2,
+    "entropy_mean": 0.847584679824574,
+    "entropy_std": 0.0,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 0.847584679824574,
+    "exec_mean": 0.7,
+    "exec_std": 0.0,
+    "best_guess_ratio": {
+      "north": 0.0,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 1.0
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green room at top right. Move east 3 times.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green room at top right. Move east 3 times.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Move east towards the green room. It is the toilet",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Move east towards the green room. It is the toilet\"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.8,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.8,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.95,
+    "n_runs": 5,
+    "success_count": 2,
+    "entropy_mean": 1.1235795361970393,
+    "entropy_std": 0.2759948563724654,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 1.3995743925695048,
+    "exec_mean": 0.7,
+    "exec_std": 0.0,
+    "best_guess_ratio": {
+      "north": 0.16666666666666666,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 0.8333333333333334
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Toilet probably green, robot moves east to green room.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Toilet probably green, robot moves east to green room.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.4,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.5
+          },
+          "step2": {
+            "north": 0.4,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.5
+          },
+          "step3": {
+            "north": 0.75,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.15
+          }
+        },
+        "entropies": [
+          1.4609640474436811,
+          1.4609640474436811,
+          1.1540157730728
+        ],
+        "weighted_entropy": 1.3995743925695048,
+        "best_guesses": [
+          "east",
+          "east",
+          "north"
+        ],
+        "reasoning": "Toilet is likely the green room. Go East then North.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.4,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.5\n  },\n  \"step2\": {\n    \"north\": 0.4,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.5\n  },\n  \"step3\": {\n    \"north\": 0.75,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.15\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"north\"\n  ],\n  \"reasoning\": \"Toilet is likely the green room. Go East then North.\"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.95,
+    "n_runs": 5,
+    "success_count": 1,
+    "entropy_mean": 0.3441414117765491,
+    "entropy_std": 0.0,
+    "entropy_min": 0.3441414117765491,
+    "entropy_max": 0.3441414117765491,
+    "exec_mean": 0.95,
+    "exec_std": 0.0,
+    "best_guess_ratio": {
+      "north": 0.0,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 1.0
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": true,
+        "executability": 0.95,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.01,
+            "west": 0.01,
+            "east": 0.93
+          },
+          "step2": {
+            "north": 0.01,
+            "south": 0.01,
+            "west": 0.01,
+            "east": 0.97
+          },
+          "step3": {
+            "north": 0.01,
+            "south": 0.01,
+            "west": 0.01,
+            "east": 0.97
+          }
+        },
+        "entropies": [
+          0.44634209069988734,
+          0.24194073285321088,
+          0.24194073285321088
+        ],
+        "weighted_entropy": 0.3441414117765491,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Go east towards apples",
+        "raw": "{\n  \"executability\": 0.95,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.01,\n    \"west\": 0.01,\n    \"east\": 0.93\n  },\n  \"step2\": {\n    \"north\": 0.01,\n    \"south\": 0.01,\n    \"west\": 0.01,\n    \"east\": 0.97\n  },\n  \"step3\": {\n    \"north\": 0.01,\n    \"south\": 0.01,\n    \"west\": 0.01,\n    \"east\": 0.97\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Go east towards apples\"\n}"
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.95,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 1.1,
+    "n_runs": 5,
+    "success_count": 3,
+    "entropy_mean": 1.2356372153379167,
+    "entropy_std": 0.2758119284817162,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 1.463865121950854,
+    "exec_mean": 0.6999999999999998,
+    "exec_std": 0.08164965809277264,
+    "best_guess_ratio": {
+      "north": 0.3333333333333333,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 0.6666666666666666
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.6,
+            "south": 0.1,
+            "west": 0.1,
+            "east": 0.2
+          },
+          "step2": {
+            "north": 0.7,
+            "south": 0.1,
+            "west": 0.1,
+            "east": 0.1
+          },
+          "step3": {
+            "north": 0.7,
+            "south": 0.1,
+            "west": 0.1,
+            "east": 0.1
+          }
+        },
+        "entropies": [
+          1.5709505944546687,
+          1.3567796494470397,
+          1.3567796494470397
+        ],
+        "weighted_entropy": 1.463865121950854,
+        "best_guesses": [
+          "north",
+          "north",
+          "north"
+        ],
+        "reasoning": "Green room at the top right maybe the toilet.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.6,\n    \"south\": 0.1,\n    \"west\": 0.1,\n    \"east\": 0.2\n  },\n  \"step2\": {\n    \"north\": 0.7,\n    \"south\": 0.1,\n    \"west\": 0.1,\n    \"east\": 0.1\n  },\n  \"step3\": {\n    \"north\": 0.7,\n    \"south\": 0.1,\n    \"west\": 0.1,\n    \"east\": 0.1\n  },\n  \"best_guesses\": [\n    \"north\",\n    \"north\",\n    \"north\"\n  ],\n  \"reasoning\": \"Green room at the top right maybe the toilet.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.6,
+        "steps": {
+          "step1": {
+            "north": 0.3,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.6
+          },
+          "step2": {
+            "north": 0.3,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.6
+          },
+          "step3": {
+            "north": 0.3,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.6
+          }
+        },
+        "entropies": [
+          1.395461844238322,
+          1.395461844238322,
+          1.395461844238322
+        ],
+        "weighted_entropy": 1.395461844238322,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "The green room could be a toilet, so go east.",
+        "raw": "{\n  \"executability\": 0.6,\n  \"step1\": {\n    \"north\": 0.3,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.6\n  },\n  \"step2\": {\n    \"north\": 0.3,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.6\n  },\n  \"step3\": {\n    \"north\": 0.3,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.6\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"The green room could be a toilet, so go east.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.8,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "The green room is probably a toilet, so go east",
+        "raw": "{\n  \"executability\": 0.8,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"The green room is probably a toilet, so go east\"\n}"
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 1.1,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 1.1,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 1.25,
+    "n_runs": 5,
+    "success_count": 3,
+    "entropy_mean": 1.1230904745807633,
+    "entropy_std": 0.27569075891456,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 1.4997586490303534,
+    "exec_mean": 0.6666666666666666,
+    "exec_std": 0.04714045207910316,
+    "best_guess_ratio": {
+      "north": 0.1111111111111111,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 0.8888888888888888
+    },
+    "raw_results": [
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green room is toilet so move east. ",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green room is toilet so move east. \"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": true,
+        "executability": 0.6,
+        "steps": {
+          "step1": {
+            "north": 0.2,
+            "south": 0.05,
+            "west": 0.25,
+            "east": 0.5
+          },
+          "step2": {
+            "north": 0.15,
+            "south": 0.05,
+            "west": 0.1,
+            "east": 0.7
+          },
+          "step3": {
+            "north": 0.7,
+            "south": 0.05,
+            "west": 0.1,
+            "east": 0.15
+          }
+        },
+        "entropies": [
+          1.6804820237218405,
+          1.319035274338866,
+          1.319035274338866
+        ],
+        "weighted_entropy": 1.4997586490303534,
+        "best_guesses": [
+          "east",
+          "east",
+          "north"
+        ],
+        "reasoning": "Toilet is colored, and in the north-east direction.",
+        "raw": "{\n  \"executability\": 0.6,\n  \"step1\": {\n    \"north\": 0.2,\n    \"south\": 0.05,\n    \"west\": 0.25,\n    \"east\": 0.5\n  },\n  \"step2\": {\n    \"north\": 0.15,\n    \"south\": 0.05,\n    \"west\": 0.1,\n    \"east\": 0.7\n  },\n  \"step3\": {\n    \"north\": 0.7,\n    \"south\": 0.05,\n    \"west\": 0.1,\n    \"east\": 0.15\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"north\"\n  ],\n  \"reasoning\": \"Toilet is colored, and in the north-east direction.\"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.1,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.8
+          },
+          "step2": {
+            "north": 0.1,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.8
+          },
+          "step3": {
+            "north": 0.1,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.8
+          }
+        },
+        "entropies": [
+          1.0219280948873624,
+          1.0219280948873624,
+          1.0219280948873624
+        ],
+        "weighted_entropy": 1.0219280948873624,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "toilet is assumed to be green, move east to green box",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.1,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.8\n  },\n  \"step2\": {\n    \"north\": 0.1,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.8\n  },\n  \"step3\": {\n    \"north\": 0.1,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.8\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"toilet is assumed to be green, move east to green box\"\n}"
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 1.25,
+    "n_runs": 5,
+    "success_count": 1,
+    "entropy_mean": 0.847584679824574,
+    "entropy_std": 0.0,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 0.847584679824574,
+    "exec_mean": 0.8,
+    "exec_std": 0.0,
+    "best_guess_ratio": {
+      "north": 0.0,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 1.0
+    },
+    "raw_results": [
+      {
+        "success": true,
+        "executability": 0.8,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "go to apple at [J7, K7, L7] the east direction is the best.",
+        "raw": "{\n  \"executability\": 0.8,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"go to apple at [J7, K7, L7] the east direction is the best.\"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 1.25,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 1.4,
+    "n_runs": 5,
+    "success_count": 4,
+    "entropy_mean": 1.0038704406052337,
+    "entropy_std": 0.18433324099541615,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 1.2983843078844242,
+    "exec_mean": 0.625,
+    "exec_std": 0.043301270189221926,
+    "best_guess_ratio": {
+      "north": 0.16666666666666666,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 0.8333333333333334
+    },
+    "raw_results": [
+      {
+        "success": true,
+        "executability": 0.6,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green room at L12. move east for three steps.",
+        "raw": "{\n  \"executability\": 0.6,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green room at L12. move east for three steps.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green room, east from robot, is the toilet.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green room, east from robot, is the toilet.\"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": true,
+        "executability": 0.6,
+        "steps": {
+          "step1": {
+            "north": 0.1,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.8
+          },
+          "step2": {
+            "north": 0.1,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.8
+          },
+          "step3": {
+            "north": 0.1,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.8
+          }
+        },
+        "entropies": [
+          1.0219280948873624,
+          1.0219280948873624,
+          1.0219280948873624
+        ],
+        "weighted_entropy": 1.0219280948873624,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Toilet is in the colored area- step to east.",
+        "raw": "{\n  \"executability\": 0.6,\n  \"step1\": {\n    \"north\": 0.1,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.8\n  },\n  \"step2\": {\n    \"north\": 0.1,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.8\n  },\n  \"step3\": {\n    \"north\": 0.1,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.8\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Toilet is in the colored area- step to east.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.6,
+        "steps": {
+          "step1": {
+            "north": 0.2,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.7
+          },
+          "step2": {
+            "north": 0.6,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.3
+          },
+          "step3": {
+            "north": 0.7,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.2
+          }
+        },
+        "entropies": [
+          1.2567796494470393,
+          1.395461844238322,
+          1.2567796494470396
+        ],
+        "weighted_entropy": 1.2983843078844242,
+        "best_guesses": [
+          "east",
+          "north",
+          "north"
+        ],
+        "reasoning": "Green colored room at north-east corner. ",
+        "raw": "{\n  \"executability\": 0.6,\n  \"step1\": {\n    \"north\": 0.2,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.7\n  },\n  \"step2\": {\n    \"north\": 0.6,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.3\n  },\n  \"step3\": {\n    \"north\": 0.7,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.2\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"north\",\n    \"north\"\n  ],\n  \"reasoning\": \"Green colored room at north-east corner. \"\n}"
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 1.4,
+    "n_runs": 5,
+    "success_count": 1,
+    "entropy_mean": 0.847584679824574,
+    "entropy_std": 0.0,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 0.847584679824574,
+    "exec_mean": 0.8,
+    "exec_std": 0.0,
+    "best_guess_ratio": {
+      "north": 0.0,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 1.0
+    },
+    "raw_results": [
+      {
+        "success": true,
+        "executability": 0.8,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Moving east toward apples, path is mostly clear.",
+        "raw": "{\n  \"executability\": 0.8,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Moving east toward apples, path is mostly clear.\"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 1.4,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 1.55,
+    "n_runs": 5,
+    "success_count": 4,
+    "entropy_mean": 1.1353420861222443,
+    "entropy_std": 0.31086246148807267,
+    "entropy_min": 0.847584679824574,
+    "entropy_max": 1.58941933539279,
+    "exec_mean": 0.7249999999999999,
+    "exec_std": 0.08291561975888503,
+    "best_guess_ratio": {
+      "north": 0.08333333333333333,
+      "south": 0.0,
+      "west": 0.0,
+      "east": 0.9166666666666666
+    },
+    "raw_results": [
+      {
+        "success": true,
+        "executability": 0.8,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green room is more likely toilet. Moving east towards that",
+        "raw": "{\n  \"executability\": 0.8,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green room is more likely toilet. Moving east towards that\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.6,
+        "steps": {
+          "step1": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step2": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          },
+          "step3": {
+            "north": 0.05,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.85
+          }
+        },
+        "entropies": [
+          0.847584679824574,
+          0.847584679824574,
+          0.847584679824574
+        ],
+        "weighted_entropy": 0.847584679824574,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Green square is a toilet, moving to that. ",
+        "raw": "{\n  \"executability\": 0.6,\n  \"step1\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step2\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"step3\": {\n    \"north\": 0.05,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.85\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Green square is a toilet, moving to that. \"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.7,
+        "steps": {
+          "step1": {
+            "north": 0.2,
+            "south": 0.05,
+            "west": 0.2,
+            "east": 0.55
+          },
+          "step2": {
+            "north": 0.3,
+            "south": 0.05,
+            "west": 0.2,
+            "east": 0.45
+          },
+          "step3": {
+            "north": 0.7,
+            "south": 0.05,
+            "west": 0.1,
+            "east": 0.15
+          }
+        },
+        "entropies": [
+          1.6192407046368487,
+          1.719973094021975,
+          1.319035274338866
+        ],
+        "weighted_entropy": 1.58941933539279,
+        "best_guesses": [
+          "east",
+          "east",
+          "north"
+        ],
+        "reasoning": "Green room top-right is likely toilet. Moving towards it.",
+        "raw": "{\n  \"executability\": 0.7,\n  \"step1\": {\n    \"north\": 0.2,\n    \"south\": 0.05,\n    \"west\": 0.2,\n    \"east\": 0.55\n  },\n  \"step2\": {\n    \"north\": 0.3,\n    \"south\": 0.05,\n    \"west\": 0.2,\n    \"east\": 0.45\n  },\n  \"step3\": {\n    \"north\": 0.7,\n    \"south\": 0.05,\n    \"west\": 0.1,\n    \"east\": 0.15\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"north\"\n  ],\n  \"reasoning\": \"Green room top-right is likely toilet. Moving towards it.\"\n}"
+      },
+      {
+        "success": true,
+        "executability": 0.8,
+        "steps": {
+          "step1": {
+            "north": 0.2,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.7
+          },
+          "step2": {
+            "north": 0.2,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.7
+          },
+          "step3": {
+            "north": 0.2,
+            "south": 0.05,
+            "west": 0.05,
+            "east": 0.7
+          }
+        },
+        "entropies": [
+          1.2567796494470393,
+          1.2567796494470393,
+          1.2567796494470393
+        ],
+        "weighted_entropy": 1.2567796494470393,
+        "best_guesses": [
+          "east",
+          "east",
+          "east"
+        ],
+        "reasoning": "Move toward the green room, east x3. ",
+        "raw": "{\n  \"executability\": 0.8,\n  \"step1\": {\n    \"north\": 0.2,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.7\n  },\n  \"step2\": {\n    \"north\": 0.2,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.7\n  },\n  \"step3\": {\n    \"north\": 0.2,\n    \"south\": 0.05,\n    \"west\": 0.05,\n    \"east\": 0.7\n  },\n  \"best_guesses\": [\n    \"east\",\n    \"east\",\n    \"east\"\n  ],\n  \"reasoning\": \"Move toward the green room, east x3. \"\n}"
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 1.55,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 1.55,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "unsupported operand type(s) for +: 'int' and 'str'",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  }
+]
