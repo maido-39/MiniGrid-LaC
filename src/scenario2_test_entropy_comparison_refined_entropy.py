@@ -40,7 +40,8 @@ import utils.prompt_manager.terminal_formatting_utils as tfu
 from utils.miscellaneous.scenario_runner import ScenarioExperiment
 from utils.miscellaneous.safe_minigrid_registration import safe_minigrid_reg
 from utils.miscellaneous.global_variables import (
-    MAP_FILE_NAME, DEBUG, DEFAULT_INITIAL_MISSION, DEFAULT_MISSION
+    MAP_FILE_NAME, DEBUG, DEFAULT_INITIAL_MISSION, DEFAULT_MISSION,
+    USE_NEW_GROUNDING_SYSTEM, GROUNDING_FILE_PATH
 )
 from utils.vlm.vlm_postprocessor import VLMResponsePostProcessor
 
@@ -286,7 +287,8 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
         include_grounding: bool = False,
         include_language: bool = False,
         max_retries: int = 3,
-        retry_delay: float = 1.0
+        retry_delay: float = 1.0,
+        show_debug: bool = False
     ) -> Dict[str, Any]:
         """
         VLM call for verbalized entropy with retry logic for broken JSON
@@ -305,13 +307,9 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
         """
         import time
         
-        # Modify system prompt based on conditions
+        # System prompt is already modified based on grounding_file_path
+        # (grounding content is included in System Prompt at generation time)
         modified_system_prompt = system_prompt
-        
-        # Remove grounding if not included
-        if not include_grounding:
-            # Replace $grounding_content with empty string
-            modified_system_prompt = modified_system_prompt.replace("$grounding_content", "")
         
         # Modify user prompt based on conditions
         if include_language:
@@ -326,10 +324,12 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
         
         for attempt in range(max_retries):
             try:
+                # Only show debug output for H(X|L,S) (when show_debug=True)
                 raw_response = self.vlm_processor.requester(
                     image=image,
                     system_prompt=modified_system_prompt,
-                    user_prompt=modified_user_prompt
+                    user_prompt=modified_user_prompt,
+                    debug=show_debug
                 )
                 last_raw_response = raw_response
                 
@@ -462,7 +462,8 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
             system_prompt=system_prompt,
             user_prompt=user_prompt,
             include_grounding=True,
-            include_language=True
+            include_language=True,
+            show_debug=True  # Only show debug output for H(X|L,S)
         )
     
     def run_step(self, init_step: bool = False):
@@ -515,7 +516,6 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
             tfu.cprint("\n[4-1] Feedback processing complete! Proceeding to the next step.", tfu.LIGHT_GREEN, True)
             return True
         
-        # Get verbalized entropy system prompt
         # Ensure last_action_result is initialized
         if not hasattr(self, 'last_action_result') or not self.last_action_result:
             self.last_action_result = {
@@ -525,9 +525,59 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
                 "position_changed": True
             }
         
-        system_prompt = self.prompt_organizer.get_verbalized_entropy_system_prompt(
-            self.wrapper, self.last_action_result
-        )
+        # Grounding 파일 경로 가져오기 (새 Grounding 시스템 사용 시)
+        # scenario_runner.py와 동일한 로직 사용
+        grounding_file_path = None
+        if USE_NEW_GROUNDING_SYSTEM and GROUNDING_FILE_PATH:
+            from pathlib import Path
+            # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열 처리
+            if isinstance(GROUNDING_FILE_PATH, str):
+                if ',' in GROUNDING_FILE_PATH:
+                    file_paths = [p.strip() for p in GROUNDING_FILE_PATH.split(',')]
+                else:
+                    file_paths = [GROUNDING_FILE_PATH]
+            elif isinstance(GROUNDING_FILE_PATH, list):
+                file_paths = GROUNDING_FILE_PATH
+            else:
+                file_paths = []
+            
+            # 각 파일 경로를 절대 경로로 변환하고 존재 여부 확인
+            resolved_paths = []
+            for file_path in file_paths:
+                file_path_str = str(file_path).strip()
+                potential_path = None
+                
+                # 절대 경로인 경우
+                if Path(file_path_str).is_absolute():
+                    potential_path = Path(file_path_str)
+                # logs/grounding/grounding_latest.txt 형식인 경우 (상대 경로)
+                elif file_path_str.startswith("logs/"):
+                    # 프로젝트 루트 기준
+                    project_root = Path(__file__).parent.parent
+                    potential_path = project_root / file_path_str
+                    if not potential_path.exists():
+                        src_root = project_root / "src"
+                        potential_path = src_root / file_path_str
+                else:
+                    # 현재 log_dir 기준으로 찾기
+                    if hasattr(self, 'log_dir'):
+                        potential_path = self.log_dir.parent / file_path_str
+                    if not potential_path or not potential_path.exists():
+                        project_root = Path(__file__).parent.parent
+                        potential_path = project_root / file_path_str
+                    if not potential_path.exists():
+                        src_root = project_root / "src"
+                        potential_path = src_root / file_path_str
+                
+                if potential_path and potential_path.exists():
+                    resolved_paths.append(str(potential_path.resolve()))
+            
+            # 여러 파일이 있으면 리스트로 전달
+            if resolved_paths:
+                if len(resolved_paths) == 1:
+                    grounding_file_path = resolved_paths[0]
+                else:
+                    grounding_file_path = resolved_paths
         
         # ===== VERBALIZED ENTROPY COMPARISON: 3 Parallel VLM Calls =====
         tfu.cprint("\n" + "=" * 80, bold=True)
@@ -535,20 +585,27 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
         tfu.cprint("=" * 80 + "\n", bold=True)
         
         # Prepare arguments for each VLM call
+        # 각 entropy 타입에 따라 다른 System Prompt 생성 (grounding 포함 여부)
         vlm_calls = [
             ("H(X)", self.vlm_gen_action_verbalized_H_X, {
                 "image": self.image,
-                "system_prompt": system_prompt,
+                "system_prompt": self.prompt_organizer.get_verbalized_entropy_system_prompt(
+                    self.wrapper, self.last_action_result, grounding_file_path=None  # No grounding
+                ),
                 "user_prompt": self.user_prompt
             }),
             ("H(X|S)", self.vlm_gen_action_verbalized_H_X_given_S, {
                 "image": self.image,
-                "system_prompt": system_prompt,
+                "system_prompt": self.prompt_organizer.get_verbalized_entropy_system_prompt(
+                    self.wrapper, self.last_action_result, grounding_file_path=grounding_file_path  # With grounding
+                ),
                 "user_prompt": self.user_prompt
             }),
             ("H(X|L,S)", self.vlm_gen_action_verbalized_H_X_given_LS, {
                 "image": self.image,
-                "system_prompt": system_prompt,
+                "system_prompt": self.prompt_organizer.get_verbalized_entropy_system_prompt(
+                    self.wrapper, self.last_action_result, grounding_file_path=grounding_file_path  # With grounding
+                ),
                 "user_prompt": self.user_prompt
             })
         ]

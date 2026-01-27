@@ -43,14 +43,37 @@ class PromptOrganizer:
         # User prompt input cache (for reusing previous input with Enter key)
         self.user_prompt_cache = None
     
-    def get_system_prompt(self, wrapper=None, last_action_result=None) -> str:
+    def get_system_prompt(self, wrapper=None, last_action_result=None, grounding_file_path=None) -> str:
         """Generate Entire System Prompt (Absolute Coordinate Version)"""
         
         ## For handling prompt errors
         # Grounding Content (Always displayed; if empty, displays an empty string)
-        # 새 Grounding 시스템 사용 시 grounding은 파일로 전달되므로 system prompt에는 포함하지 않음
         if USE_NEW_GROUNDING_SYSTEM:
+            # 새 Grounding 시스템 사용 시: grounding_file_path에서 파일 내용 읽기
             grounding_content = ""
+            if grounding_file_path:
+                try:
+                    from pathlib import Path
+                    # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열
+                    if isinstance(grounding_file_path, list):
+                        file_paths = [Path(f) for f in grounding_file_path]
+                    elif isinstance(grounding_file_path, str) and ',' in grounding_file_path:
+                        file_paths = [Path(f.strip()) for f in grounding_file_path.split(',')]
+                    else:
+                        file_paths = [Path(grounding_file_path)]
+                    
+                    # 모든 파일 읽기 및 병합
+                    grounding_contents = []
+                    for grounding_path in file_paths:
+                        if grounding_path.exists():
+                            content = grounding_path.read_text(encoding='utf-8')
+                            grounding_contents.append(content)
+                    
+                    if grounding_contents:
+                        grounding_content = "\n\n---\n\n".join(grounding_contents)
+                except Exception as e:
+                    # 파일 읽기 실패 시 빈 문자열 사용
+                    grounding_content = ""
         else:
             grounding_content = self.grounding if self.grounding else ""
         
@@ -84,7 +107,7 @@ class PromptOrganizer:
                                     previous_action=previous_action
                                    )
     
-    def get_verbalized_entropy_system_prompt(self, wrapper=None, last_action_result=None) -> str:
+    def get_verbalized_entropy_system_prompt(self, wrapper=None, last_action_result=None, grounding_file_path=None) -> str:
         """
         Generate System Prompt for Verbalized Entropy mode
         Uses step1/step2/step3 probability distributions instead of action array
@@ -92,7 +115,31 @@ class PromptOrganizer:
         
         # Grounding Content
         if USE_NEW_GROUNDING_SYSTEM:
+            # 새 Grounding 시스템 사용 시: grounding_file_path에서 파일 내용 읽기
             grounding_content = ""
+            if grounding_file_path:
+                try:
+                    from pathlib import Path
+                    # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열
+                    if isinstance(grounding_file_path, list):
+                        file_paths = [Path(f) for f in grounding_file_path]
+                    elif isinstance(grounding_file_path, str) and ',' in grounding_file_path:
+                        file_paths = [Path(f.strip()) for f in grounding_file_path.split(',')]
+                    else:
+                        file_paths = [Path(grounding_file_path)]
+                    
+                    # 모든 파일 읽기 및 병합
+                    grounding_contents = []
+                    for grounding_path in file_paths:
+                        if grounding_path.exists():
+                            content = grounding_path.read_text(encoding='utf-8')
+                            grounding_contents.append(content)
+                    
+                    if grounding_contents:
+                        grounding_content = "\n\n---\n\n".join(grounding_contents)
+                except Exception as e:
+                    # 파일 읽기 실패 시 빈 문자열 사용
+                    grounding_content = ""
         else:
             grounding_content = self.grounding if self.grounding else ""
         
@@ -111,7 +158,7 @@ class PromptOrganizer:
                                     previous_action=previous_action
                                    )
     
-    def get_system_prompt_by_mode(self, wrapper=None, last_action_result=None, use_verbalized: bool = None) -> str:
+    def get_system_prompt_by_mode(self, wrapper=None, last_action_result=None, use_verbalized: bool = None, grounding_file_path=None) -> str:
         """
         Get system prompt based on mode (verbalized entropy or standard)
         
@@ -119,6 +166,7 @@ class PromptOrganizer:
             wrapper: Environment wrapper
             last_action_result: Last action result dictionary
             use_verbalized: Override for USE_VERBALIZED_ENTROPY (None = use global setting)
+            grounding_file_path: Path to grounding file(s) (for USE_NEW_GROUNDING_SYSTEM=True)
         
         Returns:
             System prompt string
@@ -127,9 +175,9 @@ class PromptOrganizer:
             use_verbalized = USE_VERBALIZED_ENTROPY
         
         if use_verbalized:
-            return self.get_verbalized_entropy_system_prompt(wrapper, last_action_result)
+            return self.get_verbalized_entropy_system_prompt(wrapper, last_action_result, grounding_file_path)
         else:
-            return self.get_system_prompt(wrapper, last_action_result)
+            return self.get_system_prompt(wrapper, last_action_result, grounding_file_path)
     
     def get_feedback_system_prompt(self) -> str:
         """

@@ -857,7 +857,8 @@ class ScenarioExperiment:
         
         try:
             # Get system prompt (will have empty grounding_content)
-            system_prompt = self.prompt_organizer.get_system_prompt(wrapper, last_action_result)
+            # grounding_file_path=None을 전달하여 grounding 없이 생성
+            system_prompt = self.prompt_organizer.get_system_prompt(wrapper, last_action_result, grounding_file_path=None)
         finally:
             # Restore original grounding
             self.prompt_organizer.grounding = original_grounding
@@ -1596,9 +1597,6 @@ class ScenarioExperiment:
             tfu.cprint("\n[4-1] Feedback processing complete! Proceeding to the next step.", tfu.LIGHT_GREEN, True)
             return True
         
-        # Create a General Action
-        system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper, self.last_action_result)
-        
         # Grounding 파일 경로 가져오기 (새 Grounding 시스템 사용 시)
         # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열
         grounding_file_path = None
@@ -1682,12 +1680,21 @@ class ScenarioExperiment:
                 tfu.cprint(f"[Grounding] No valid grounding files found", tfu.LIGHT_YELLOW)
                 grounding_file_path = None
         
+        # Create a General Action
+        # System Prompt 생성 시 grounding_file_path 전달 (USE_NEW_GROUNDING_SYSTEM=True일 때 System Prompt에 포함됨)
+        system_prompt = self.prompt_organizer.get_system_prompt_by_mode(
+            self.wrapper, 
+            self.last_action_result,
+            use_verbalized=USE_VERBALIZED_ENTROPY,
+            grounding_file_path=grounding_file_path
+        )
+        
         self.vlm_response_parsed = self.vlm_gen_action(
             image=self.image,
             system_prompt=system_prompt,
             user_prompt=self.user_prompt,
             use_logprobs=self.logprobs_active,
-            grounding_file=grounding_file_path
+            grounding_file=None  # System Prompt에 이미 포함되었으므로 user_prompt에 추가하지 않음
         )
         
         if not self.vlm_response_parsed:

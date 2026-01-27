@@ -270,12 +270,31 @@ class VLMWrapper:
                 if debug:
                     print(f"[Warning] Failed to read grounding file(s): {e}")
         
-        # Debug: Print final user prompt before VLM API call
+        # Debug: Print system prompt and final user prompt before VLM API call
         if debug:
+            print("\n" + "=" * 80)
+            print("[DEBUG] System Prompt (before VLM API call)")
+            print("=" * 80)
+            if system_prompt:
+                print(f"Length: {len(system_prompt)} characters")
+                print(f"First 200 chars: {system_prompt[:200]}")
+                print(f"\n[Full System Prompt]")
+                print("-" * 80)
+                print(system_prompt)
+            else:
+                print("[WARNING] System prompt is EMPTY!")
+            print("=" * 80 + "\n")
             print("\n" + "=" * 80)
             print("[DEBUG] Final User Prompt (before VLM API call)")
             print("=" * 80)
-            print(user_prompt)
+            if user_prompt:
+                print(f"Length: {len(user_prompt)} characters")
+                print(f"First 200 chars: {user_prompt[:200]}")
+                print(f"\n[Full User Prompt]")
+                print("-" * 80)
+                print(user_prompt)
+            else:
+                print("[WARNING] User prompt is EMPTY!")
             print("=" * 80 + "\n")
         
         # Call handler with metadata if debug is enabled
