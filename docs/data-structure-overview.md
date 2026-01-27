@@ -124,8 +124,25 @@ logs/{experiment_name}/
 ### 설명
 - **4가지 타입**: User Preference, Spatial, Procedural, General
 - **Step별 누적**: 각 step의 feedback이 `stacked_grounding`에 누적
-- **VLM 생성**: 에피소드 종료 시 모든 feedback을 바탕으로 VLM이 `final_grounding` 생성
+- **VLM 생성**: 에피소드 종료 시 **현재 에피소드 피드백만** 사용하여 VLM이 `final_grounding` 생성
 - **전역 최신 버전**: `grounding/grounding_latest.json`에 최신 Grounding 저장 (다음 에피소드에서 사용)
+
+### 여러 파일 병합 ⭐ **신규**
+
+`GROUNDING_FILE_PATH`에 여러 파일을 지정하면 자동으로 병합됩니다:
+
+**JSON 파일 병합**:
+- 여러 JSON 파일의 `stacked_grounding` 카테고리별로 중복 제거하며 병합
+- 여러 JSON 파일의 `final_grounding`에서 `generation_timestamp` 제외하고 병합
+- Markdown 형식으로 렌더링 (H3→H4 헤더 레벨 조정)
+
+**TXT 파일 병합**:
+- 텍스트 내용을 그대로 병합
+
+**혼합 파일**:
+- JSON과 TXT 파일이 함께 있으면 각각 처리 후 병합
+
+**설정**: `GROUNDING_MERGE_FORMAT = "txt"` (기본값: "txt")
 
 ---
 
