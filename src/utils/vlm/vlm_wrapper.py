@@ -270,6 +270,14 @@ class VLMWrapper:
                 if debug:
                     print(f"[Warning] Failed to read grounding file(s): {e}")
         
+        # Debug: Print final user prompt before VLM API call
+        if debug:
+            print("\n" + "=" * 80)
+            print("[DEBUG] Final User Prompt (before VLM API call)")
+            print("=" * 80)
+            print(user_prompt)
+            print("=" * 80 + "\n")
+        
         # Call handler with metadata if debug is enabled
         if debug:
             result = self._handler.generate(image, system_prompt, user_prompt, return_metadata=True)
