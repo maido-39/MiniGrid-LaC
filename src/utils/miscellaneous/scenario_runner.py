@@ -606,38 +606,10 @@ class ScenarioExperiment:
         # GroundingFileManager에서 stacked_grounding 데이터 가져오기 (Status 포함)
         stacked_grounding = self.grounding_file_manager.get_stacked_grounding()
         
-        # 이전 Grounding 파일 읽기 (있는 경우) - 여러 파일 지원
+        # Grounding 생성 시에는 항상 현재 에피소드 피드백만 사용
+        # 이전 Grounding은 다음 에피소드의 Action 생성 시에만 사용됨
         previous_grounding = ""
-        if GROUNDING_FILE_PATH:
-            try:
-                # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열 처리
-                if isinstance(GROUNDING_FILE_PATH, str):
-                    if ',' in GROUNDING_FILE_PATH:
-                        file_paths = [p.strip() for p in GROUNDING_FILE_PATH.split(',')]
-                    else:
-                        file_paths = [GROUNDING_FILE_PATH]
-                elif isinstance(GROUNDING_FILE_PATH, list):
-                    file_paths = GROUNDING_FILE_PATH
-                else:
-                    file_paths = []
-                
-                # 각 파일 읽기 및 병합
-                grounding_contents = []
-                for file_path in file_paths:
-                    grounding_path = Path(file_path)
-                    if grounding_path.exists():
-                        content = grounding_path.read_text(encoding='utf-8')
-                        grounding_contents.append(content)
-                        tfu.cprint(f"[Grounding] Loaded for generation: {grounding_path}", tfu.LIGHT_GREEN)
-                    else:
-                        tfu.cprint(f"[Warning] Grounding file not found: {grounding_path}", tfu.LIGHT_YELLOW)
-                
-                # 모든 파일 내용 병합
-                if grounding_contents:
-                    previous_grounding = "\n\n---\n\n".join(grounding_contents)
-                    tfu.cprint(f"[Grounding] Merged {len(grounding_contents)} file(s) for grounding generation", tfu.LIGHT_CYAN)
-            except Exception as e:
-                tfu.cprint(f"[Warning] Failed to read previous grounding: {e}", tfu.LIGHT_RED)
+        tfu.cprint(f"[Grounding] Using only current episode feedbacks for grounding generation", tfu.LIGHT_CYAN)
         
         # 프롬프트 준비
         system_prompt = system_prompt_interp(
@@ -651,6 +623,10 @@ class ScenarioExperiment:
         procedural_feedbacks = "\n".join(stacked_grounding.get("procedural", [])) or "None"
         general_feedbacks = "\n".join(stacked_grounding.get("general", [])) or "None"
         
+        # Grounding 생성 시에는 항상 현재 에피소드 피드백만 사용
+        # 이전 Grounding은 다음 에피소드의 Action 생성 시에만 사용됨
+        previous_grounding_display = "None (Only current episode feedbacks will be used)"
+        
         user_prompt = system_prompt_interp(
             file_name="grounding_generation_user_prompt.txt",
             strict=True,
@@ -660,7 +636,7 @@ class ScenarioExperiment:
             spatial_feedbacks=spatial_feedbacks,
             procedural_feedbacks=procedural_feedbacks,
             general_feedbacks=general_feedbacks,
-            previous_grounding=previous_grounding or "None"
+            previous_grounding=previous_grounding_display
         )
         
         # 초기 상태 이미지 가져오기

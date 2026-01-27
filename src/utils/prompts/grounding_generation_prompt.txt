@@ -21,10 +21,28 @@ You will receive:
 ## Your Task
 Generate grounding knowledge in 4 categories:
 
-1. **User Preference Grounding**: Extract user preferences and requirements from user_preference type feedbacks
-2. **Spatial Grounding**: Extract spatial layout information from spatial type feedbacks
-3. **Procedural Grounding**: Extract procedural knowledge and task sequences from procedural type feedbacks
-4. **General Grounding Rules**: Extract general rules and heuristics from general type feedbacks
+**If Previous Grounding Knowledge is provided (not "None"):**
+- Synthesize **current episode feedbacks** with **previous grounding knowledge**
+- For each category, merge previous grounding with new feedbacks
+- Preserve relevant information from previous grounding
+- Only remove information if it's contradicted by new feedbacks
+
+**If Previous Grounding Knowledge is "None":**
+- Use **only current episode feedbacks** to generate grounding
+- Do NOT reference or merge any previous grounding
+
+For each category:
+
+1. **User Preference Grounding**: Extract user preferences and requirements from user_preference type feedbacks. If previous grounding is provided and contains user preference information, merge and update it with new feedbacks.
+2. **Spatial Grounding**: Extract spatial layout information from spatial type feedbacks. **IMPORTANT**: If previous grounding is provided and contains spatial information, you MUST preserve and merge it with new spatial feedbacks. Do NOT discard previous spatial grounding. If previous grounding is "None", generate only from current spatial feedbacks.
+3. **Procedural Grounding**: Extract procedural knowledge and task sequences from procedural type feedbacks. If previous grounding is provided and contains procedural information, merge and update it with new feedbacks.
+4. **General Grounding Rules**: Extract general rules and heuristics from general type feedbacks. If previous grounding is provided and contains general rules, merge and update them with new feedbacks.
+
+**Critical Rules:**
+- Check the "Previous Grounding Knowledge" section in the user prompt
+- If it says "None", ignore all previous grounding and use only current feedbacks
+- If it contains actual grounding content, merge it with current feedbacks
+- Keep the grounding concise but comprehensive
 
 ## Constraints
 - Use natural language format (not structured JSON)
