@@ -73,21 +73,24 @@ GROUNDING_VLM_TEMPERATURE = 0.3  # Grounding 생성용 temperature (기본값: 0
 GROUNDING_VLM_MAX_TOKENS = 2000  # Grounding 생성용 max_tokens (기본값: 2000)
 # Note: Grounding은 에피소드 종료 시 일괄 처리되므로 비동기 옵션 제거
 
-# Grounding 사용 설정
-# 사용할 Grounding 파일 경로 (None이면 Grounding 사용 안 함)
-# 단일 파일: "logs/grounding/grounding_latest.txt"
-# 여러 파일: ["logs/grounding/grounding_latest.txt", "logs/grounding/custom_grounding.txt"] 또는 쉼표로 구분된 문자열
-# GROUNDING_FILE_PATH = "logs/scenario2_absolute_example_map_20260123_170550/episode_1_20260123_170552_scenario2_test_absolutemove_modularized/grounding_episode_1.txt,logs/scenario2_absolute_example_map_20260123_165532/episode_1_20260123_165535_scenario2_test_absolutemove_modularized/grounding_episode_1.txt"  # None | str | List[str] | "file1.txt,file2.txt"
-GROUNDING_FILE_PATH = "logs_good/Episode_1_1/grounding/grounding_latest.txt"
-# 현재 에피소드에서 생성된 Grounding은 다음 에피소드부터 사용 가능 (즉석 적용 안 됨)
-# 여러 파일 지원: 쉼표로 구분된 문자열 또는 리스트 형식
-
 # Grounding 병합 형식 설정
 # GROUNDING_MERGE_FORMAT: 여러 Grounding 파일 병합 시 출력 형식
 #   - "txt": Markdown 텍스트 형식으로 렌더링 (기본값)
 #   - "json": JSON 형식으로 병합
 #   - "both": 둘 다 제공 (현재는 "txt"만 지원)
 GROUNDING_MERGE_FORMAT = "txt"  # "txt" | "json" | "both"
+
+# Grounding 사용 설정
+# 사용할 Grounding 파일 경로 (None이면 Grounding 사용 안 함)
+# 단일 파일: "logs/grounding/grounding_latest.txt" 또는 "logs/grounding/grounding_latest.json"
+# 여러 파일: ["logs/grounding/grounding_latest.txt", "logs/grounding/custom_grounding.txt"] 또는 쉼표로 구분된 문자열
+# JSON 파일 예시(RECOMMENDED): "logs/grounding/grounding_latest.json,logs/grounding/episode1_grounding.json"
+# 혼합 예시: "logs/grounding/grounding_latest.txt,logs/grounding/grounding_latest.json"
+# GROUNDING_FILE_PATH = "logs/scenario2_absolute_example_map_20260123_170550/episode_1_20260123_170552_scenario2_test_absolutemove_modularized/grounding_episode_1.txt,logs/scenario2_absolute_example_map_20260123_165532/episode_1_20260123_165535_scenario2_test_absolutemove_modularized/grounding_episode_1.txt"  # None | str | List[str] | "file1.txt,file2.txt"
+GROUNDING_FILE_PATH = "logs_good/Episode_1_1/grounding/grounding_latest.txt"
+# 현재 에피소드에서 생성된 Grounding은 다음 에피소드부터 사용 가능 (즉석 적용 안 됨)
+# 여러 파일 지원: 쉼표로 구분된 문자열 또는 리스트 형식
+# JSON 파일은 자동으로 병합되어 Markdown 형식으로 렌더링됨
 
 # Environment Rendering Configuration
 # RENDER_GOAL: Goal (초록색 목표 지점) 렌더링 여부
