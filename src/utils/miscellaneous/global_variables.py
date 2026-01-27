@@ -87,7 +87,8 @@ GROUNDING_MERGE_FORMAT = "txt"  # "txt" | "json" | "both"
 # JSON 파일 예시(RECOMMENDED): "logs/grounding/grounding_latest.json,logs/grounding/episode1_grounding.json"
 # 혼합 예시: "logs/grounding/grounding_latest.txt,logs/grounding/grounding_latest.json"
 # GROUNDING_FILE_PATH = "logs/scenario2_absolute_example_map_20260123_170550/episode_1_20260123_170552_scenario2_test_absolutemove_modularized/grounding_episode_1.txt,logs/scenario2_absolute_example_map_20260123_165532/episode_1_20260123_165535_scenario2_test_absolutemove_modularized/grounding_episode_1.txt"  # None | str | List[str] | "file1.txt,file2.txt"
-GROUNDING_FILE_PATH = "logs_good/Episode_1_1/grounding/grounding_latest.txt"
+GROUNDING_FILE_PATH = "logs_good/Hogun/episode1/grounding/grounding_latest.txt,logs_good/Hogun/episode1/grounding/grounding_latest.txt"
+
 # 현재 에피소드에서 생성된 Grounding은 다음 에피소드부터 사용 가능 (즉석 적용 안 됨)
 # 여러 파일 지원: 쉼표로 구분된 문자열 또는 리스트 형식
 # JSON 파일은 자동으로 병합되어 Markdown 형식으로 렌더링됨
@@ -96,7 +97,7 @@ GROUNDING_FILE_PATH = "logs_good/Episode_1_1/grounding/grounding_latest.txt"
 # RENDER_GOAL: Goal (초록색 목표 지점) 렌더링 여부
 #   - True: Goal 렌더링 (초록색으로 표시)
 #   - False: Goal 렌더링 안 함 (시각적으로 표시되지 않음)
-RENDER_GOAL = False
+RENDER_GOAL = True
 
 #
 ENV_ID = "MyCustomEnv-v0"

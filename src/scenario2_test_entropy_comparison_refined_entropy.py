@@ -238,12 +238,27 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
                 "vlm_response": self.vlm_response_parsed,
                 "verbalized_entropy": {
                     "executability": self.vlm_response_parsed.get('executability', 0.5),
-                    "step_probs": self.step_probs.get('H_X_given_LS', {}),
-                    "step_entropies": self.step_entropies.get('H_X_given_LS', []),
+                    # Backward compatibility: direct access to entropy values
                     "H_X": self.entropy_H_X,
                     "H_X_given_S": self.entropy_H_X_given_S,
                     "H_X_given_LS": self.entropy_H_X_given_LS,
-                    "trust_T": self.trust_T
+                    "trust_T": self.trust_T,
+                    # Detailed information for each entropy type
+                    "H_X_details": {
+                        "weighted_entropy": self.entropy_H_X,
+                        "step_probs": self.step_probs.get('H_X', {}),
+                        "step_entropies": self.step_entropies.get('H_X', [])
+                    },
+                    "H_X_given_S_details": {
+                        "weighted_entropy": self.entropy_H_X_given_S,
+                        "step_probs": self.step_probs.get('H_X_given_S', {}),
+                        "step_entropies": self.step_entropies.get('H_X_given_S', [])
+                    },
+                    "H_X_given_LS_details": {
+                        "weighted_entropy": self.entropy_H_X_given_LS,
+                        "step_probs": self.step_probs.get('H_X_given_LS', {}),
+                        "step_entropies": self.step_entropies.get('H_X_given_LS', [])
+                    }
                 },
                 "reward": float(getattr(self, 'reward', 0.0)),
                 "done": bool(getattr(self, 'done', False)),
