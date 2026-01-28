@@ -1,0 +1,44 @@
+## Grounding Knowledge (Experience from Past Failures, Successes)
+
+### User Preference Grounding
+[ Step22 - Success ] : Human owner wants its meal to be spicy so you need to find red pepper
+
+[ Step21 - Success ] : Human owner loves spicy tomato pasta
+
+[ Step18 - Failure ] : human owner loves spicy tomato pasta so you have to find a red tomato and a red pepper
+
+
+### Spatial Grounding
+[ Step27 - Success ] : the red pepper is in L5
+
+[ Step24 - Success ] : the red pepper is in L5
+
+[ Step22 - Success ] : the red pepper is in L5
+
+[ Step21 - Success ] : you found the red tomato in L7
+
+[ Step18 - Failure ] : the red tomato and red pepper are in the storage room
+
+[ Step16 - Success ] : you are in the storage room which is the red 1x3 room which goes from J6 to L6 and where you can find ingredients
+
+[ Step8 - Success ] : you are in the restroom which is the purple 3x3 room which is delimited by E1-E3-G3-G1
+
+[ Step7 - Success ] : the restroom is right under you since you are in G4
+
+[ Step4 - Success ] : you went from D3 to D4 while you have to go to the restroom which is delimited by E1-E3-G3-G1
+
+[ Step3 - Success ] : you were in D2 and went to D3 when your subtask is to go to the restroom which borders are E1-E3-G3-G1
+
+
+### Procedural Grounding
+[ Step26 - Success ] : you are going the wrong way
+
+[ Step6 - Success ] : this is not an optimal path
+
+
+### General Grounding Rules
+[ Step27 - Success ] : the red room on J6-K6-L6 is not a wall but the storage room that you can go through
+
+[ Step14 - Success ] : you did a reversing action but one that doesn't give you more informatio nor get you closer to the target
+
+

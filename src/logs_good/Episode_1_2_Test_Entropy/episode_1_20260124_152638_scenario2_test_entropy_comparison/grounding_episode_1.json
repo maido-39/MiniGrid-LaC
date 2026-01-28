@@ -1,0 +1,259 @@
+{
+  "expr_info": {
+    "episode_id": 1
+  },
+  "grounding_per_step": [
+    {
+      "step_id": 3,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nGo to the restroom and Wash your hands for hygiene, the restroom is in the square E1 G1 G3 E3\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you are in the restroom so you are correct and you washed your hands.",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 12,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nGo to the storage to get ingredients for the food, the storage is in the square J6 K6 L6\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you are in the storage room so you can now find food ingredients",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 15,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some pepper for the food, pepper is  L5, and red, curved and elongated shape with a green stem.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Failure",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you should try to get closer to the red pepper but this movement takes you away from the red pepper",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 17,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some pepper for the food, pepper is  L5, and red, curved and elongated shape with a green stem.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Failure",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "with this movement you just collided with a wall and that is very wrong to do",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 18,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some pepper for the food, pepper is  L5, and red, curved and elongated shape with a green stem.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you found the red pepper so you can pick it up",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 19,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some tomato for the food, tomato is L7 and red, round shape with a green stem on top.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "wrong path you are going further from the tomato",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 20,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some tomato for the food, tomato is L7 and red, round shape with a green stem on top.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you are getting further from your current target",
+        "procedural": "it is not the optimal path",
+        "general": null
+      }
+    },
+    {
+      "step_id": 22,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some tomato for the food, tomato is L7 and red, round shape with a green stem on top.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you are not going in the right direction",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 23,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some tomato for the food, tomato is L7 and red, round shape with a green stem on top.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you are going in the wrong direction and you should go right and up to get closer to the tomato",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 24,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some tomato for the food, tomato is L7 and red, round shape with a green stem on top.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you are going south when tomato is north-east from you",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 28,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some tomato for the food, tomato is L7 and red, round shape with a green stem on top.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "tomato is in the L7 cell so you should go up and right",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 29,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some tomato for the food, tomato is L7 and red, round shape with a green stem on top.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "the red tomato is in the L7 tile so you should go up and right directions",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 31,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some tomato for the food, tomato is L7 and red, round shape with a green stem on top.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "the tomato is in the storage room so go towards the storage room then go to L7",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 36,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nNow find some tomato for the food, tomato is L7 and red, round shape with a green stem on top.\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you are in the right cell so you found the red tomato and you can now pick it up",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 40,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nGo to the Preparation and prepare the ingredients, the preparation room is in the square F6 H6 H8 F8\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you are in the preparation room so you have now prepared the ingredients",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 45,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nGo to the kitchen and Cook some tomato pasta, the kitchen is in the square A6 C6 C8 A8\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you are in the kitchen so you have now cooked the meal",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 49,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nGo to the Plating room and Plate the dishes, the plating room is in the square D10 F10 F12 D12\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you are in the plating room so you have now plated the dishes",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 59,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nGo to the Dining room and Serve the food, the dining room is L12\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Failure",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you collided with a wall that is very wrong decision",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 60,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nGo to the Dining room and Serve the food, the dining room is L12\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Success",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you arrived at the dining room so you can serve the food and your mission is a success",
+        "procedural": null,
+        "general": null
+      }
+    }
+  ],
+  "stacked_grounding": {
+    "user_preference": [],
+    "spatial": [
+      "[ Step3 - Success ] : you are in the restroom so you are correct and you washed your hands.",
+      "[ Step12 - Success ] : you are in the storage room so you can now find food ingredients",
+      "[ Step15 - Failure ] : you should try to get closer to the red pepper but this movement takes you away from the red pepper",
+      "[ Step17 - Failure ] : with this movement you just collided with a wall and that is very wrong to do",
+      "[ Step18 - Success ] : you found the red pepper so you can pick it up",
+      "[ Step19 - Success ] : wrong path you are going further from the tomato",
+      "[ Step20 - Success ] : you are getting further from your current target",
+      "[ Step22 - Success ] : you are not going in the right direction",
+      "[ Step23 - Success ] : you are going in the wrong direction and you should go right and up to get closer to the tomato",
+      "[ Step24 - Success ] : you are going south when tomato is north-east from you",
+      "[ Step28 - Success ] : tomato is in the L7 cell so you should go up and right",
+      "[ Step29 - Success ] : the red tomato is in the L7 tile so you should go up and right directions",
+      "[ Step31 - Success ] : the tomato is in the storage room so go towards the storage room then go to L7",
+      "[ Step36 - Success ] : you are in the right cell so you found the red tomato and you can now pick it up",
+      "[ Step40 - Success ] : you are in the preparation room so you have now prepared the ingredients",
+      "[ Step45 - Success ] : you are in the kitchen so you have now cooked the meal",
+      "[ Step49 - Success ] : you are in the plating room so you have now plated the dishes",
+      "[ Step59 - Failure ] : you collided with a wall that is very wrong decision",
+      "[ Step60 - Success ] : you arrived at the dining room so you can serve the food and your mission is a success"
+    ],
+    "procedural": [
+      "[ Step20 - Success ] : it is not the optimal path"
+    ],
+    "general": []
+  },
+  "final_grounding": {
+    "generation_timestamp": "2026-01-24T16:08:19.249503",
+    "user_preference_grounding": {
+      "content": ""
+    },
+    "spatial_grounding": {
+      "content": "The environment contains several distinct areas: a restroom, a storage room, a preparation room, a kitchen, a plating room, and a dining room. Food ingredients such as red pepper and tomato are found in the storage room. The red tomato is specifically located at cell L7. When navigating, always move closer to the target; moving away from the target or colliding with walls are critical failures and must be avoided. To reach the tomato, move in the up and right (north-east) directions."
+    },
+    "procedural_grounding": {
+      "content": "Always aim to follow the optimal path to the target, even if a non-optimal path eventually leads to success."
+    },
+    "general_grounding_rules": {
+      "content": ""
+    }
+  }
+}

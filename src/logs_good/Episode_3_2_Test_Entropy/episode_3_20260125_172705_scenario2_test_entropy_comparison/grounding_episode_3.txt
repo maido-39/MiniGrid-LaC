@@ -1,0 +1,92 @@
+## Grounding Knowledge (Experience from Past Failures, Successes)
+
+### User Preference Grounding
+
+### Spatial Grounding
+[ Step78 - Success ] : you are in the dining room which is the L12 cell
+
+[ Step72 - Success ] : the dining room is in L12
+
+[ Step71 - Success ] : the dining room is in L12
+
+[ Step66 - Success ] : the dining room is in L12
+
+[ Step62 - Success ] : you are in the plating room which is the 3x3 orange room expanding from D10 to F12
+
+[ Step57 - Success ] : the plating room is the 3x3 orange room at the top of the map
+
+[ Step55 - Success ] : you are in the kitchen which is the green 3x3 room expanding A6 to C8
+
+[ Step49 - Success ] : the kitchen is the green 3x3 room
+
+[ Step47 - Success ] : the kitchen is on your left
+
+[ Step46 - Success ] : the kitchen is the green 3x3 room on the left-center of the map from A6 to C8
+
+[ Step44 - Success ] : you are in the preparation room which is the yellow/lime 3x3 room
+
+[ Step41 - Success ] : preparation room is on your left
+
+[ Step40 - Success ] : preparation room is the yellow room.
+
+[ Step39 - Success ] : the preparation room is the yellow room in the center of the map
+
+[ Step37 - Success ] : you should go towards the yellow prepartion room
+
+[ Step36 - Success ] : the preparation room is the yellow 3x3 square room from F6 to H8
+
+[ Step35 - Success ] : you found the tomato which is located in L7 right on top of the red storage room
+
+[ Step30 - Success ] : the red tomato is in L7 so you are going in the wrong direction
+
+[ Step28 - Success ] : the red tomato is in L7
+
+[ Step27 - Success ] : wrong way and you should go towards L7
+
+[ Step26 - Success ] : the red tomato is located in L7
+
+[ Step25 - Success ] : you found the red pepper which is located in L5
+
+[ Step22 - Success ] : you are in the storage room which is the red 1x3 rectangle room from J6 to L6
+
+[ Step16 - Success ] : you are in the restroom which is the purple 3x3 square room expanding from E1 to G3
+
+[ Step11 - Success ] : the restroom is the purple 3x3 square room E1 G1 G3 E3
+
+[ Step10 - Success ] : you are getting further from the restroom
+
+[ Step9 - Success ] : go to the restroom which is the purple 3x3 room in the south of the map and which goes from E1 to G3
+
+[ Step8 - Success ] : go to the purple restroom which is in the south of the map from E1 to G3
+
+[ Step7 - Success ] : the restroom is the purple rom extending from E1 to G3
+
+[ Step6 - Success ] : the restroom is the purple room south of you
+
+[ Step3 - Success ] : the restroom is the purple square room from E1 to G3
+
+[ Step1 - Success ] : the restroom is on your right and this is the purple room
+
+
+### Procedural Grounding
+[ Step72 - Success ] : you are going the opposite way of the target
+
+[ Step71 - Success ] : you are not taking the good path
+
+[ Step66 - Success ] : you are taking the wrong direction
+
+[ Step58 - Success ] : you are taking the wrong direction
+
+[ Step48 - Success ] : it is not the optimal path
+
+
+### General Grounding Rules
+[ Step41 - Success ] : don't oscillate between two tiles
+
+[ Step40 - Success ] : it is not the optimal path
+
+[ Step39 - Success ] : you didn't move
+
+[ Step28 - Success ] : you did not move
+
+

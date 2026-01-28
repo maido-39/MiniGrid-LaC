@@ -9,7 +9,7 @@
       "status": "Success",
       "feedback": {
         "user_preference": null,
-        "spatial": "you are in the restroom so you washed your hands",
+        "spatial": "you are in the restroom which is purple so you washed your hands",
         "procedural": null,
         "general": null
       }
@@ -20,7 +20,7 @@
       "status": "Success",
       "feedback": {
         "user_preference": null,
-        "spatial": "you are in the storage room so you can now look for ingredients",
+        "spatial": "you are in the red storage room so you can now find ingredients in the adjacent tiles",
         "procedural": null,
         "general": null
       }
@@ -31,7 +31,7 @@
       "status": "Success",
       "feedback": {
         "user_preference": null,
-        "spatial": "you are in the cell where the red pepper is located so you pick it up",
+        "spatial": "you are in the right cell since you found the red pepper",
         "procedural": null,
         "general": null
       }
@@ -42,7 +42,7 @@
       "status": "Success",
       "feedback": {
         "user_preference": null,
-        "spatial": "you are in the cell where the red tomato is located so you pick it up",
+        "spatial": "you are in the right cell since you found the red tomato",
         "procedural": null,
         "general": null
       }
@@ -53,7 +53,7 @@
       "status": "Success",
       "feedback": {
         "user_preference": null,
-        "spatial": "you are in the preparation room so you can prepare for cooking",
+        "spatial": "you are in the preparation room",
         "procedural": null,
         "general": null
       }
@@ -64,7 +64,7 @@
       "status": "Success",
       "feedback": {
         "user_preference": null,
-        "spatial": "you are in the kitchen so you can cook the meal asked",
+        "spatial": "you are in the kitchen",
         "procedural": null,
         "general": null
       }
@@ -75,7 +75,7 @@
       "status": "Success",
       "feedback": {
         "user_preference": null,
-        "spatial": "you are in the plating room so you can put the meal on plates",
+        "spatial": "you are in the plating room",
         "procedural": null,
         "general": null
       }
@@ -83,10 +83,21 @@
     {
       "step_id": 40,
       "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nGo to the dining room and serve, the dining room is L12\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
+      "status": "Failure",
+      "feedback": {
+        "user_preference": null,
+        "spatial": "you collided with a wall and this is extremely dangerous and wrong action",
+        "procedural": null,
+        "general": null
+      }
+    },
+    {
+      "step_id": 41,
+      "instruction": "## Context\nYou are a robot operating in a grid-based environment.\nYou must carry out this mission successfully.\n\n\n## Mission\nYour mission is:\nGo to the dining room and serve, the dining room is L12\n\n\n## Decision Rules\nBased on the current image, choose the next action to complete this mission.\nUse absolute directions (up/down/left/right).\n\nYou can divide this mission into subtasks.\nExample:\n\"\"\"\n    Mission: Go to room A. For that you need to go through room B.\n    Subtasks:\n        1. Find room B.\n        2. Go to room B.\n        3. Find room A.\n        4. Go to room A.\n\"\"\"\n\n## Constraints\n- Do not enter in collision with brick walls. So if you are one cell next to a brick walls, don't face it and try to rotate towards more open view field.\n- Do not pick up objects unless instructed to do so.",
       "status": "Success",
       "feedback": {
         "user_preference": null,
-        "spatial": "you are in the dining room so you can serve and mission is achieved",
+        "spatial": "you are in the dining room",
         "procedural": null,
         "general": null
       }
@@ -95,25 +106,26 @@
   "stacked_grounding": {
     "user_preference": [],
     "spatial": [
-      "[ Step3 - Success ] : you are in the restroom so you washed your hands",
-      "[ Step12 - Success ] : you are in the storage room so you can now look for ingredients",
-      "[ Step15 - Success ] : you are in the cell where the red pepper is located so you pick it up",
-      "[ Step17 - Success ] : you are in the cell where the red tomato is located so you pick it up",
-      "[ Step21 - Success ] : you are in the preparation room so you can prepare for cooking",
-      "[ Step26 - Success ] : you are in the kitchen so you can cook the meal asked",
-      "[ Step30 - Success ] : you are in the plating room so you can put the meal on plates",
-      "[ Step40 - Success ] : you are in the dining room so you can serve and mission is achieved"
+      "[ Step3 - Success ] : you are in the restroom which is purple so you washed your hands",
+      "[ Step12 - Success ] : you are in the red storage room so you can now find ingredients in the adjacent tiles",
+      "[ Step15 - Success ] : you are in the right cell since you found the red pepper",
+      "[ Step17 - Success ] : you are in the right cell since you found the red tomato",
+      "[ Step21 - Success ] : you are in the preparation room",
+      "[ Step26 - Success ] : you are in the kitchen",
+      "[ Step30 - Success ] : you are in the plating room",
+      "[ Step40 - Failure ] : you collided with a wall and this is extremely dangerous and wrong action",
+      "[ Step41 - Success ] : you are in the dining room"
     ],
     "procedural": [],
     "general": []
   },
   "final_grounding": {
-    "generation_timestamp": "2026-01-23T20:32:40.798996",
+    "generation_timestamp": "2026-01-24T16:43:10.007780",
     "user_preference_grounding": {
       "content": ""
     },
     "spatial_grounding": {
-      "content": "The environment contains distinct functional areas: a restroom for washing hands, a storage room where ingredients like red pepper and red tomato are located (a tomato is specifically at L7), a preparation room for preparing food, a kitchen for cooking meals, a plating room for plating the prepared meals, and a dining room for serving. When navigating to the tomato at L7, the correct direction is upwards."
+      "content": "The environment contains several distinct areas: a purple restroom where hands can be washed, a red storage room where ingredients like red pepper and red tomato can be found in adjacent tiles, a preparation room, a kitchen, a plating room, and a dining room. It is critical to avoid colliding with walls as this is a dangerous and wrong action."
     },
     "procedural_grounding": {
       "content": ""
