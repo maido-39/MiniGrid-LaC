@@ -756,6 +756,261 @@ class VLMResponsePostProcessor:
             tfu.cprint(f"  Entropies list: {entropies_str}", tfu.LIGHT_BLACK)
 
 
+    def parse_verbalized_entropy_response(
+        self,
+        response_text: str,
+        strict: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Verbalized Entropy 형식의 VLM 응답을 파싱합니다.
+        step1/step2/step3 확률 분포를 파싱하고 정규화하며, argmax로 action을 추출합니다.
+        
+        Args:
+            response_text: Raw text returned by VLM (JSON 형식)
+            strict: If True, validate required fields
+        
+        Returns:
+            Parsed dictionary containing:
+                - 'step1', 'step2', 'step3': 정규화된 확률 분포
+                - 'action': argmax로 추출된 action 리스트 [step1_action, step2_action, step3_action]
+                - 'executability': 실행 가능성 (0.0~1.0)
+                - 'reasoning': 추론 설명
+                - 'memory': 메모리 정보
+        """
+        import numpy as np
+        
+        # 기본 JSON 파싱
+        response_text = response_text.strip()
+        
+        # JSON 코드 블록 제거
+        if "```json" in response_text:
+            start_idx = response_text.find("```json") + 7
+            end_idx = response_text.find("```", start_idx)
+            if end_idx != -1:
+                response_text = response_text[start_idx:end_idx].strip()
+        elif "```" in response_text:
+            start_idx = response_text.find("```") + 3
+            end_idx = response_text.find("```", start_idx)
+            if end_idx != -1:
+                response_text = response_text[start_idx:end_idx].strip()
+        
+        try:
+            parsed = json.loads(response_text)
+        except json.JSONDecodeError as e:
+            # 부분 파싱 시도
+            parsed = self._partial_parse_verbalized_entropy(response_text)
+        
+        result = {}
+        directions = ['north', 'south', 'west', 'east']
+        actions = []
+        
+        # step1, step2, step3 파싱 및 정규화
+        for step_name in ['step1', 'step2', 'step3']:
+            step_data = parsed.get(step_name, {})
+            
+            if isinstance(step_data, dict):
+                # 확률 추출 및 정규화
+                probs = {}
+                prob_sum = 0.0
+                
+                for direction in directions:
+                    prob = step_data.get(direction, 0.0)
+                    try:
+                        prob = float(prob)
+                    except (ValueError, TypeError):
+                        prob = 0.0
+                    probs[direction] = max(0.0, prob)  # 음수 방지
+                    prob_sum += probs[direction]
+                
+                # 정규화 (합이 1이 아닌 경우)
+                if prob_sum > 0 and abs(prob_sum - 1.0) > 0.01:
+                    for direction in directions:
+                        probs[direction] /= prob_sum
+                elif prob_sum == 0:
+                    # 모든 확률이 0이면 균등 분포
+                    for direction in directions:
+                        probs[direction] = 0.25
+                
+                result[step_name] = probs
+                
+                # argmax로 action 추출
+                best_action = max(probs, key=probs.get)
+                actions.append(best_action)
+            else:
+                # 기본값: 균등 분포
+                result[step_name] = {d: 0.25 for d in directions}
+                actions.append('north')  # 기본 action
+        
+        # action 필드 생성 (argmax 결과)
+        result['action'] = actions
+        
+        # executability
+        executability = parsed.get('executability', 0.5)
+        try:
+            executability = float(executability)
+            executability = max(0.0, min(1.0, executability))  # 0~1 범위로 제한
+        except (ValueError, TypeError):
+            executability = 0.5
+        result['executability'] = executability
+        
+        # reasoning
+        result['reasoning'] = str(parsed.get('reasoning', ''))
+        
+        # memory
+        memory = parsed.get('memory', {})
+        if not isinstance(memory, dict):
+            memory = {}
+        result['memory'] = memory
+        
+        # grounding (있으면 포함)
+        if 'grounding' in parsed:
+            result['grounding'] = str(parsed.get('grounding', ''))
+        
+        return result
+    
+    def _partial_parse_verbalized_entropy(self, response_text: str) -> Dict[str, Any]:
+        """
+        Verbalized Entropy 형식의 부분 파싱 (잘린 JSON 처리)
+        
+        Args:
+            response_text: 잘린 JSON 문자열
+        
+        Returns:
+            부분적으로 파싱된 딕셔너리
+        """
+        result = {}
+        directions = ['north', 'south', 'west', 'east']
+        
+        # step1, step2, step3 파싱 시도
+        for step_name in ['step1', 'step2', 'step3']:
+            step_pattern = rf'"{step_name}"\s*:\s*\{{([^}}]*)\}}'
+            step_match = re.search(step_pattern, response_text, re.DOTALL)
+            
+            if step_match:
+                step_content = step_match.group(1)
+                probs = {}
+                
+                for direction in directions:
+                    # 각 방향의 확률 추출
+                    dir_pattern = rf'"{direction}"\s*:\s*([0-9.]+)'
+                    dir_match = re.search(dir_pattern, step_content)
+                    if dir_match:
+                        try:
+                            probs[direction] = float(dir_match.group(1))
+                        except ValueError:
+                            probs[direction] = 0.25
+                    else:
+                        probs[direction] = 0.25
+                
+                result[step_name] = probs
+            else:
+                result[step_name] = {d: 0.25 for d in directions}
+        
+        # executability 추출
+        exec_pattern = r'"executability"\s*:\s*([0-9.]+)'
+        exec_match = re.search(exec_pattern, response_text)
+        if exec_match:
+            try:
+                result['executability'] = float(exec_match.group(1))
+            except ValueError:
+                result['executability'] = 0.5
+        else:
+            result['executability'] = 0.5
+        
+        # reasoning 추출
+        reason_pattern = r'"reasoning"\s*:\s*"([^"]*)"'
+        reason_match = re.search(reason_pattern, response_text)
+        if reason_match:
+            result['reasoning'] = reason_match.group(1)
+        else:
+            result['reasoning'] = ''
+        
+        # memory 추출 (간단한 버전)
+        result['memory'] = {}
+        
+        return result
+    
+    def normalize_step_probs(self, step_probs: Dict[str, float]) -> Dict[str, float]:
+        """
+        step 확률 분포를 정규화합니다 (합이 1.0이 되도록)
+        
+        Args:
+            step_probs: {'north': P, 'south': P, 'west': P, 'east': P}
+        
+        Returns:
+            정규화된 확률 분포
+        """
+        directions = ['north', 'south', 'west', 'east']
+        probs = []
+        
+        for d in directions:
+            p = step_probs.get(d, 0.0)
+            try:
+                p = float(p)
+            except (ValueError, TypeError):
+                p = 0.0
+            probs.append(max(0.0, p))
+        
+        prob_sum = sum(probs)
+        
+        if prob_sum > 0:
+            probs = [p / prob_sum for p in probs]
+        else:
+            probs = [0.25] * 4
+        
+        return {d: p for d, p in zip(directions, probs)}
+    
+    def calculate_step_entropy(self, step_probs: Dict[str, float]) -> float:
+        """
+        단일 step의 Shannon Entropy를 계산합니다: H = -Σ P log₂ P
+        
+        Args:
+            step_probs: {'north': P, 'south': P, 'west': P, 'east': P}
+        
+        Returns:
+            Shannon entropy (bits)
+        """
+        import numpy as np
+        
+        directions = ['north', 'south', 'west', 'east']
+        probs = np.array([step_probs.get(d, 0.0) for d in directions])
+        probs = probs[probs > 0]  # 0 제외 (log(0) 방지)
+        
+        if len(probs) == 0:
+            return 0.0
+        
+        # 정규화
+        probs = probs / probs.sum()
+        
+        return -np.sum(probs * np.log2(probs))
+    
+    def calculate_weighted_entropy(
+        self,
+        step1: Dict[str, float],
+        step2: Dict[str, float],
+        step3: Dict[str, float],
+        weights: List[float] = None
+    ) -> float:
+        """
+        가중 평균 엔트로피를 계산합니다 (노트북 방식: 50/30/20)
+        
+        Args:
+            step1, step2, step3: 각 step의 확률 분포
+            weights: 가중치 리스트 (기본값: [0.5, 0.3, 0.2])
+        
+        Returns:
+            가중 평균 entropy
+        """
+        if weights is None:
+            weights = [0.5, 0.3, 0.2]
+        
+        e1 = self.calculate_step_entropy(step1)
+        e2 = self.calculate_step_entropy(step2)
+        e3 = self.calculate_step_entropy(step3)
+        
+        return weights[0] * e1 + weights[1] * e2 + weights[2] * e3
+
+
 # Convenience function
 def parse_vlm_response(
     response_text: str,

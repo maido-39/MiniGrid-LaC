@@ -12,10 +12,13 @@ This project implements a language-based agent control system using Vision Langu
 - **Absolute Coordinate Movement**: Direct up/down/left/right movement regardless of robot direction
 - **Emoji Map System**: Define and load emoji-based maps from JSON files
 - **Grounding Knowledge System**: Learn from mistakes through user feedback and accumulate knowledge
+  - JSON/TXT file merging support (automatic merging of multiple grounding files)
+  - Automatic inclusion in System Prompt
 - **Entropy Analysis**: Quantify VLM action uncertainty and calculate Trust values
+  - **Logprobs-based**: Probability distribution analysis via Vertex AI Gemini
+  - **Verbalized Entropy**: Verbalized Confidence approach based on Tian et al. (2023)
 - **Episode Management**: Episode-based logging and grounding generation
 - **Multiple VLM Handlers**: Unified interface for OpenAI, Gemini, Qwen, Gemma
-- **Logprobs Support**: Probability distribution analysis via Vertex AI Gemini
 
 ## Project Structure
 
@@ -148,6 +151,7 @@ Detailed documentation is available in the [`docs/`](docs/) folder:
 - [Emoji Map JSON Loader Guide](docs/emoji-map-loader.md) - Loading emoji maps from JSON files
 - [SLAM-style FOV Mapping Guide](docs/slam-fov-mapping.md) - Exploration area tracking and field of view limitation
 - [Emoji Usage Guide](docs/EMOJI_USAGE_GUIDE.md) - Using emoji objects
+- [Grounding Knowledge System Guide](docs/grounding-system.md) - Detailed Grounding system documentation ⭐ **New**
 - [Entropy and Trust Calculation Guide](docs/entropy-trust-calculation.md) - VLM action uncertainty analysis
 - [VLM Action Uncertainty Guide](docs/vlm-action-uncertainty.md) - Action uncertainty measurement and visualization
 
@@ -287,9 +291,9 @@ python minigrid_lac.py --help
 
 ---
 
-#### `scenario2_test_entropy_comparison.py` - Entropy Comparison Experiment
+#### `scenario2_test_entropy_comparison.py` - Entropy Comparison Experiment (Logprobs-based)
 
-**Description**: Entropy comparison experiment script for analyzing VLM action uncertainty. Calls VLM with 3 conditions (H(X), H(X|S), H(X|L,S)) to calculate Trust values.
+**Description**: Entropy comparison experiment script for analyzing VLM action uncertainty. Calls VLM with 3 conditions (H(X), H(X|S), H(X|L,S)) to calculate Trust values. Uses **Logprobs-based** approach.
 
 **Features**:
 - Simultaneous VLM calls with 3 conditions
@@ -315,6 +319,43 @@ python scenario2_test_entropy_comparison.py --help
 - Vertex AI Gemini model (logprobs support)
 
 **Detailed Guide**: [Entropy and Trust Calculation Guide](docs/entropy-trust-calculation.md)
+
+---
+
+#### `scenario2_test_entropy_comparison_refined_entropy.py` - Verbalized Entropy Comparison Experiment ⭐ **New**
+
+**Description**: Entropy comparison experiment using **Verbalized Confidence** approach based on Tian et al. (2023). Uses probability distributions directly output by the VLM.
+
+**Features**:
+- Parallel VLM calls with 3 conditions (H(X), H(X|S), H(X|L,S))
+- Step-wise probability distribution extraction (step1/step2/step3)
+- Verbalized Confidence-based Entropy calculation
+- Weighted average Entropy calculation (50/30/20)
+- Trust value calculation
+- CSV logging (including step probabilities, Entropy, Trust)
+
+**How to Run**:
+```bash
+cd src
+# Use default map file
+python scenario2_test_entropy_comparison_refined_entropy.py
+
+# Specify specific JSON map file
+python scenario2_test_entropy_comparison_refined_entropy.py config/example_map.json
+
+# Show help
+python scenario2_test_entropy_comparison_refined_entropy.py --help
+```
+
+**Requirements**:
+- `USE_VERBALIZED_ENTROPY = True` (in global_variables.py)
+- `LOGPROBS_ENABLED = False` (automatically handled)
+- Gemini-2.5-flash model recommended (calibrated probabilities from RLHF models)
+
+**Features**:
+- Uses probabilities directly output by VLM (no internal logprobs needed)
+- More accurate Entropy calculation from step-wise probability distributions
+- Automatic retry on JSON parsing failures
 
 ---
 
@@ -513,9 +554,14 @@ Define and load emoji-based maps from JSON files:
 
 Learn from mistakes through user feedback and accumulate knowledge:
 
-- Automatic grounding generation at episode end
-- Save in JSON/TXT format
-- Automatically applied from next episode
+- **Automatic grounding generation at episode end**: Uses only current episode feedbacks
+- **JSON/TXT format storage**: Episode-specific and global latest files
+- **Automatic application from next episode**: Automatically included in System Prompt
+- **Multiple file merging support**:
+  - JSON files: Automatically merged and rendered to Markdown
+  - TXT files: Text merging
+  - Mixed files: Each type processed separately then merged
+- **Configuration**: Multiple file paths can be specified in `GROUNDING_FILE_PATH`
 
 ### 4. Entropy and Trust Calculation
 
@@ -525,6 +571,10 @@ Quantify VLM action uncertainty:
 - **H(X|S)**: Entropy with only Grounding
 - **H(X|L,S)**: Entropy with both Grounding and Language Instruction
 - **Trust T**: `(H(X) - H(X|S)) / (H(X) - H(X|L,S))`
+
+**Two approaches supported**:
+1. **Logprobs-based**: Uses internal probability distributions from Vertex AI Gemini
+2. **Verbalized Entropy**: Uses probability distributions directly output by VLM (Tian et al. 2023)
 
 ### 5. Episode Management
 

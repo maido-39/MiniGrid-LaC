@@ -12,10 +12,13 @@ MiniGrid 환경에서 Language-conditioned 강화학습을 위한 프로젝트�
 - **절대 좌표 이동**: 로봇 방향과 무관하게 상/하/좌/우 직접 이동
 - **이모지 맵 시스템**: JSON 파일로 이모지 기반 맵 정의 및 로드
 - **Grounding 지식 시스템**: 사용자 피드백을 통한 실수 학습 및 누적
+  - JSON/TXT 파일 병합 지원 (여러 Grounding 파일 자동 병합)
+  - System Prompt에 자동 포함
 - **Entropy 분석**: VLM의 action 불확실성 정량화 및 Trust 계산
+  - **Logprobs 기반**: Vertex AI Gemini를 통한 확률 분포 분석
+  - **Verbalized Entropy**: Tian et al. (2023) 기반 Verbalized Confidence 방식
 - **Episode 관리**: 에피소드별 로깅 및 Grounding 생성
 - **다양한 VLM 핸들러**: OpenAI, Gemini, Qwen, Gemma 통일된 인터페이스
-- **Logprobs 지원**: Vertex AI Gemini를 통한 확률 분포 분석
 
 ## Project Structure
 
@@ -148,6 +151,7 @@ from utils.miscellaneous.grounding_file_manager import GroundingFileManager
 - [이모지 맵 JSON 로더 가이드](docs/emoji-map-loader.md) - JSON 파일에서 이모지 맵 로드하기
 - [SLAM 스타일 FOV 맵핑 가이드](docs/slam-fov-mapping.md) - 탐색 영역 추적 및 시야 제한 기능
 - [이모지 사용 가이드](docs/EMOJI_USAGE_GUIDE.md) - 이모지 객체 사용하기
+- [Grounding 지식 시스템 가이드](docs/grounding-system.md) - Grounding 시스템 상세 설명 ⭐ **신규**
 - [Entropy 및 Trust 계산 가이드](docs/entropy-trust-calculation.md) - VLM action 불확실성 분석
 - [VLM Action Uncertainty 가이드](docs/vlm-action-uncertainty.md) - Action 불확실도 측정 및 시각화
 
@@ -265,12 +269,15 @@ python minigrid_lac.py --help
 ```
 
 **설정**: `src/utils/miscellaneous/global_variables.py`에서 변경 가능
-- `VLM_MODEL`: 사용할 VLM 모델 (기본값: "gemini-2.5-flash-vertex")
+- `VLM_MODEL`: 사용할 VLM 모델 (기본값: "gemini-2.5-flash")
 - `VLM_TEMPERATURE`: 생성 온도 (기본값: 0.5)
 - `VLM_MAX_TOKENS`: 최대 토큰 수 (기본값: 3000)
 - `LOGPROBS_ENABLED`: Logprobs 활성화 여부 (기본값: True)
+- `USE_VERBALIZED_ENTROPY`: Verbalized Entropy 방식 사용 여부 (기본값: True)
 - `MAP_FILE_NAME`: 기본 맵 파일 이름 (기본값: "example_map.json")
 - `USE_NEW_GROUNDING_SYSTEM`: 새 Grounding 시스템 사용 여부 (기본값: True)
+- `GROUNDING_FILE_PATH`: Grounding 파일 경로 (여러 파일 지원: 쉼표로 구분)
+- `GROUNDING_MERGE_FORMAT`: Grounding 병합 형식 ("txt" | "json" | "both", 기본값: "txt")
 
 **로그 출력**:
 - `logs/scenario2_absolute_<map_name>_<timestamp>/` 디렉토리에 저장
@@ -287,9 +294,9 @@ python minigrid_lac.py --help
 
 ---
 
-#### `scenario2_test_entropy_comparison.py` - Entropy 비교 실험
+#### `scenario2_test_entropy_comparison.py` - Entropy 비교 실험 (Logprobs 기반)
 
-**설명**: VLM의 action 불확실성을 분석하기 위한 Entropy 비교 실험 스크립트입니다. 3가지 조건(H(X), H(X|S), H(X|L,S))으로 VLM을 호출하여 Trust 값을 계산합니다.
+**설명**: VLM의 action 불확실성을 분석하기 위한 Entropy 비교 실험 스크립트입니다. 3가지 조건(H(X), H(X|S), H(X|L,S))으로 VLM을 호출하여 Trust 값을 계산합니다. **Logprobs 기반** 방식입니다.
 
 **기능**:
 - 3가지 조건으로 동시 VLM 호출
@@ -315,6 +322,43 @@ python scenario2_test_entropy_comparison.py --help
 - Vertex AI Gemini 모델 사용 (logprobs 지원)
 
 **상세 가이드**: [Entropy 및 Trust 계산 가이드](docs/entropy-trust-calculation.md)
+
+---
+
+#### `scenario2_test_entropy_comparison_refined_entropy.py` - Verbalized Entropy 비교 실험 ⭐ **신규**
+
+**설명**: Tian et al. (2023) 논문 기반 **Verbalized Confidence** 방식을 사용한 Entropy 비교 실험 스크립트입니다. VLM이 직접 출력하는 확률 분포를 사용하여 Entropy를 계산합니다.
+
+**기능**:
+- 3가지 조건으로 병렬 VLM 호출 (H(X), H(X|S), H(X|L,S))
+- Step-wise 확률 분포 (step1/step2/step3) 추출
+- Verbalized Confidence 기반 Entropy 계산
+- 가중 평균 Entropy 계산 (50/30/20)
+- Trust 값 계산
+- CSV 로깅 (Step별 확률, Entropy, Trust 포함)
+
+**실행 방법**:
+```bash
+cd src
+# 기본 맵 파일 사용
+python scenario2_test_entropy_comparison_refined_entropy.py
+
+# 특정 JSON 맵 파일 지정
+python scenario2_test_entropy_comparison_refined_entropy.py config/example_map.json
+
+# 도움말 보기
+python scenario2_test_entropy_comparison_refined_entropy.py --help
+```
+
+**요구사항**:
+- `USE_VERBALIZED_ENTROPY = True` (global_variables.py)
+- `LOGPROBS_ENABLED = False` (자동 처리됨)
+- Gemini-2.5-flash 모델 권장 (RLHF 모델의 교정된 확률)
+
+**특징**:
+- VLM이 직접 출력하는 확률 사용 (내부 logprobs 불필요)
+- Step별 확률 분포로 더 정확한 Entropy 계산
+- JSON 파싱 실패 시 자동 재시도
 
 ---
 
@@ -513,9 +557,14 @@ JSON 파일로 이모지 기반 맵을 정의하고 로드할 수 있습니다:
 
 사용자 피드백을 통해 실수를 학습하고 누적합니다:
 
-- 에피소드 종료 시 자동 Grounding 생성
-- JSON/TXT 형식으로 저장
-- 다음 에피소드부터 자동 적용
+- **에피소드 종료 시 자동 Grounding 생성**: 현재 에피소드 피드백만 사용
+- **JSON/TXT 형식 저장**: Episode별 및 전역 최신 파일로 저장
+- **다음 에피소드부터 자동 적용**: System Prompt에 자동 포함
+- **여러 파일 병합 지원**:
+  - JSON 파일: 자동 병합 후 Markdown 렌더링
+  - TXT 파일: 텍스트 병합
+  - 혼합 파일: 각각 처리 후 병합
+- **설정**: `GROUNDING_FILE_PATH`에서 여러 파일 경로 지정 가능
 
 ### 4. Entropy 및 Trust 계산
 
@@ -525,6 +574,10 @@ VLM의 action 불확실성을 정량화합니다:
 - **H(X|S)**: Grounding만 제공했을 때의 엔트로피
 - **H(X|L,S)**: Grounding과 Language Instruction 모두 제공했을 때의 엔트로피
 - **Trust T**: `(H(X) - H(X|S)) / (H(X) - H(X|L,S))`
+
+**두 가지 방식 지원**:
+1. **Logprobs 기반**: Vertex AI Gemini의 내부 확률 분포 사용
+2. **Verbalized Entropy**: VLM이 직접 출력하는 확률 분포 사용 (Tian et al. 2023)
 
 ### 5. Episode 관리
 

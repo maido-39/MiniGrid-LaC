@@ -52,6 +52,12 @@ COLOR_TO_IDX.update(EXTENDED_COLORS)
 
 # Emoji name to actual emoji character mapping
 EMOJI_MAP = {
+    'TV' : '📺',
+    'sofa' : '🛋️',
+    'bed' : '🛏️',
+    'desk' : '🖥️',
+    'lamp' : '💡',
+    'wall' : '🚧',
     'tree': '🌲',
     'mushroom': '🍄',
     'flower': '🌼',
@@ -71,6 +77,7 @@ EMOJI_MAP = {
     'plating' : '🍽️',
     'dining' : '🍴',
     'water' : '💦',
+    'waterspill' : '🫗',
     'broom' : '🧹',
     "apple" : "🍏",
     "lemon" : "🍋",
@@ -357,30 +364,11 @@ class CustomRoomEnv(MiniGridEnv):
         """
         if carrying_obj is None:
             return "None"
-        
-        # Default emoji mapping
-        emoji_map = {
-            'box': '📦',
-            'apple': '🍎',
-            'key': '🔑',
-            'ball': '⚽',
-            'chair': '🪑',
-            'tree': '🌲',
-            'mushroom': '🍄',
-            'flower': '🌼',
-            'cat': '🐈',
-            'grass': '🌾',
-            'rock': '🗿',
-            'desktop': '🖥️',
-            'workstation': '📱',
-            'brick': '🧱',
-            'tomato': '🍅',
-            'pepper': '🌶️'
-        }
+
         
         emoji_char = '❓'
         if hasattr(carrying_obj, 'emoji_name'):
-            emoji_char = emoji_map.get(carrying_obj.emoji_name, '❓')
+            emoji_char = EMOJI_MAP.get(carrying_obj.emoji_name, '❓')
         
         if hasattr(carrying_obj, 'type'):
             obj_type = carrying_obj.type

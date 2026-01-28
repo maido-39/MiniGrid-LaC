@@ -606,38 +606,10 @@ class ScenarioExperiment:
         # GroundingFileManager에서 stacked_grounding 데이터 가져오기 (Status 포함)
         stacked_grounding = self.grounding_file_manager.get_stacked_grounding()
         
-        # 이전 Grounding 파일 읽기 (있는 경우) - 여러 파일 지원
+        # Grounding 생성 시에는 항상 현재 에피소드 피드백만 사용
+        # 이전 Grounding은 다음 에피소드의 Action 생성 시에만 사용됨
         previous_grounding = ""
-        if GROUNDING_FILE_PATH:
-            try:
-                # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열 처리
-                if isinstance(GROUNDING_FILE_PATH, str):
-                    if ',' in GROUNDING_FILE_PATH:
-                        file_paths = [p.strip() for p in GROUNDING_FILE_PATH.split(',')]
-                    else:
-                        file_paths = [GROUNDING_FILE_PATH]
-                elif isinstance(GROUNDING_FILE_PATH, list):
-                    file_paths = GROUNDING_FILE_PATH
-                else:
-                    file_paths = []
-                
-                # 각 파일 읽기 및 병합
-                grounding_contents = []
-                for file_path in file_paths:
-                    grounding_path = Path(file_path)
-                    if grounding_path.exists():
-                        content = grounding_path.read_text(encoding='utf-8')
-                        grounding_contents.append(content)
-                        tfu.cprint(f"[Grounding] Loaded for generation: {grounding_path}", tfu.LIGHT_GREEN)
-                    else:
-                        tfu.cprint(f"[Warning] Grounding file not found: {grounding_path}", tfu.LIGHT_YELLOW)
-                
-                # 모든 파일 내용 병합
-                if grounding_contents:
-                    previous_grounding = "\n\n---\n\n".join(grounding_contents)
-                    tfu.cprint(f"[Grounding] Merged {len(grounding_contents)} file(s) for grounding generation", tfu.LIGHT_CYAN)
-            except Exception as e:
-                tfu.cprint(f"[Warning] Failed to read previous grounding: {e}", tfu.LIGHT_RED)
+        tfu.cprint(f"[Grounding] Using only current episode feedbacks for grounding generation", tfu.LIGHT_CYAN)
         
         # 프롬프트 준비
         system_prompt = system_prompt_interp(
@@ -651,6 +623,10 @@ class ScenarioExperiment:
         procedural_feedbacks = "\n".join(stacked_grounding.get("procedural", [])) or "None"
         general_feedbacks = "\n".join(stacked_grounding.get("general", [])) or "None"
         
+        # Grounding 생성 시에는 항상 현재 에피소드 피드백만 사용
+        # 이전 Grounding은 다음 에피소드의 Action 생성 시에만 사용됨
+        previous_grounding_display = "None (Only current episode feedbacks will be used)"
+        
         user_prompt = system_prompt_interp(
             file_name="grounding_generation_user_prompt.txt",
             strict=True,
@@ -660,7 +636,7 @@ class ScenarioExperiment:
             spatial_feedbacks=spatial_feedbacks,
             procedural_feedbacks=procedural_feedbacks,
             general_feedbacks=general_feedbacks,
-            previous_grounding=previous_grounding or "None"
+            previous_grounding=previous_grounding_display
         )
         
         # 초기 상태 이미지 가져오기
@@ -857,7 +833,8 @@ class ScenarioExperiment:
         
         try:
             # Get system prompt (will have empty grounding_content)
-            system_prompt = self.prompt_organizer.get_system_prompt(wrapper, last_action_result)
+            # grounding_file_path=None을 전달하여 grounding 없이 생성
+            system_prompt = self.prompt_organizer.get_system_prompt(wrapper, last_action_result, grounding_file_path=None)
         finally:
             # Restore original grounding
             self.prompt_organizer.grounding = original_grounding
@@ -890,7 +867,9 @@ class ScenarioExperiment:
     def vlm_gen_action_H_X(self,
                            image: np.ndarray,
                            system_prompt: str,
-                           user_prompt: str
+                           user_prompt: str,
+                           max_retries: int = 3,
+                           retry_delay: float = 1.0
                           ) -> dict:
         """
         VLM call for H(X) calculation - without Language Instruction and Grounding.
@@ -903,6 +882,8 @@ class ScenarioExperiment:
             image: Input image array
             system_prompt: Original system prompt (grounding will be removed)
             user_prompt: Original user prompt (will be set to empty string)
+            max_retries: Maximum number of retry attempts (default: 3)
+            retry_delay: Initial delay between retries in seconds (exponential backoff)
         
         Returns:
             Dictionary containing:
@@ -910,6 +891,8 @@ class ScenarioExperiment:
                 - 'logprobs_metadata': Logprobs metadata dict (if available)
                 - 'action_logprobs_info': Action logprobs info dict (if available)
         """
+        import time
+        
         # Get system prompt without grounding
         system_prompt_no_grounding = self._get_system_prompt_without_grounding(
             self.wrapper, self.last_action_result
@@ -921,51 +904,74 @@ class ScenarioExperiment:
         tfu.cprint("\n[H(X)] Sending VLM request (no Language Instruction, no Grounding)...")
         
         if self.logprobs_active and self.vlm_processor.logprobs:
-            try:
-                raw_response, logprobs_metadata = self.vlm_processor.requester_with_logprobs(
-                    image=image,
-                    system_prompt=system_prompt_no_grounding,
-                    user_prompt=user_prompt_empty,
-                    debug=self.debug
-                )
-                
-                if not raw_response:
-                    tfu.cprint("[H(X)] VLM response is empty.", tfu.LIGHT_RED)
+            last_exception = None
+            for attempt in range(max_retries):
+                try:
+                    raw_response, logprobs_metadata = self.vlm_processor.requester_with_logprobs(
+                        image=image,
+                        system_prompt=system_prompt_no_grounding,
+                        user_prompt=user_prompt_empty,
+                        debug=self.debug
+                    )
+                    
+                    if not raw_response:
+                        tfu.cprint(f"[H(X)] VLM response is empty (attempt {attempt + 1}/{max_retries}).", tfu.LIGHT_RED)
+                        if attempt < max_retries - 1:
+                            delay = retry_delay * (2 ** attempt)  # Exponential backoff
+                            tfu.cprint(f"[H(X)] Retrying in {delay:.1f}s...", tfu.LIGHT_YELLOW)
+                            time.sleep(delay)
+                            continue
+                        return {
+                            'parsed': {},
+                            'logprobs_metadata': {},
+                            'action_logprobs_info': {}
+                        }
+                    
+                    tfu.cprint("[H(X)] VLM response received")
+                    parsed = self.vlm_processor.parser_action_with_logprobs(
+                        raw_response,
+                        logprobs_metadata,
+                        action_field="action",
+                        remove_logprobs=False
+                    )
+                    
+                    action_logprobs_info = parsed.get('action_logprobs_info', {})
+                    
+                    # Validate that we have valid data
+                    if not action_logprobs_info or not action_logprobs_info.get('action_logprobs'):
+                        tfu.cprint(f"[H(X)] Invalid action_logprobs_info (attempt {attempt + 1}/{max_retries}).", tfu.LIGHT_RED)
+                        if attempt < max_retries - 1:
+                            delay = retry_delay * (2 ** attempt)
+                            tfu.cprint(f"[H(X)] Retrying in {delay:.1f}s...", tfu.LIGHT_YELLOW)
+                            time.sleep(delay)
+                            continue
+                    
+                    # Debug output
+                    if self.debug:
+                        action_chunk = parsed.get('action', [])
+                        tfu.cprint(f"[H(X)] Action: {action_chunk}", tfu.LIGHT_CYAN)
+                        if action_logprobs_info:
+                            self.vlm_processor.postprocessor_action.print_action_logprobs_info(action_logprobs_info)
+                    
                     return {
-                        'parsed': {},
-                        'logprobs_metadata': {},
-                        'action_logprobs_info': {}
+                        'parsed': parsed,
+                        'logprobs_metadata': logprobs_metadata,
+                        'action_logprobs_info': action_logprobs_info
                     }
-                
-                tfu.cprint("[H(X)] VLM response received")
-                parsed = self.vlm_processor.parser_action_with_logprobs(
-                    raw_response,
-                    logprobs_metadata,
-                    action_field="action",
-                    remove_logprobs=False
-                )
-                
-                action_logprobs_info = parsed.get('action_logprobs_info', {})
-                
-                # Debug output
-                if self.debug:
-                    action_chunk = parsed.get('action', [])
-                    tfu.cprint(f"[H(X)] Action: {action_chunk}", tfu.LIGHT_CYAN)
-                    if action_logprobs_info:
-                        self.vlm_processor.postprocessor_action.print_action_logprobs_info(action_logprobs_info)
-                
-                return {
-                    'parsed': parsed,
-                    'logprobs_metadata': logprobs_metadata,
-                    'action_logprobs_info': action_logprobs_info
-                }
-            except Exception as e:
-                tfu.cprint(f"[H(X)] Warning: logprobs call failed: {e}", tfu.LIGHT_RED)
-                return {
-                    'parsed': {},
-                    'logprobs_metadata': {},
-                    'action_logprobs_info': {}
-                }
+                except Exception as e:
+                    last_exception = e
+                    tfu.cprint(f"[H(X)] Warning: logprobs call failed (attempt {attempt + 1}/{max_retries}): {e}", tfu.LIGHT_RED)
+                    if attempt < max_retries - 1:
+                        delay = retry_delay * (2 ** attempt)
+                        tfu.cprint(f"[H(X)] Retrying in {delay:.1f}s...", tfu.LIGHT_YELLOW)
+                        time.sleep(delay)
+            
+            tfu.cprint(f"[H(X)] All {max_retries} attempts failed. Last error: {last_exception}", tfu.LIGHT_RED, bold=True)
+            return {
+                'parsed': {},
+                'logprobs_metadata': {},
+                'action_logprobs_info': {}
+            }
         else:
             tfu.cprint("[H(X)] Warning: logprobs not active, cannot calculate entropy", tfu.LIGHT_RED)
             return {
@@ -977,7 +983,9 @@ class ScenarioExperiment:
     def vlm_gen_action_H_X_given_S(self,
                                     image: np.ndarray,
                                     system_prompt: str,
-                                    user_prompt: str
+                                    user_prompt: str,
+                                    max_retries: int = 3,
+                                    retry_delay: float = 1.0
                                    ) -> dict:
         """
         VLM call for H(X|S) calculation - without Language Instruction (Grounding included).
@@ -990,6 +998,8 @@ class ScenarioExperiment:
             image: Input image array
             system_prompt: System prompt with grounding
             user_prompt: Original user prompt (will be set to empty string)
+            max_retries: Maximum number of retry attempts (default: 3)
+            retry_delay: Initial delay between retries in seconds (exponential backoff)
         
         Returns:
             Dictionary containing:
@@ -997,6 +1007,8 @@ class ScenarioExperiment:
                 - 'logprobs_metadata': Logprobs metadata dict (if available)
                 - 'action_logprobs_info': Action logprobs info dict (if available)
         """
+        import time
+        
         # Use original system_prompt (with grounding)
         # Set user_prompt to empty string
         user_prompt_empty = ""
@@ -1004,51 +1016,74 @@ class ScenarioExperiment:
         tfu.cprint("\n[H(X|S)] Sending VLM request (no Language Instruction, with Grounding)...")
         
         if self.logprobs_active and self.vlm_processor.logprobs:
-            try:
-                raw_response, logprobs_metadata = self.vlm_processor.requester_with_logprobs(
-                    image=image,
-                    system_prompt=system_prompt,
-                    user_prompt=user_prompt_empty,
-                    debug=self.debug
-                )
-                
-                if not raw_response:
-                    tfu.cprint("[H(X|S)] VLM response is empty.", tfu.LIGHT_RED)
+            last_exception = None
+            for attempt in range(max_retries):
+                try:
+                    raw_response, logprobs_metadata = self.vlm_processor.requester_with_logprobs(
+                        image=image,
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt_empty,
+                        debug=self.debug
+                    )
+                    
+                    if not raw_response:
+                        tfu.cprint(f"[H(X|S)] VLM response is empty (attempt {attempt + 1}/{max_retries}).", tfu.LIGHT_RED)
+                        if attempt < max_retries - 1:
+                            delay = retry_delay * (2 ** attempt)
+                            tfu.cprint(f"[H(X|S)] Retrying in {delay:.1f}s...", tfu.LIGHT_YELLOW)
+                            time.sleep(delay)
+                            continue
+                        return {
+                            'parsed': {},
+                            'logprobs_metadata': {},
+                            'action_logprobs_info': {}
+                        }
+                    
+                    tfu.cprint("[H(X|S)] VLM response received")
+                    parsed = self.vlm_processor.parser_action_with_logprobs(
+                        raw_response,
+                        logprobs_metadata,
+                        action_field="action",
+                        remove_logprobs=False
+                    )
+                    
+                    action_logprobs_info = parsed.get('action_logprobs_info', {})
+                    
+                    # Validate that we have valid data
+                    if not action_logprobs_info or not action_logprobs_info.get('action_logprobs'):
+                        tfu.cprint(f"[H(X|S)] Invalid action_logprobs_info (attempt {attempt + 1}/{max_retries}).", tfu.LIGHT_RED)
+                        if attempt < max_retries - 1:
+                            delay = retry_delay * (2 ** attempt)
+                            tfu.cprint(f"[H(X|S)] Retrying in {delay:.1f}s...", tfu.LIGHT_YELLOW)
+                            time.sleep(delay)
+                            continue
+                    
+                    # Debug output
+                    if self.debug:
+                        action_chunk = parsed.get('action', [])
+                        tfu.cprint(f"[H(X|S)] Action: {action_chunk}", tfu.LIGHT_CYAN)
+                        if action_logprobs_info:
+                            self.vlm_processor.postprocessor_action.print_action_logprobs_info(action_logprobs_info)
+                    
                     return {
-                        'parsed': {},
-                        'logprobs_metadata': {},
-                        'action_logprobs_info': {}
+                        'parsed': parsed,
+                        'logprobs_metadata': logprobs_metadata,
+                        'action_logprobs_info': action_logprobs_info
                     }
-                
-                tfu.cprint("[H(X|S)] VLM response received")
-                parsed = self.vlm_processor.parser_action_with_logprobs(
-                    raw_response,
-                    logprobs_metadata,
-                    action_field="action",
-                    remove_logprobs=False
-                )
-                
-                action_logprobs_info = parsed.get('action_logprobs_info', {})
-                
-                # Debug output
-                if self.debug:
-                    action_chunk = parsed.get('action', [])
-                    tfu.cprint(f"[H(X|S)] Action: {action_chunk}", tfu.LIGHT_CYAN)
-                    if action_logprobs_info:
-                        self.vlm_processor.postprocessor_action.print_action_logprobs_info(action_logprobs_info)
-                
-                return {
-                    'parsed': parsed,
-                    'logprobs_metadata': logprobs_metadata,
-                    'action_logprobs_info': action_logprobs_info
-                }
-            except Exception as e:
-                tfu.cprint(f"[H(X|S)] Warning: logprobs call failed: {e}", tfu.LIGHT_RED)
-                return {
-                    'parsed': {},
-                    'logprobs_metadata': {},
-                    'action_logprobs_info': {}
-                }
+                except Exception as e:
+                    last_exception = e
+                    tfu.cprint(f"[H(X|S)] Warning: logprobs call failed (attempt {attempt + 1}/{max_retries}): {e}", tfu.LIGHT_RED)
+                    if attempt < max_retries - 1:
+                        delay = retry_delay * (2 ** attempt)
+                        tfu.cprint(f"[H(X|S)] Retrying in {delay:.1f}s...", tfu.LIGHT_YELLOW)
+                        time.sleep(delay)
+            
+            tfu.cprint(f"[H(X|S)] All {max_retries} attempts failed. Last error: {last_exception}", tfu.LIGHT_RED, bold=True)
+            return {
+                'parsed': {},
+                'logprobs_metadata': {},
+                'action_logprobs_info': {}
+            }
         else:
             tfu.cprint("[H(X|S)] Warning: logprobs not active, cannot calculate entropy", tfu.LIGHT_RED)
             return {
@@ -1060,7 +1095,9 @@ class ScenarioExperiment:
     def vlm_gen_action_H_X_given_LS(self,
                                      image: np.ndarray,
                                      system_prompt: str,
-                                     user_prompt: str
+                                     user_prompt: str,
+                                     max_retries: int = 3,
+                                     retry_delay: float = 1.0
                                     ) -> dict:
         """
         VLM call for H(X|L,S) calculation - with both Language Instruction and Grounding.
@@ -1072,6 +1109,8 @@ class ScenarioExperiment:
             image: Input image array
             system_prompt: System prompt with grounding
             user_prompt: User prompt with language instruction
+            max_retries: Maximum number of retry attempts (default: 3)
+            retry_delay: Initial delay between retries in seconds (exponential backoff)
         
         Returns:
             Dictionary containing:
@@ -1079,31 +1118,68 @@ class ScenarioExperiment:
                 - 'logprobs_metadata': Logprobs metadata dict (if available)
                 - 'action_logprobs_info': Action logprobs info dict (if available)
         """
+        import time
+        
         tfu.cprint("\n[H(X|L,S)] Sending VLM request (with Language Instruction and Grounding)...")
         
-        # Use existing vlm_gen_action method
-        parsed = self.vlm_gen_action(
-            image=image,
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            use_logprobs=self.logprobs_active
-        )
+        last_exception = None
+        for attempt in range(max_retries):
+            try:
+                # Use existing vlm_gen_action method
+                parsed = self.vlm_gen_action(
+                    image=image,
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    use_logprobs=self.logprobs_active
+                )
+                
+                # Extract logprobs information if available
+                logprobs_metadata = getattr(self, 'logprobs_metadata', {})
+                action_logprobs_info = getattr(self, 'action_logprobs_info', {})
+                
+                # Check if we got valid response
+                if not parsed or not parsed.get('action'):
+                    tfu.cprint(f"[H(X|L,S)] Invalid response (attempt {attempt + 1}/{max_retries}).", tfu.LIGHT_RED)
+                    if attempt < max_retries - 1:
+                        delay = retry_delay * (2 ** attempt)
+                        tfu.cprint(f"[H(X|L,S)] Retrying in {delay:.1f}s...", tfu.LIGHT_YELLOW)
+                        time.sleep(delay)
+                        continue
+                
+                # Validate action_logprobs_info
+                if not action_logprobs_info or not action_logprobs_info.get('action_logprobs'):
+                    tfu.cprint(f"[H(X|L,S)] Invalid action_logprobs_info (attempt {attempt + 1}/{max_retries}).", tfu.LIGHT_RED)
+                    if attempt < max_retries - 1:
+                        delay = retry_delay * (2 ** attempt)
+                        tfu.cprint(f"[H(X|L,S)] Retrying in {delay:.1f}s...", tfu.LIGHT_YELLOW)
+                        time.sleep(delay)
+                        continue
+                
+                # Debug output
+                if self.debug:
+                    action_chunk = parsed.get('action', [])
+                    tfu.cprint(f"[H(X|L,S)] Action: {action_chunk}", tfu.LIGHT_CYAN)
+                    if action_logprobs_info:
+                        self.vlm_processor.postprocessor_action.print_action_logprobs_info(action_logprobs_info)
+                
+                return {
+                    'parsed': parsed,
+                    'logprobs_metadata': logprobs_metadata,
+                    'action_logprobs_info': action_logprobs_info
+                }
+            except Exception as e:
+                last_exception = e
+                tfu.cprint(f"[H(X|L,S)] Warning: VLM call failed (attempt {attempt + 1}/{max_retries}): {e}", tfu.LIGHT_RED)
+                if attempt < max_retries - 1:
+                    delay = retry_delay * (2 ** attempt)
+                    tfu.cprint(f"[H(X|L,S)] Retrying in {delay:.1f}s...", tfu.LIGHT_YELLOW)
+                    time.sleep(delay)
         
-        # Extract logprobs information if available
-        logprobs_metadata = getattr(self, 'logprobs_metadata', {})
-        action_logprobs_info = getattr(self, 'action_logprobs_info', {})
-        
-        # Debug output
-        if self.debug:
-            action_chunk = parsed.get('action', [])
-            tfu.cprint(f"[H(X|L,S)] Action: {action_chunk}", tfu.LIGHT_CYAN)
-            if action_logprobs_info:
-                self.vlm_processor.postprocessor_action.print_action_logprobs_info(action_logprobs_info)
-        
+        tfu.cprint(f"[H(X|L,S)] All {max_retries} attempts failed. Last error: {last_exception}", tfu.LIGHT_RED, bold=True)
         return {
-            'parsed': parsed,
-            'logprobs_metadata': logprobs_metadata,
-            'action_logprobs_info': action_logprobs_info
+            'parsed': {},
+            'logprobs_metadata': {},
+            'action_logprobs_info': {}
         }
     
     def _init_csv_logging(self):
@@ -1497,9 +1573,6 @@ class ScenarioExperiment:
             tfu.cprint("\n[4-1] Feedback processing complete! Proceeding to the next step.", tfu.LIGHT_GREEN, True)
             return True
         
-        # Create a General Action
-        system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper, self.last_action_result)
-        
         # Grounding 파일 경로 가져오기 (새 Grounding 시스템 사용 시)
         # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열
         grounding_file_path = None
@@ -1583,12 +1656,21 @@ class ScenarioExperiment:
                 tfu.cprint(f"[Grounding] No valid grounding files found", tfu.LIGHT_YELLOW)
                 grounding_file_path = None
         
+        # Create a General Action
+        # System Prompt 생성 시 grounding_file_path 전달 (USE_NEW_GROUNDING_SYSTEM=True일 때 System Prompt에 포함됨)
+        system_prompt = self.prompt_organizer.get_system_prompt_by_mode(
+            self.wrapper, 
+            self.last_action_result,
+            use_verbalized=USE_VERBALIZED_ENTROPY,
+            grounding_file_path=grounding_file_path
+        )
+        
         self.vlm_response_parsed = self.vlm_gen_action(
             image=self.image,
             system_prompt=system_prompt,
             user_prompt=self.user_prompt,
             use_logprobs=self.logprobs_active,
-            grounding_file=grounding_file_path
+            grounding_file=None  # System Prompt에 이미 포함되었으므로 user_prompt에 추가하지 않음
         )
         
         if not self.vlm_response_parsed:

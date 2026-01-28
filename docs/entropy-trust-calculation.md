@@ -18,6 +18,20 @@
 
 VLM이 생성하는 action의 불확실성(uncertainty)을 정량화하기 위해 정보 이론의 엔트로피 개념을 사용합니다. 또한, Grounding과 Language Instruction이 VLM의 결정에 미치는 영향을 분석하기 위해 Trust 값을 계산합니다.
 
+### 두 가지 Entropy 계산 방식
+
+프로젝트는 두 가지 방식으로 Entropy를 계산할 수 있습니다:
+
+1. **Logprobs 기반** (기존 방식)
+   - VLM API의 내부 확률 분포 사용
+   - Vertex AI Gemini의 logprobs 기능 필요
+   - 스크립트: `scenario2_test_entropy_comparison.py`
+
+2. **Verbalized Entropy** (Tian et al. 2023 기반) ⭐ **신규**
+   - VLM이 직접 출력하는 확률 분포 사용
+   - RLHF 모델(Gemini-2.5-flash 등)에서 더 정확한 교정된 확률
+   - 스크립트: `scenario2_test_entropy_comparison_refined_entropy.py`
+
 ### 기본 개념
 
 - **H(X)**: Language Instruction과 Grounding 없이 VLM이 action을 생성할 때의 엔트로피 (최대 불확실성)
@@ -597,15 +611,102 @@ step,timestamp,agent_x,agent_y,...,entropy_H_X,entropy_H_X_given_S,entropy_H_X_g
 
 ---
 
+## Verbalized Entropy 방식 (Tian et al. 2023 기반) ⭐ **신규**
+
+### 개요
+
+Verbalized Entropy는 VLM이 직접 출력하는 확률 분포를 사용하여 Entropy를 계산하는 방식입니다. RLHF(Reinforcement Learning from Human Feedback) 모델에서는 내부 logprobs보다 텍스트로 출력하는 확률이 더 정확하게 교정(calibrated)되어 있습니다.
+
+### 주요 특징
+
+1. **Verbalized Confidence**: VLM이 JSON 응답에 직접 확률 값을 출력
+2. **Step-wise 확률 분포**: 각 step(step1, step2, step3)별로 4방향(north/south/west/east)에 대한 확률 분포
+3. **Action 추출**: 각 step의 확률 분포에서 argmax로 action 추출
+4. **가중 평균 Entropy**: Step별 Entropy를 가중 평균 (50/30/20)
+
+### JSON 출력 형식
+
+```json
+{
+  "executability": 0.95,
+  "step1": {"north": 0.65, "south": 0.15, "west": 0.12, "east": 0.08},
+  "step2": {"north": 0.45, "south": 0.30, "west": 0.15, "east": 0.10},
+  "step3": {"north": 0.40, "south": 0.35, "west": 0.15, "east": 0.10},
+  "reasoning": "Brief explanation",
+  "memory": {
+    "task_process": {"status": "in_progress"},
+    "previous_action": "move up"
+  }
+}
+```
+
+### Entropy 계산
+
+#### Step별 Entropy
+
+각 step의 확률 분포로 Shannon Entropy 계산:
+
+```python
+H_step = -Σ p_i × log₂(p_i)
+```
+
+여기서 `p_i`는 각 방향(north/south/west/east)의 확률입니다.
+
+#### 가중 평균 Entropy
+
+```python
+H_weighted = 0.5 × H_step1 + 0.3 × H_step2 + 0.2 × H_step3
+```
+
+### Trust 계산
+
+Logprobs 기반과 동일한 공식 사용:
+
+```
+T = (H(X) - H(X|S)) / (H(X) - H(X|L,S))
+```
+
+### 실행 방법
+
+```bash
+cd src
+python scenario2_test_entropy_comparison_refined_entropy.py config/example_map.json
+```
+
+### 설정
+
+`src/utils/miscellaneous/global_variables.py`:
+
+```python
+USE_VERBALIZED_ENTROPY = True  # Verbalized Entropy 방식 사용
+LOGPROBS_ENABLED = False       # 자동으로 False로 설정됨
+VLM_MODEL = "gemini-2.5-flash" # RLHF 모델 권장
+```
+
+### 장점
+
+1. **교정된 확률**: RLHF 모델의 텍스트 출력 확률이 더 정확
+2. **모델 독립적**: logprobs 기능이 없는 모델에서도 사용 가능
+3. **명시적 확률**: VLM이 직접 확률을 출력하므로 해석이 용이
+
+### 제한사항
+
+1. **JSON 파싱 의존**: VLM이 올바른 JSON 형식으로 출력해야 함
+2. **재시도 필요**: JSON 파싱 실패 시 자동 재시도 (최대 3회)
+3. **확률 정규화**: 확률 합이 1.0이 아니면 자동 정규화
+
+---
+
 ## 관련 파일
 
-- `src/scenario2_test_entropy_comparison.py`: 메인 실험 스크립트
+- `src/scenario2_test_entropy_comparison.py`: Logprobs 기반 Entropy 비교 실험
+- `src/scenario2_test_entropy_comparison_refined_entropy.py`: Verbalized Entropy 비교 실험 ⭐ **신규**
 - `src/utils/miscellaneous/scenario_runner.py`: ScenarioExperiment 클래스
-- `src/utils/vlm/vlm_wrapper.py`: Entropy 계산 로직
-- `src/utils/vlm/vlm_postprocessor.py`: Action logprobs 추출
-- `src/utils/miscellaneous/global_variables.py`: 전역 설정 (LOGPROBS_ENABLED, DEBUG 등)
+- `src/utils/vlm/vlm_wrapper.py`: Entropy 계산 로직 (Logprobs 기반)
+- `src/utils/vlm/vlm_postprocessor.py`: Action logprobs 추출 및 Verbalized Entropy 파싱
+- `src/utils/miscellaneous/global_variables.py`: 전역 설정 (USE_VERBALIZED_ENTROPY, LOGPROBS_ENABLED, DEBUG 등)
 
 ---
 
 **작성일**: 2025-01-21  
-**최종 수정일**: 2025-01-21
+**최종 수정일**: 2026-01-27

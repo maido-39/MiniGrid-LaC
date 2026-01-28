@@ -1,0 +1,2132 @@
+[
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.2,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.2,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.2,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.35,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.35,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.35,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.5,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.5,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.5,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.65,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.65,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.65,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.8,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.8,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.8,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 0.95,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 0.95,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 0.95,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 1.1,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 1.1,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 1.1,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 1.25,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 1.25,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 1.25,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 1.4,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 1.4,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 1.4,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "uncertain",
+    "prompt_text": "move toward toilet, usually colored room is toilet.",
+    "temperature": 1.55,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "certain",
+    "prompt_text": "i'm hungry. grab some apple",
+    "temperature": 1.55,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  },
+  {
+    "prompt_name": "strange",
+    "prompt_text": "find and move toward desktop pc",
+    "temperature": 1.55,
+    "n_runs": 5,
+    "success_count": 0,
+    "entropy_mean": 2.0,
+    "entropy_std": 2.0,
+    "entropy_min": 2.0,
+    "entropy_max": 2.0,
+    "exec_mean": 0.5,
+    "exec_std": 0.5,
+    "best_guess_ratio": {
+      "north": 0.25,
+      "south": 0.25,
+      "west": 0.25,
+      "east": 0.25
+    },
+    "raw_results": [
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      },
+      {
+        "success": false,
+        "error": "404 NOT_FOUND. {'error': {'code': 404, 'message': 'Publisher Model `projects/composed-hash-485105-k5/locations/us-central1/publishers/google/models/gemini-2.5-flash-preview-05-20` was not found or your project does not have access to it. Please ensure you are using a valid model version. For more information, see: https://cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions', 'status': 'NOT_FOUND'}}",
+        "entropies": [
+          2.0,
+          2.0,
+          2.0
+        ],
+        "weighted_entropy": 2.0
+      }
+    ]
+  }
+]

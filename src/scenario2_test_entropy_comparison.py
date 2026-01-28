@@ -307,27 +307,37 @@ class EntropyComparisonExperiment(ScenarioExperiment):
         # Get system prompt for all VLM calls
         system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper, self.last_action_result)
         
-        # ===== ENTROPY COMPARISON: 3 Parallel VLM Calls =====
+        # ===== ENTROPY COMPARISON: 3 Parallel VLM Calls with Retry =====
         tfu.cprint("\n" + "=" * 80, bold=True)
-        tfu.cprint("[Entropy Comparison] Performing 3 parallel VLM calls...", tfu.LIGHT_CYAN, bold=True)
+        tfu.cprint("[Entropy Comparison] Performing 3 parallel VLM calls (with retry logic)...", tfu.LIGHT_CYAN, bold=True)
         tfu.cprint("=" * 80 + "\n", bold=True)
         
-        # Prepare arguments for each VLM call
+        # Retry configuration
+        max_retries = 3
+        retry_delay = 1.0  # seconds, with exponential backoff
+        
+        # Prepare arguments for each VLM call (with retry parameters)
         vlm_calls = [
             ("H(X)", self.vlm_gen_action_H_X, {
                 "image": self.image,
                 "system_prompt": system_prompt,
-                "user_prompt": self.user_prompt
+                "user_prompt": self.user_prompt,
+                "max_retries": max_retries,
+                "retry_delay": retry_delay
             }),
             ("H(X|S)", self.vlm_gen_action_H_X_given_S, {
                 "image": self.image,
                 "system_prompt": system_prompt,
-                "user_prompt": self.user_prompt
+                "user_prompt": self.user_prompt,
+                "max_retries": max_retries,
+                "retry_delay": retry_delay
             }),
             ("H(X|L,S)", self.vlm_gen_action_H_X_given_LS, {
                 "image": self.image,
                 "system_prompt": system_prompt,
-                "user_prompt": self.user_prompt
+                "user_prompt": self.user_prompt,
+                "max_retries": max_retries,
+                "retry_delay": retry_delay
             })
         ]
         
@@ -344,11 +354,17 @@ class EntropyComparisonExperiment(ScenarioExperiment):
             for future in as_completed(future_to_name):
                 name = future_to_name[future]
                 try:
-                    result = future.result()
+                    result = future.result(timeout=120)  # 2 minute timeout per call
                     results[name] = result
-                    tfu.cprint(f"[{name}] VLM call completed", tfu.LIGHT_GREEN)
+                    
+                    # Check if result is valid
+                    action_logprobs_info = result.get('action_logprobs_info', {})
+                    if action_logprobs_info and action_logprobs_info.get('action_logprobs'):
+                        tfu.cprint(f"[{name}] VLM call completed successfully", tfu.LIGHT_GREEN)
+                    else:
+                        tfu.cprint(f"[{name}] VLM call completed but with empty/invalid logprobs", tfu.LIGHT_YELLOW)
                 except Exception as e:
-                    tfu.cprint(f"[{name}] VLM call failed: {e}", tfu.LIGHT_RED, bold=True)
+                    tfu.cprint(f"[{name}] VLM call failed after all retries: {e}", tfu.LIGHT_RED, bold=True)
                     # Return empty result on failure
                     results[name] = {
                         'parsed': {},
@@ -356,24 +372,21 @@ class EntropyComparisonExperiment(ScenarioExperiment):
                         'action_logprobs_info': {}
                     }
         
-        # Extract results
-        H_X_result = results.get("H(X)", {
+        # Extract results with default empty dict
+        empty_result = {
             'parsed': {},
             'logprobs_metadata': {},
             'action_logprobs_info': {}
-        })
-        H_X_given_S_result = results.get("H(X|S)", {
-            'parsed': {},
-            'logprobs_metadata': {},
-            'action_logprobs_info': {}
-        })
-        H_X_given_LS_result = results.get("H(X|L,S)", {
-            'parsed': {},
-            'logprobs_metadata': {},
-            'action_logprobs_info': {}
-        })
+        }
+        H_X_result = results.get("H(X)", empty_result)
+        H_X_given_S_result = results.get("H(X|S)", empty_result)
+        H_X_given_LS_result = results.get("H(X|L,S)", empty_result)
         
-        tfu.cprint("\n[Entropy Comparison] All 3 VLM calls completed", tfu.LIGHT_GREEN, bold=True)
+        # Report success/failure status
+        success_count = sum(1 for r in [H_X_result, H_X_given_S_result, H_X_given_LS_result] 
+                          if r.get('action_logprobs_info', {}).get('action_logprobs'))
+        tfu.cprint(f"\n[Entropy Comparison] {success_count}/3 VLM calls returned valid data", 
+                  tfu.LIGHT_GREEN if success_count == 3 else tfu.LIGHT_YELLOW, bold=True)
         
         # Calculate entropies
         self.entropy_H_X = self._calculate_entropy_from_logprobs(H_X_result.get('action_logprobs_info', {}))

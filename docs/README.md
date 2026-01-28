@@ -22,6 +22,7 @@
 - [이모지 맵 JSON 로더 가이드](./emoji-map-loader.md) - JSON 파일에서 이모지 맵 로드하기
 - [SLAM 스타일 FOV 맵핑 가이드](./slam-fov-mapping.md) - 탐색 영역 추적 및 시야 제한 기능
 - [이모지 사용 가이드](./EMOJI_USAGE_GUIDE.md) - 이모지 객체 사용하기
+- [Grounding 지식 시스템 가이드](./grounding-system.md) - Grounding 시스템 상세 설명 ⭐ **신규**
 - [Entropy 및 Trust 계산 가이드](./entropy-trust-calculation.md) - VLM action 불확실성 분석
 - [VLM Action Uncertainty 가이드](./vlm-action-uncertainty.md) - Action 불확실도 측정 및 시각화
 
@@ -68,10 +69,16 @@ from utils.miscellaneous.grounding_file_manager import GroundingFileManager
 
 ### 2. 실험 스크립트
 
-- **`scenario2_test_entropy_comparison.py`**: Entropy 비교 실험
+- **`scenario2_test_entropy_comparison.py`**: Entropy 비교 실험 (Logprobs 기반)
   - 3가지 조건(H(X), H(X|S), H(X|L,S))으로 VLM 호출
   - Trust 값 계산
   - Logprobs 기반 확률 분포 분석
+
+- **`scenario2_test_entropy_comparison_refined_entropy.py`**: Verbalized Entropy 비교 실험 ⭐ **신규**
+  - Tian et al. (2023) 기반 Verbalized Confidence 방식
+  - Step-wise 확률 분포 (step1/step2/step3) 추출
+  - VLM이 직접 출력하는 확률로 Entropy 계산
+  - 가중 평균 Entropy 및 Trust 계산
 
 ### 3. 핵심 모듈
 
@@ -90,6 +97,7 @@ from utils.miscellaneous.grounding_file_manager import GroundingFileManager
   - 에피소드별 Grounding 생성
   - JSON/TXT 형식 저장
   - 최신 Grounding 파일 관리
+  - 여러 Grounding 파일 병합 지원 (JSON/TXT 혼합 가능)
 
 - **VLM Handlers**: 다양한 VLM 모델 지원
   - OpenAI (GPT-4o, GPT-4o-mini, GPT-4-turbo)
@@ -118,6 +126,12 @@ MAP_FILE_NAME = "example_map.json"      # 기본 맵 파일 이름
 USE_NEW_GROUNDING_SYSTEM = True         # 새 Grounding 시스템 사용 여부
 GROUNDING_GENERATION_MODE = "episode"  # Grounding 생성 모드
 GROUNDING_SAVE_FORMAT = "both"         # Grounding 저장 형식 ("json" | "txt" | "both")
+GROUNDING_FILE_PATH = "..."            # Grounding 파일 경로 (여러 파일 지원: 쉼표로 구분)
+GROUNDING_MERGE_FORMAT = "txt"        # Grounding 병합 형식 ("txt" | "json" | "both")
+
+# Entropy Configuration
+USE_VERBALIZED_ENTROPY = True          # Verbalized Entropy 방식 사용 여부
+LOGPROBS_ENABLED = True                # Logprobs 활성화 여부
 ```
 
 ## 참고 자료

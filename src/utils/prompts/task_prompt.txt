@@ -1,8 +1,2 @@
-## Context
-You are a robot operating in a grid-based environment.
-You must carry out this mission successfully.
-
-
 ## Mission
-Your mission is:
-$mission
+Your mission is: **$mission**
