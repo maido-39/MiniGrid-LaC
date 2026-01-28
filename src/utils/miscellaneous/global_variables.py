@@ -58,8 +58,7 @@ USE_VERBALIZED_ENTROPY = True
 # Map Configuration
 # MAP_FILE_NAME: 사용할 맵 파일 이름 (config/ 디렉토리 아래에 있어야 함)
 #   예: "example_map.json", "scenario135_example_map.json"
-# MAP_FILE_NAME = "example_map.json"
-MAP_FILE_NAME = "scenario_2_4_map.json"
+MAP_FILE_NAME = "example_map.json"
 
 # Mission/Task Setup
 DEFAULT_INITIAL_MISSION = "Explore your surroundings and gather as much information as possible."
@@ -76,7 +75,7 @@ EPISODE_TERMINATION_KEYWORDS = ["end"]  # Episode 종료 키워드
 
 # Grounding Generation VLM Configuration
 # Grounding 생성 전용 모델 설정 (None이면 VLM_MODEL 사용)
-GROUNDING_VLM_MODEL = "gemini-2.5-flash"  # None | "gpt-4o" | "gemini-2.5-flash" | etc.
+GROUNDING_VLM_MODEL = None  # None | "gpt-4o" | "gemini-2.5-flash" | etc.
 GROUNDING_VLM_TEMPERATURE = 0.3  # Grounding 생성용 temperature (기본값: 0.3)
 GROUNDING_VLM_MAX_TOKENS = 2000  # Grounding 생성용 max_tokens (기본값: 2000)
 # Note: Grounding은 에피소드 종료 시 일괄 처리되므로 비동기 옵션 제거
@@ -95,9 +94,8 @@ GROUNDING_MERGE_FORMAT = "txt"  # "txt" | "json" | "both"
 # JSON 파일 예시(RECOMMENDED): "logs/grounding/grounding_latest.json,logs/grounding/episode1_grounding.json"
 # 혼합 예시: "logs/grounding/grounding_latest.txt,logs/grounding/grounding_latest.json"
 # GROUNDING_FILE_PATH = "logs/scenario2_absolute_example_map_20260123_170550/episode_1_20260123_170552_scenario2_test_absolutemove_modularized/grounding_episode_1.txt,logs/scenario2_absolute_example_map_20260123_165532/episode_1_20260123_165535_scenario2_test_absolutemove_modularized/grounding_episode_1.txt"  # None | str | List[str] | "file1.txt,file2.txt"
-# GROUNDING_FILE_PATH = "logs_good/Episode_2_2_Test_Entropy/grounding/grounding_latest.txt"
-# GROUNDING_FILE_PATH = "logs_good/Episode_4_1_Test_Entropy/episode_4_20260126_083207_scenario2_test_entropy_comparison/grounding_episode_4.txt"
-GROUNDING_FILE_PATH = None
+GROUNDING_FILE_PATH = "logs_good/Hogun/episode1/grounding/grounding_latest.txt,logs_good/Hogun/episode1/grounding/grounding_latest.txt"
+
 # 현재 에피소드에서 생성된 Grounding은 다음 에피소드부터 사용 가능 (즉석 적용 안 됨)
 # 여러 파일 지원: 쉼표로 구분된 문자열 또는 리스트 형식
 # JSON 파일은 자동으로 병합되어 Markdown 형식으로 렌더링됨
