@@ -1,0 +1,179 @@
+
+{
+  "Pallete": {"pallette":["🟥🟧🟨🟩🟦🟪⬛⬜️🟫🟤🔴🟠🟡🟢🔵🟣⚫⚪🔶🔷"]},
+  "map": {
+    "emoji_render": [
+      "⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛",
+      "⬛⬜️⬜️⬜️🔷🔷🔷⬜️⬜️⬜️⬜️⬜️🎯⬛",
+      "⬛⬜️⬜️⬜️🟧🟧🟧⬜️⬜️⬜️⬜️⬜️⬜️⬛",
+      "⬛⬜️⬜️⬜️🟧🟧🟧⬜⬜️⬜️⬜️⬜️⬜️⬛",
+      "⬛⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬛",
+      "⬛🟣🟩🟩⬛⬜⬛🟨🟨🟠⬜️⬜️⬜️⬛",
+      "⬛🟣🟩🟩⬜⬜⬜️🟨🟨🟨⬜️⬜️⬜️⬛",
+      "⬛🔴🟩🟩⬛⬜⬛🟢🟨🔵⬜️⬜️⬜️⬛",
+      "⬛⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬛",
+      "⬛⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬛",
+      "⬛⬜️⬜️⬜️⬜️🟪🟪🟤⬜️⬜️⬜️⬜️⬜️⬛",
+      "⬛⬜️🤖⬜️⬜️🟪🟪🟪⬜️⬜️⬜️⬜️⬜️⬛",
+      "⬛⬜️⬜️⬜️⬜️🟪🟪🟫⬜️⬜️⬜️⬜️⬜️⬛",
+      "⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛"
+    ],
+    "emoji_objects": {
+      "⬛": {
+        "type": "emoji",
+        "emoji_name": "brick",
+        "color": "red",
+        "can_pickup": false,
+        "can_overlap": false,
+        "use_emoji_color": true
+      },
+      "⬜️": {
+        "type": "empty",
+        "can_pickup": false,
+        "can_overlap": true
+      },
+      "🟦": {
+        "type": "floor",
+        "color": "blue",
+        "emoji_name": "dining",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🟪": {
+        "type": "floor",
+        "color": "purple",
+        "emoji_name": "restroom",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🟩": {
+        "type": "floor",
+        "color": "green",
+        "emoji_name": "kitchen",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🟧": {
+        "type": "floor",
+        "color": "orange",
+        "emoji_name": "plating",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🟣": {
+        "type": "emoji",
+        "color": "red",
+        "emoji_name": "kitchen",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🟨": {
+        "type": "floor",
+        "color": "yellow",
+        "emoji_name": "storage",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🟫": {
+        "type": "emoji",
+        "color": "green",
+        "emoji_name": "toilet",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🟤":{
+        "type" : "emoji",
+        "color" : "brown",
+        "emoji_name" : "shower",
+        "can_pickup" : false, 
+        "can_overlap" : true,
+        "use_emoji_color" : true
+      },
+      "🔴":{
+        "type" : "emoji",
+        "color" : "red",
+        "emoji_name" : "sink",
+        "can_pickup" : false, 
+        "can_overlap" : true,
+        "use_emoji_color" : true
+
+      },
+      "🟠":{
+        "type" : "emoji",
+        "color" : "orange",
+        "emoji_name" : "tomato",
+        "can_pickup" : true, 
+        "can_overlap" : true,
+        "use_emoji_color" : true
+
+      },
+      "🟡":{
+        "type" : "emoji",
+        "color" : "yellow",
+        "emoji_name" : "bellpepper",
+        "can_pickup" : false, 
+        "can_overlap" : true,
+        "use_emoji_color" : true
+
+      },
+      "🟢":{
+        "type" : "emoji",
+        "color" : "green",
+        "emoji_name" : "carrot",
+        "can_pickup" : false, 
+        "can_overlap" : true,
+        "use_emoji_color" : true
+
+      },
+      "🔵":{
+        "type" : "emoji",
+        "color" : "blue",
+        "emoji_name" : "hotpepper",
+        "can_pickup" : false, 
+        "can_overlap" : true,
+        "use_emoji_color" : true
+
+      },
+      "🔷":{
+        "type" : "emoji",
+        "color" : "blue",
+        "emoji_name" : "plating",
+        "can_pickup" : false, 
+        "can_overlap" : false,
+        "use_emoji_color" : true
+
+      }
+    },
+    "robot_config": {
+
+      "use_robot_emoji": true,
+      "robot_emoji_color": "red",
+      "background_color": "white", 
+      "use_robot_emoji_color": true,
+
+      "highlight": false,
+      "highlight_color": "grey",
+      "agent_view_size": 4,
+
+      "fov_enabled": false,
+      "fov_range": 3,
+      "fov_width": 2,
+      "fov_color": "white"
+    },
+    "start_pos": [
+      2,
+      11
+    ],
+    "goal_pos": [
+      12,
+      1
+    ]
+  }
+}
