@@ -68,6 +68,7 @@ class VLMWrapper:
             api_key: API key. If None, automatically load from environment variable:
                 - For OpenAI models: OPENAI_API_KEY
                 - For Gemini models: GEMINI_API_KEY or GOOGLE_API_KEY
+                - Note: For Gemini models, if credentials are provided, api_key is ignored (credentials take priority)
             model: Model name to use (default: "gpt-4o")
                 - OpenAI models: "gpt-4o", "gpt-4o-mini", "gpt-4", etc.
                 - Gemini models: "gemini-2.5-flash", "gemini-1.5-pro", "gemini-1.5-flash", etc.
@@ -82,10 +83,16 @@ class VLMWrapper:
             vertexai: If True, use Vertex AI instead of Gemini API (default: False)
                 - Only for Gemini models
                 - Requires credentials, project_id, and location
-            credentials: Service account credentials for Vertex AI
+            credentials: Service account credentials (GCP key) for authentication
                 - Can be a path to JSON key file (str) or credentials object
+                - Works with both Vertex AI (vertexai=True) and regular Gemini API (vertexai=False)
+                - For Vertex AI: Required when vertexai=True
+                - For regular Gemini API: Optional, but if provided, uses GCP key instead of API key (cheaper option)
+                - Priority: credentials > api_key > environment variable
             project_id: Google Cloud project ID for Vertex AI
+                - Only required when vertexai=True
             location: Google Cloud location for Vertex AI (default: "us-central1")
+                - Only required when vertexai=True
             logprobs: Number of top logprobs to return (default: None, disabled)
                 - Only supported with Vertex AI
                 - Recommended: 5

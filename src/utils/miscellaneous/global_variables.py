@@ -35,13 +35,20 @@ VLM_THINKING_BUDGET = 0
 # LOGPROBS_ENABLED: logprobs 활성화 여부 (Vertex AI Gemini 전용)
 #   - True: logprobs 활성 (모델명이 gemini-*-vertex / -logprobs 일 때만 동작)
 #   - False: logprobs 비활성 (OpenAI 모델이나 일반 Gemini API에서는 자동 비활성)
-LOGPROBS_ENABLED = True
+LOGPROBS_ENABLED = False
 # LOGPROBS_TOPK: logprobs top-k 개수 (각 토큰에 대해 상위 k개 확률 반환, 권장: 5)
 LOGPROBS_TOPK = 5
 # DEBUG: VLM 디버그 출력 활성화 여부
 #   - True: VLM API 호출 시 상세한 디버그 정보 출력 (응답, 토큰 사용량, inference time 등)
 #   - False: 디버그 정보 출력 안 함
 DEBUG = True
+
+# Gemini Authentication Configuration
+# USE_GCP_KEY: 일반 Gemini 모델(gemini-2.5-flash 등)에서 GCP 키 사용 여부
+#   - True: GCP Service Account Key 사용 (GOOGLE_APPLICATION_CREDENTIALS 환경변수)
+#   - False: Google AI Studio API Key 사용 (GEMINI_API_KEY 또는 GOOGLE_API_KEY 환경변수)
+#   Note: Vertex AI 모델(gemini-*-vertex)은 항상 GCP 키 사용 (이 설정과 무관)
+USE_GCP_KEY = True  # True: GCP 키 사용, False: Google AI Studio Key 사용
 
 # Verbalized Entropy Mode (Tian et al. 2023 기반)
 # - True: Verbalized Confidence 방식 사용 (step1/step2/step3 확률 분포로 entropy 계산)

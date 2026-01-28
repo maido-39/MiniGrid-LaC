@@ -50,6 +50,8 @@ from utils.miscellaneous.global_variables import (
     GROUNDING_VLM_TEMPERATURE,
     GROUNDING_VLM_MAX_TOKENS,
     GROUNDING_FILE_PATH,
+    USE_VERBALIZED_ENTROPY,
+    USE_GCP_KEY,
 )
 
 from utils.miscellaneous.episode_manager import EpisodeManager
@@ -145,7 +147,10 @@ class ScenarioExperiment:
         """
         모델/설정에 따라 logprobs를 활성화한 VLMProcessor 생성.
         logprobs는 Vertex AI Gemini(-vertex/-logprobs) 모델에서만 사용.
+        Gemini 인증 방법(GCP key 또는 API key)도 global_variables 설정에 따라 결정.
         """
+        import os
+        
         model_lower = (self.vlm_model or "").lower()
         logprobs_allowed = (
             model_lower.startswith("gemini")
@@ -160,10 +165,44 @@ class ScenarioExperiment:
                 tfu.LIGHT_BLACK,
             )
 
+        # Gemini 인증 방법 결정 (GCP key 또는 API key)
+        credentials = None
+        vertexai = False
+        project_id = None
+        location = None
+        
+        # Gemini 모델인 경우에만 인증 방법 확인
+        if model_lower.startswith("gemini"):
+            # Vertex AI 모델인 경우: 항상 GCP key 사용
+            if logprobs_allowed:
+                vertexai = True
+                # Vertex AI는 project/location이 필요 (gemini_handler가 env에서도 읽음)
+                project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
+                location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+            else:
+                # 일반 Gemini 모델인 경우:
+                # - USE_GCP_KEY=False: Google AI Studio key (api_key)로 일반 Gemini API 호출
+                # - USE_GCP_KEY=True : Vertex AI 경로로 강제 전환하여 GCP key로 호출
+                if USE_GCP_KEY:
+                    vertexai = True
+                    project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
+                    location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+                    if not project_id:
+                        tfu.cprint(
+                            "[Warning] USE_GCP_KEY=True 이지만 GOOGLE_CLOUD_PROJECT가 설정되어 있지 않습니다. "
+                            "Vertex AI 경로 호출에는 project가 필요합니다.",
+                            tfu.YELLOW,
+                        )
+                # USE_GCP_KEY=False인 경우: vertexai=False, credentials=None (api_key 사용)
+
         return VLMProcessor(
             model=self.vlm_model,
             logprobs=logprobs_value,
             debug=self.debug,
+            vertexai=vertexai,
+            credentials=credentials,
+            project_id=project_id,
+            location=location,
         )
 
     def _evaluate_feedback(self, user_prompt: str) -> bool:
@@ -578,17 +617,43 @@ class ScenarioExperiment:
     def _create_grounding_vlm_processor(self) -> VLMProcessor:
         """
         Grounding 생성 전용 VLMProcessor 생성
+        Gemini 인증 방법(GCP key 또는 API key)도 global_variables 설정에 따라 결정.
         
         Returns:
             VLMProcessor 인스턴스
         """
         grounding_model = GROUNDING_VLM_MODEL if GROUNDING_VLM_MODEL else VLM_MODEL
+        model_lower = (grounding_model or "").lower()
+        
+        # Gemini 인증 방법 결정 (GCP key 또는 API key)
+        credentials = None
+        vertexai = False
+        project_id = None
+        location = None
+        
+        # Gemini 모델인 경우에만 인증 방법 확인
+        if model_lower.startswith("gemini"):
+            # Vertex AI 모델인 경우: 항상 GCP key 사용
+            if "-vertex" in model_lower or "-logprobs" in model_lower:
+                vertexai = True
+                project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
+                location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+            else:
+                # 일반 Gemini 모델인 경우: USE_GCP_KEY=True면 Vertex AI 경로로 강제 전환
+                if USE_GCP_KEY:
+                    vertexai = True
+                    project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
+                    location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
         
         return VLMProcessor(
             model=grounding_model,
             temperature=GROUNDING_VLM_TEMPERATURE,
             max_tokens=GROUNDING_VLM_MAX_TOKENS,
-            debug=self.debug
+            debug=self.debug,
+            vertexai=vertexai,
+            credentials=credentials,
+            project_id=project_id,
+            location=location,
         )
     
     def _generate_grounding_from_episode(self):

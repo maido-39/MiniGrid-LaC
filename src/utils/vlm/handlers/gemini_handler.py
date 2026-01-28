@@ -121,6 +121,7 @@ class GeminiHandler(VLMHandler):
         
         Args:
             api_key: Google API key. If None, automatically loaded from environment variable GEMINI_API_KEY or GOOGLE_API_KEY or .env file
+                - Note: If credentials are provided, api_key is ignored (credentials take priority)
             model: Model name to use (default: "gemini-1.5-flash")
                 - "gemini-1.5-flash": Fast model (default)
                 - "gemini-1.5-pro": Large model
@@ -142,12 +143,17 @@ class GeminiHandler(VLMHandler):
             vertexai: If True, use Vertex AI instead of Gemini API (default: False)
                 - Requires credentials, project_id, and location
                 - Enables logprobs support
-            credentials: Service account credentials for Vertex AI
+            credentials: Service account credentials (GCP key) for authentication
                 - Can be a path to JSON key file (str) or credentials object
-                - If None and vertexai=True, reads from GOOGLE_APPLICATION_CREDENTIALS env var
+                - Works with both Vertex AI (vertexai=True) and regular Gemini API (vertexai=False)
+                - For Vertex AI: If None, reads from GOOGLE_APPLICATION_CREDENTIALS env var
+                - For regular Gemini API: If provided, uses GCP key instead of API key (cheaper option)
+                - Priority: credentials > api_key > environment variable
             project_id: Google Cloud project ID for Vertex AI
+                - Only required when vertexai=True
                 - If None and vertexai=True, reads from GOOGLE_CLOUD_PROJECT env var
             location: Google Cloud location for Vertex AI (default: "us-central1")
+                - Only required when vertexai=True
                 - If None and vertexai=True, reads from GOOGLE_CLOUD_LOCATION env var
             logprobs: Number of top logprobs to return (default: None, disabled)
                 - Only supported with Vertex AI (vertexai=True)
@@ -273,27 +279,22 @@ class GeminiHandler(VLMHandler):
                     credentials=creds
                 )
             else:
-                # Standard Gemini API mode: use API key
-                # API key priority: argument > environment variable > .env file
+                # Standard Gemini API mode (Google AI API): API key only
+                # Note: google-genai Client does NOT support service-account credentials in this mode.
+                # If you want to use GCP service account, you must use Vertex AI mode (vertexai=True).
                 if self.api_key is None:
                     # Try GEMINI_API_KEY first, then GOOGLE_API_KEY
                     self.api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
                     if self.api_key is None:
                         raise ValueError(
                             "API key not provided. "
-                            "Use one of the following:\n"
-                            "1. Pass directly via __init__(api_key='your-key')\n"
-                            "2. Set environment variable GEMINI_API_KEY or GOOGLE_API_KEY\n"
-                            "3. Add GEMINI_API_KEY=your-key to .env file"
+                            "To use the Google AI (non-Vertex) API, set GEMINI_API_KEY or GOOGLE_API_KEY. "
+                            "To use a GCP service account key, enable Vertex AI mode (vertexai=True) "
+                            "and set GOOGLE_APPLICATION_CREDENTIALS + GOOGLE_CLOUD_PROJECT (+ optional GOOGLE_CLOUD_LOCATION)."
                         )
-                
+
                 # Initialize client with API key
-                # If api_key is provided, use it directly; otherwise client will read from environment
-                if self.api_key:
-                    self.client = genai.Client(api_key=self.api_key)
-                else:
-                    # Client will automatically read from GEMINI_API_KEY environment variable
-                    self.client = genai.Client()
+                self.client = genai.Client(api_key=self.api_key)
             
             return True
         except Exception as e:
