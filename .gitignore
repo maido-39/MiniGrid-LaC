@@ -1,6 +1,7 @@
 # Temp
 experiments/
 COMMIT_MSG.txt
+NO_GITHUB_UPLOAD-paper/
 
 # 환경 변수 파일
 .env

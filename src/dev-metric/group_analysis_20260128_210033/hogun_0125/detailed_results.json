@@ -1,0 +1,34 @@
+{
+  "group": "hogun_0125",
+  "gt_episode": "episode1",
+  "gt_length": 35,
+  "analysis_date": "2026-01-28T21:00:36.156092",
+  "episodes": {
+    "episode2": {
+      "episode_number": 2,
+      "trajectory_length": 46,
+      "metrics": {
+        "RMSE": 3.835920452027872,
+        "DTW": 25.549776476484553,
+        "Fréchet": 1.4142135623730951,
+        "ERP": 154.8129089979127,
+        "DDTW": 17.94999446633873,
+        "TWED": 126.99694700491233,
+        "Sobolev": 14.202025590182462
+      }
+    },
+    "episode3": {
+      "episode_number": 3,
+      "trajectory_length": 38,
+      "metrics": {
+        "RMSE": 2.04939015319192,
+        "DTW": 48.24168857670005,
+        "Fréchet": 3.605551275463989,
+        "ERP": 84.84282704236969,
+        "DDTW": 14.673499278633999,
+        "TWED": 57.49032758631423,
+        "Sobolev": 17.359127246443514
+      }
+    }
+  }
+}
