@@ -62,12 +62,15 @@ DEFAULT_MISSION = "Go to the blue pillar, turn right, then stop next to the tabl
 
 
 class PromptOrganizer:
-    """Prompt management class (absolute coordinate version)"""
+    """Prompt management class (absolute coordinate version). Uses memory_dict for state."""
     
     def __init__(self):
         self.grounding = ""
-        self.previous_action = ""
-        self.task_process = {"goal": "", "status": ""}  # status: pending | in_progress | completed | blocked
+        self.memory_dict = {}
+    
+    def set_memory_dict(self, d):
+        """Update memory from VLM response. Stores a shallow copy."""
+        self.memory_dict = dict(d) if d is not None else {}
     
     def get_system_prompt(self, wrapper=None, last_action_result=None) -> str:
         """Generate complete System Prompt (absolute coordinate version)"""
@@ -75,12 +78,13 @@ class PromptOrganizer:
         # Grounding content (always displayed, empty string if empty)
         grounding_content = self.grounding if self.grounding else ""
         
-        # Previous Action (always displayed, "None" if empty)
-        previous_action = self.previous_action if self.previous_action else "None"
-        
-        # Task Process (always displayed, default value if empty)
-        task_goal = self.task_process.get("goal", "") if self.task_process.get("goal") else "None"
-        task_status = self.task_process.get("status", "") if self.task_process.get("status") else "None"
+        # Previous Action and Task Process from memory_dict (for f-string template)
+        previous_action = (self.memory_dict.get("previous_action") or "").strip() or "None"
+        task_process = self.memory_dict.get("task_process") or {}
+        if not isinstance(task_process, dict):
+            task_process = {}
+        task_goal = (task_process.get("goal") or "").strip() or "None"
+        task_status = (task_process.get("status") or "").strip() or "None"
         task_process_str = f"Goal: {task_goal}, Status: {task_status}"
         
         # Last Action Result (failure information)
@@ -844,14 +848,12 @@ Please analyze the feedback and generate concise knowledge to improve future act
         if not isinstance(vlm_last_action_result, dict):
             vlm_last_action_result = {}
         
-        # Update memory
+        # Memory Update: store full memory dict; prompts use $memory[key] / $memory[key][subkey]
         if isinstance(memory, dict):
-            self.prompt_organizer.previous_action = memory.get('previous_action', action_str)
-            self.prompt_organizer.task_process = {
-                "goal": task_process.get('goal', ''),
-                "status": task_process.get('status', ''),
-                "blocked_reason": task_process.get('blocked_reason', '')
-            }
+            memory_to_store = dict(memory)
+            if not memory_to_store.get('previous_action') and action_str:
+                memory_to_store['previous_action'] = action_str if isinstance(action_str, str) else str(action_str)
+            self.prompt_organizer.set_memory_dict(memory_to_store)
             
             # Reflect if VLM set status to blocked
             if task_process.get('status') == 'blocked':
@@ -1010,8 +1012,8 @@ Please analyze the feedback and generate concise knowledge to improve future act
                 "position_changed": False
             }
         
-        # Update previous action (actually executed action)
-        self.prompt_organizer.previous_action = self.action_name
+        # Update previous action (actually executed action) — update memory_dict for next prompt
+        self.prompt_organizer.memory_dict['previous_action'] = self.action_name
         
         # Reuse new_state already fetched above
         if 'new_state' not in locals():

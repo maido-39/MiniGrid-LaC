@@ -90,8 +90,10 @@ def render_memory_value(
                 max_depth=max_depth,
                 _depth=_depth + 1,
             )
-            v_str_flat = v_str.replace("\n", " ").strip()
-            parts.append(f"{k}: {v_str_flat}")
+            # Keep newlines for list/dict values; indent continuation lines per spec
+            if "\n" in v_str:
+                v_str = v_str.replace("\n", "\n  ")
+            parts.append(f"{k}: {v_str}")
         return "\n".join(parts) if parts else default_for_empty
 
     # Fallback for unexpected types

@@ -755,13 +755,12 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
         if not isinstance(task_process, dict):
             task_process = {"status": ""}
         
-        # Memory Update
+        # Memory Update: store full memory dict; prompts use $memory[key] / $memory[key][subkey]
         if isinstance(memory, dict):
-            self.prompt_organizer.previous_action = memory.get('previous_action', action_str)
-            self.prompt_organizer.task_process = {
-                "goal": task_process.get('goal', ''),
-                "status": task_process.get('status', '')
-            }
+            memory_to_store = dict(memory)
+            if not memory_to_store.get('previous_action') and action_str:
+                memory_to_store['previous_action'] = action_str if isinstance(action_str, str) else str(action_str)
+            self.prompt_organizer.set_memory_dict(memory_to_store)
         
         # CLI output
         tfu.cprint("\n" + "=" * 80)
@@ -858,8 +857,8 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
                 "position_changed": False
             }
         
-        # Previous action update
-        self.prompt_organizer.previous_action = self.action_name
+        # Previous action update (action actually executed) — update memory_dict for next prompt
+        self.prompt_organizer.memory_dict['previous_action'] = self.action_name
         
         if 'new_state' not in locals():
             new_state = self.wrapper.get_state()

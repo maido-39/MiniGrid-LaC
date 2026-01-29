@@ -52,8 +52,8 @@ Your grounding is:
 $grounding_content
 
 ## Memory (STATE CONTINUITY)
-- Previous Action: $previous_action
-- Task Process: $task_process_str
+- Previous Action: $memory[previous_action]
+- Task Process: $memory[task_process]
 
 ## STATUS UPDATE RULE (STRICT)
 - If the completion condition of the current subtask is satisfied in the current state, you MUST set:

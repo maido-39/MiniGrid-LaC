@@ -52,11 +52,12 @@ def main():
     
     try:
         # Create and run experiment using modularized ScenarioExperiment
-        # use_logprobs and debug use settings from global_variables.py
+        # use_logprobs, debug: from global_variables.py
+        # System prompt: USE_VERBALIZED_ENTROPY (global_variables.py) — False → system_prompt_start.txt, True → system_prompt_verbalized_entropy.txt
         experiment = ScenarioExperiment(
             json_map_path=json_map_path,
-            use_logprobs=LOGPROBS_ENABLED,  # Use global LOGPROBS_ENABLED setting
-            debug=DEBUG  # Use global DEBUG setting
+            use_logprobs=LOGPROBS_ENABLED,
+            debug=DEBUG,
         )
         experiment.run()
         experiment.cleanup()

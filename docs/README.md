@@ -19,9 +19,11 @@
 ### 사용 가이드
 - [키보드 제어 가이드](./keyboard-control.md) - 키보드로 환경 제어하기
 - [VLM 테스트 스크립트 가이드](./test-vlm-guide.md) - VLM 모델 테스트 및 비교 가이드
+- [dev-memory 테스트 스크립트 가이드](./dev-memory-test-guide.md) - 프롬프트 + 이미지로 VLM 호출 후 JSON·memory·렌더된 프롬프트 출력 (프롬프트 개발용)
 - [이모지 맵 JSON 로더 가이드](./emoji-map-loader.md) - JSON 파일에서 이모지 맵 로드하기
 - [SLAM 스타일 FOV 맵핑 가이드](./slam-fov-mapping.md) - 탐색 영역 추적 및 시야 제한 기능
 - [이모지 사용 가이드](./EMOJI_USAGE_GUIDE.md) - 이모지 객체 사용하기
+- [Memory Prompt & Render 가이드](./memory-prompt-render-guide.md) - 메모리 문법(`$memory[키]`) 및 렌더 규칙
 - [Grounding 지식 시스템 가이드](./grounding-system.md) - Grounding 시스템 상세 설명 ⭐ **신규**
 - [Entropy 및 Trust 계산 가이드](./entropy-trust-calculation.md) - VLM action 불확실성 분석
 - [VLM Action Uncertainty 가이드](./vlm-action-uncertainty.md) - Action 불확실도 측정 및 시각화

@@ -121,7 +121,7 @@ class VLMProcessor:
                 "grounding": "",
                 "memory": {
                     "spatial_description": "",
-                    "task_process": {"goal": "", "status": ""},
+                    "task_process": {"goal": "", "status": "", "blocked_reason": ""},
                     "previous_action": ""
                 }
             }
@@ -218,7 +218,7 @@ class VLMProcessor:
                 "grounding": "",
                 "memory": {
                     "spatial_description": "",
-                    "task_process": {"goal": "", "status": ""},
+                    "task_process": {"goal": "", "status": "", "blocked_reason": ""},
                     "previous_action": ""
                 }
             }

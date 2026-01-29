@@ -84,8 +84,8 @@ This information is FACT and MUST be trusted. Do NOT infer or reinterpret.
 - If position_changed is "no", the robot is blocked and that direction is INVALID.
 
 ## Memory (State Continuity)
-- Previous Action: $previous_action
-- Task Process: $task_process_str
+- Previous Action: $memory[previous_action]
+- Task Process: $memory[task_process]
 
 
 ## STATUS UPDATE RULE (STRICT)

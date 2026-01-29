@@ -270,7 +270,7 @@ class VLMResponsePostProcessor:
                     elif field == "memory":
                         result[field] = {
                             "spatial_description": "",
-                            "task_process": {"goal": "", "status": ""},
+                            "task_process": {"goal": "", "status": "", "blocked_reason": ""},
                             "previous_action": ""
                         }
                     else:

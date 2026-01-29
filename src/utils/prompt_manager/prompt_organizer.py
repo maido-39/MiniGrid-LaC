@@ -168,14 +168,21 @@ def render_grounding_to_markdown(merged_data: Dict[str, Any]) -> str:
 
 
 class PromptOrganizer:
-    """Prompt Management Class (Absolute Coordinate Version)"""
+    """Prompt Management Class (Absolute Coordinate Version).
+    
+    Memory is stored as a single dict (memory_dict). Use set_memory_dict() to update.
+    Prompts reference memory via $memory[key] or $memory[key][subkey] in templates.
+    """
     
     def __init__(self):
         self.grounding = ""
-        self.previous_action = ""
-        self.task_process = {"goal": "", "status": ""}  # status: pending | in_progress | completed | blocked
+        self.memory_dict = {}  # VLM memory block as-is; use set_memory_dict() to update
         # User prompt input cache (for reusing previous input with Enter key)
         self.user_prompt_cache = None
+    
+    def set_memory_dict(self, d: Dict[str, Any]) -> None:
+        """Update memory from VLM response. Stores a shallow copy."""
+        self.memory_dict = dict(d) if d is not None else {}
     
     def get_system_prompt(self, wrapper=None, last_action_result=None, grounding_file_path=None) -> str:
         """Generate Entire System Prompt (Absolute Coordinate Version)"""
@@ -230,15 +237,7 @@ class PromptOrganizer:
         else:
             grounding_content = self.grounding if self.grounding else ""
         
-        # Previous Action (Always displayed, “None” if empty)
-        previous_action = self.previous_action if self.previous_action else "None"
-        
-        # Task Process (Always display, default if empty)
-        task_goal = self.task_process.get("goal", "") if self.task_process.get("goal") else "None"
-        task_status = self.task_process.get("status", "") if self.task_process.get("status") else "None"
-        task_process_str = f"Goal: {task_goal}, Status: {task_status}"
-        
-        # Last Action Result (Failure Information)
+        # Last Action Result (Failure Information) — from environment, not from memory
         if last_action_result and last_action_result.get("action"):
             action_result = last_action_result.get("action", "None")
             result_status = "success" if last_action_result.get("success", True) else "failed"
@@ -251,14 +250,13 @@ class PromptOrganizer:
         else:
             last_action_str = "None"
         
-        ## Actual Application Prompt Start (Absolute Coordinate Version)
+        # Memory is passed as a single dict; template uses $memory[key], $memory[key][subkey]
         return system_prompt_interp(file_name="system_prompt_start.txt",
                                     strict=True,
                                     last_action_str=last_action_str,
                                     grounding_content=grounding_content,
-                                    task_process_str=task_process_str,
-                                    previous_action=previous_action
-                                   )
+                                    memory=self.memory_dict,
+                                    )
     
     def get_verbalized_entropy_system_prompt(self, wrapper=None, last_action_result=None, grounding_file_path=None) -> str:
         """
@@ -315,20 +313,11 @@ class PromptOrganizer:
         else:
             grounding_content = self.grounding if self.grounding else ""
         
-        # Previous Action
-        previous_action = self.previous_action if self.previous_action else "None"
-        
-        # Task Process
-        task_goal = self.task_process.get("goal", "") if self.task_process.get("goal") else "None"
-        task_status = self.task_process.get("status", "") if self.task_process.get("status") else "None"
-        task_process_str = f"Goal: {task_goal}, Status: {task_status}"
-        
         return system_prompt_interp(file_name="system_prompt_verbalized_entropy.txt",
                                     strict=True,
                                     grounding_content=grounding_content,
-                                    task_process_str=task_process_str,
-                                    previous_action=previous_action
-                                   )
+                                    memory=self.memory_dict,
+                                    )
     
     def get_system_prompt_by_mode(self, wrapper=None, last_action_result=None, use_verbalized: bool = None, grounding_file_path=None) -> str:
         """

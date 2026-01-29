@@ -29,12 +29,17 @@ Functions
 ######################################################
 
 
+import logging
 import re
 from pathlib import Path
 from string import Template
+from typing import Any, Dict, List, Optional
 
 from utils.miscellaneous.global_variables import PROMPT_DIR
 import utils.prompt_manager.terminal_formatting_utils as tfu
+from utils.prompt_manager.memory_renderer import render_memory_value
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -96,6 +101,57 @@ def mission_input_interp(user_input, actual_default) -> str:
         mission=mission,
     )
 
+# Pattern for $memory[key] or $memory[key][subkey]... (keys: alphanumeric, underscore, hyphen)
+_MEMORY_BRACKET_PATTERN = re.compile(r"\$memory(?:\[[a-zA-Z0-9_-]+\])+")
+
+
+def _resolve_memory_path(memory_dict: Dict[str, Any], keys: List[str]) -> Any:
+    """Resolve keys like ['task_process', 'goal'] to memory_dict['task_process']['goal']."""
+    obj: Any = memory_dict
+    for key in keys:
+        if not isinstance(obj, dict):
+            return None
+        obj = obj.get(key)
+    return obj
+
+
+def _substitute_memory_brackets(
+    template_text: str,
+    memory_dict: Optional[Dict[str, Any]],
+    default_for_missing: str = "None",
+    strict: bool = False,
+    file_name: str = "",
+) -> str:
+    """
+    Replace all $memory[key] and $memory[key][subkey]... with rendered values.
+    Keys are restricted to [a-zA-Z0-9_-]+. Uses dict.get() only; no eval.
+    When strict=True and a key is missing, logs a warning and still substitutes default.
+    """
+    if memory_dict is None or not isinstance(memory_dict, dict):
+        memory_dict = {}
+
+    def replacer(match: re.Match) -> str:
+        placeholder = match.group(0)
+        keys = re.findall(r"\[([a-zA-Z0-9_-]+)\]", placeholder)
+        if not keys:
+            return default_for_missing
+        value = _resolve_memory_path(memory_dict, keys)
+        if value is None:
+            msg = (
+                f"Missing memory key: template uses '{placeholder}' but key path {keys} is not in memory dict. "
+                f"Prompt file: '{file_name}'. Substituting default '{default_for_missing}'."
+            )
+            logger.warning(msg)
+            tfu.cprint("[Prompt] MISSING MEMORY KEY", tfu.LIGHT_RED, bold=True)
+            tfu.cprint(f"  Placeholder: {placeholder}", tfu.LIGHT_RED)
+            tfu.cprint(f"  Key path: {keys}", tfu.LIGHT_RED)
+            tfu.cprint(f"  File: {file_name}", tfu.LIGHT_RED)
+            tfu.cprint(f"  Using default: {default_for_missing}", tfu.LIGHT_YELLOW)
+        return render_memory_value(value, default_for_empty=default_for_missing)
+
+    return _MEMORY_BRACKET_PATTERN.sub(replacer, template_text)
+
+
 def system_prompt_interp(file_name: str,
                          strict: bool = False,
                          **variables
@@ -104,11 +160,10 @@ def system_prompt_interp(file_name: str,
     Load a prompt template from the global prompt directory and
     substitute variables dynamically.
 
-    This function is designed to be future-proof:
-    - You only pass the prompt file_name
-    - The base path is defined globally (PROMPT_DIR)
-    - Any variables can be added or removed without changing this function
-    - Safe for JSON-heavy prompts
+    Supports:
+    - Flat variables: $var_name, ${var_name}
+    - Memory bracket syntax: $memory[key], $memory[key][subkey] (resolved from
+      variables['memory'] dict, then rendered via MemoryRenderer)
 
     Parameters
     ----------
@@ -119,10 +174,11 @@ def system_prompt_interp(file_name: str,
         If True, raise an error when a variable required by the prompt
         is missing from `variables`.
         If False (default), missing variables are left untouched.
+        If template contains $memory[...], memory must be in variables and
+        be a dict (or normalized to {}).
 
     **variables : dict
-        Arbitrary variables used in the prompt template.
-        Example: grounding_content="...", last_action_str="..."
+        Arbitrary variables. Pass memory=<dict> for $memory[key] substitution.
 
     Returns
     -------
@@ -131,33 +187,47 @@ def system_prompt_interp(file_name: str,
     """
     
     base_dir = Path(PROMPT_DIR).resolve()
-    # Build the full path using the global prompt directory
     prompt_path = (base_dir / file_name).resolve()
-    
-    # Security check
     file_checking(base_dir, prompt_path)
     
-    # Read the entire prompt template file into a string
     template_text = prompt_path.read_text(encoding="utf-8")
     
-    # Detect which variables are used in the template ($var or ${var})
+    # Normalize memory: must be dict for bracket substitution
+    memory_dict = variables.get("memory")
+    if memory_dict is None or not isinstance(memory_dict, dict):
+        memory_dict = {}
+    if strict and _MEMORY_BRACKET_PATTERN.search(template_text):
+        if "memory" not in variables:
+            raise ValueError(
+                f"Missing variable for prompt '{file_name}': template uses $memory[...] but 'memory' not provided"
+            )
+        if not isinstance(variables.get("memory"), dict):
+            raise ValueError(
+                f"Variable 'memory' for prompt '{file_name}' must be a dict (got {type(variables.get('memory'))})"
+            )
+    
+    # 1) Substitute $memory[key] and $memory[key][subkey]... first (missing key → default + warning if strict)
+    template_text = _substitute_memory_brackets(
+        template_text, memory_dict, strict=strict, file_name=file_name
+    )
+    
+    # 2) Detect flat variables ($var or ${var}) for strict check
     used_vars = set(re.findall(r"\$(\w+)|\$\{(\w+)\}", template_text))
     used_vars = {v for pair in used_vars for v in pair if v}
     
-    # In strict mode, fail fast if required variables are missing
+    vars_for_template = {k: v for k, v in variables.items() if k != "memory"}
     if strict:
-        missing = sorted(used_vars - variables.keys())
+        # Require all flat variables; 'memory' is handled by bracket substitution, so exclude from Template requirements
+        required_flat = used_vars - {"memory"}
+        missing = sorted(required_flat - vars_for_template.keys())
         if missing:
             raise ValueError(
                 f"Missing variables for prompt '{file_name}': {missing}"
             )
-
-    # Create a Template object for safe substitution
+    
+    # 3) Substitute flat variables ($var); pass variables without 'memory' so $memory is not replaced with dict repr
     template = Template(template_text)
-
-    # Substitute provided variables
-    # Missing variables remain unchanged unless strict=True
-    filled_prompt = template.safe_substitute(**variables)
+    filled_prompt = template.safe_substitute(**vars_for_template)
 
     return filled_prompt
 

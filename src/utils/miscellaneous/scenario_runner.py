@@ -74,7 +74,8 @@ class ScenarioExperiment:
                  json_map_path: str = None,
                  prompt_organizer: Optional[PromptOrganizer] = None,
                  use_logprobs: bool = None,
-                 debug: bool = None
+                 debug: bool = None,
+                 use_verbalized: bool = None,
                 ):
         """
         Args:
@@ -83,8 +84,11 @@ class ScenarioExperiment:
             prompt_organizer: Custom PromptOrganizer instance (default: None, uses default PromptOrganizer)
             use_logprobs: Enable logprobs (default: None, uses LOGPROBS_ENABLED from global_variables)
             debug: Enable debug output (default: None, uses DEBUG from global_variables)
+            use_verbalized: Use verbalized entropy prompt (system_prompt_verbalized_entropy.txt) if True,
+                standard prompt (system_prompt_start.txt) if False. Default: None = use USE_VERBALIZED_ENTROPY from global_variables.
         """
         
+        self.use_verbalized_override = use_verbalized  # None = use global USE_VERBALIZED_ENTROPY
         self.wrapper = None
         # Use global MAP_FILE_NAME if json_map_path is not provided
         if json_map_path is None:
@@ -1262,7 +1266,7 @@ class ScenarioExperiment:
         system_prompt = self.prompt_organizer.get_system_prompt_by_mode(
             self.wrapper, 
             self.last_action_result,
-            use_verbalized=USE_VERBALIZED_ENTROPY,
+            use_verbalized=self.use_verbalized_override if self.use_verbalized_override is not None else USE_VERBALIZED_ENTROPY,
             grounding_file_path=grounding_file_path
         )
         
@@ -1317,14 +1321,13 @@ class ScenarioExperiment:
         if not isinstance(vlm_last_action_result, dict):
             vlm_last_action_result = {}
         
-        # Memory Update
+        # Memory Update: store full memory dict; prompts use $memory[key] / $memory[key][subkey]
         if isinstance(memory, dict):
-            self.prompt_organizer.previous_action = memory.get('previous_action', action_str)
-            self.prompt_organizer.task_process = {
-                "goal": task_process.get('goal', ''),
-                "status": task_process.get('status', ''),
-                "blocked_reason": task_process.get('blocked_reason', '')
-            }
+            # If VLM did not return previous_action, use the action we are about to execute
+            memory_to_store = dict(memory)
+            if not memory_to_store.get('previous_action') and action_str:
+                memory_to_store['previous_action'] = action_str if isinstance(action_str, str) else str(action_str)
+            self.prompt_organizer.set_memory_dict(memory_to_store)
             
             # When VLM is set to blocked status, it is reflected.
             if task_process.get('status') == 'blocked':
@@ -1533,8 +1536,8 @@ class ScenarioExperiment:
             else:
                 tfu.cprint("Carrying Object: None", color=tfu.LIGHT_BLACK)
         
-        # Previous action update (action actually executed)
-        self.prompt_organizer.previous_action = self.action_name
+        # Previous action update (action actually executed) — update memory_dict for next prompt
+        self.prompt_organizer.memory_dict['previous_action'] = self.action_name
         
         # new_state has already been retrieved above, so it is reused.
         if 'new_state' not in locals():
