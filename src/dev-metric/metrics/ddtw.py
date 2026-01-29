@@ -3,11 +3,19 @@ DDTW (Derivative Dynamic Time Warping) metric.
 
 Uses derivatives (velocity/direction vectors) instead of raw positions for DTW.
 This naturally penalizes stops (derivative=0) and backtracking (opposite direction).
+
+Uses dtaidistance library for DTW computation (C-based fast computation).
 """
 
 import numpy as np
 from typing import Union
-from .dtw import dtw_distance
+
+try:
+    from dtaidistance import dtw_ndim
+    HAS_DTAIDISTANCE = True
+except ImportError:
+    HAS_DTAIDISTANCE = False
+    print("Warning: dtaidistance not available. Install with: pip install dtaidistance")
 
 
 def compute_derivatives(trajectory: np.ndarray) -> np.ndarray:
@@ -55,7 +63,7 @@ def ddtw_distance(trajectory1: np.ndarray, trajectory2: np.ndarray) -> float:
     Calculate DDTW distance between two trajectories.
     
     DDTW computes derivatives (velocity vectors) from both trajectories
-    and then applies DTW on the derivative sequences.
+    and then applies DTW on the derivative sequences using dtaidistance.
     
     This approach:
     - Penalizes stops: if robot stops (derivative=0) while reference moves, large cost
@@ -68,7 +76,15 @@ def ddtw_distance(trajectory1: np.ndarray, trajectory2: np.ndarray) -> float:
         
     Returns:
         DDTW distance (non-negative float)
+        
+    Raises:
+        ImportError: If dtaidistance is not installed
     """
+    if not HAS_DTAIDISTANCE:
+        raise ImportError(
+            "dtaidistance is required. Install with: pip install dtaidistance"
+        )
+    
     if len(trajectory1) == 0 or len(trajectory2) == 0:
         return np.inf
     
@@ -76,5 +92,18 @@ def ddtw_distance(trajectory1: np.ndarray, trajectory2: np.ndarray) -> float:
     deriv1 = compute_derivatives(trajectory1)
     deriv2 = compute_derivatives(trajectory2)
     
-    # Apply DTW on derivatives
-    return dtw_distance(deriv1, deriv2)
+    if len(deriv1) == 0 or len(deriv2) == 0:
+        return np.inf
+    
+    # Apply DTW on derivatives using dtaidistance
+    try:
+        # dtaidistance requires double precision for 2D trajectories
+        deriv1_double = np.asarray(deriv1, dtype=np.double)
+        deriv2_double = np.asarray(deriv2, dtype=np.double)
+        
+        # Use dtw_ndim for multi-dimensional trajectories
+        distance = dtw_ndim.distance_fast(deriv1_double, deriv2_double)
+        return float(distance)
+    except Exception as e:
+        print(f"Error computing DDTW: {e}")
+        return np.inf

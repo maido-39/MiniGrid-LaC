@@ -13,40 +13,40 @@
   ],
   "metrics": {
     "RMSE": {
-      "mean": 2.9426553026098956,
-      "std": 0.893265149417976,
-      "median": 2.9426553026098956,
-      "min": 2.04939015319192,
-      "max": 3.835920452027872,
+      "mean": 2.0807715191700096,
+      "std": 0.6316338445510655,
+      "median": 2.0807715191700096,
+      "min": 1.449137674618944,
+      "max": 2.712405363721075,
       "cv": 0.3035575212039693,
       "values": [
-        3.835920452027872,
-        2.04939015319192
+        2.712405363721075,
+        1.449137674618944
       ],
       "trend": {
-        "slope": -1.786530298835952,
-        "intercept": 7.408981049699776,
+        "slope": -1.263267689102131,
+        "intercept": 5.238940741925337,
         "r_squared": 1.0,
-        "p_value": 1.0,
+        "p_value": 0.0,
         "std_err": 0.0
       }
     },
     "DTW": {
-      "mean": 36.8957325265923,
-      "std": 11.345956050107748,
-      "median": 36.8957325265923,
-      "min": 25.549776476484553,
-      "max": 48.24168857670005,
-      "cv": 0.30751404764576074,
+      "mean": 8.122421307430667,
+      "std": 2.554656944600645,
+      "median": 8.122421307430667,
+      "min": 5.5677643628300215,
+      "max": 10.677078252031311,
+      "cv": 0.3145191375709061,
       "values": [
-        25.549776476484553,
-        48.24168857670005
+        5.5677643628300215,
+        10.677078252031311
       ],
       "trend": {
-        "slope": 22.691912100215497,
-        "intercept": -19.83404772394644,
+        "slope": 5.10931388920129,
+        "intercept": -4.650863415572557,
         "r_squared": 1.0,
-        "p_value": 1.0,
+        "p_value": 0.0,
         "std_err": 0.0
       }
     },
@@ -64,46 +64,46 @@
       "trend": {
         "slope": 2.1913377130908938,
         "intercept": -2.968461863808692,
-        "r_squared": 1.0,
-        "p_value": 1.0,
+        "r_squared": 0.9999999999999996,
+        "p_value": 0.0,
         "std_err": 0.0
       }
     },
     "ERP": {
-      "mean": 119.8278680201412,
-      "std": 34.985040977771504,
-      "median": 119.8278680201412,
-      "min": 84.84282704236969,
-      "max": 154.8129089979127,
-      "cv": 0.29196080641183625,
+      "mean": 23.1702777124746,
+      "std": 6.362568841613154,
+      "median": 23.1702777124746,
+      "min": 16.807708870861447,
+      "max": 29.532846554087754,
+      "cv": 0.2746004566957617,
       "values": [
-        154.8129089979127,
-        84.84282704236969
+        29.532846554087754,
+        16.807708870861447
       ],
       "trend": {
-        "slope": -69.97008195554301,
-        "intercept": 294.7530729089987,
+        "slope": -12.725137683226308,
+        "intercept": 54.98312192054037,
         "r_squared": 1.0,
-        "p_value": 1.0,
+        "p_value": 0.0,
         "std_err": 0.0
       }
     },
     "DDTW": {
-      "mean": 16.311746872486363,
-      "std": 1.6382475938523653,
-      "median": 16.311746872486363,
-      "min": 14.673499278633999,
-      "max": 17.94999446633873,
-      "cv": 0.10043360816343093,
+      "mean": 3.913688303787511,
+      "std": 0.1636883037875112,
+      "median": 3.913688303787511,
+      "min": 3.75,
+      "max": 4.077376607575022,
+      "cv": 0.041824563195055724,
       "values": [
-        17.94999446633873,
-        14.673499278633999
+        4.077376607575022,
+        3.75
       ],
       "trend": {
-        "slope": -3.2764951877047306,
-        "intercept": 24.50298484174819,
+        "slope": -0.3273766075750224,
+        "intercept": 4.732129822725067,
         "r_squared": 1.0,
-        "p_value": 1.0,
+        "p_value": 0.0,
         "std_err": 0.0
       }
     },
@@ -121,8 +121,8 @@
       "trend": {
         "slope": -69.50661941859809,
         "intercept": 266.0101858421085,
-        "r_squared": 1.0,
-        "p_value": 1.0,
+        "r_squared": 0.9999999999999996,
+        "p_value": 0.0,
         "std_err": 0.0
       }
     },
@@ -141,7 +141,7 @@
         "slope": 3.1571016562610517,
         "intercept": 7.887822277660359,
         "r_squared": 1.0,
-        "p_value": 1.0,
+        "p_value": 0.0,
         "std_err": 0.0
       }
     }
@@ -351,812 +351,812 @@
       "episode_number": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "trajectory_length": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "path_length": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_path_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "path_length_ratio": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "total_displacement": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_total_displacement": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "efficiency": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_efficiency": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_gt_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_backtracks": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "avg_curvature": {
-        "pearson_r": 1.0000000000000002,
+        "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "direction_similarity": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_trajectory_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       }
     },
     "DTW": {
       "episode_number": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "trajectory_length": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "path_length": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_path_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "path_length_ratio": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "total_displacement": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_total_displacement": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "efficiency": {
-        "pearson_r": 0.9999999999999999,
+        "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_efficiency": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_gt_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_backtracks": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "avg_curvature": {
-        "pearson_r": -0.9999999999999999,
+        "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "direction_similarity": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_trajectory_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       }
     },
     "Fréchet": {
       "episode_number": {
-        "pearson_r": 0.9999999999999998,
+        "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "trajectory_length": {
-        "pearson_r": -0.9999999999999998,
+        "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "path_length": {
-        "pearson_r": -0.9999999999999998,
+        "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_path_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "path_length_ratio": {
-        "pearson_r": -0.9999999999999998,
+        "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "total_displacement": {
-        "pearson_r": -0.9999999999999999,
+        "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_total_displacement": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "efficiency": {
-        "pearson_r": 0.9999999999999999,
+        "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_efficiency": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_gt_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_backtracks": {
-        "pearson_r": -0.9999999999999998,
+        "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "avg_curvature": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "direction_similarity": {
-        "pearson_r": 0.9999999999999998,
+        "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_trajectory_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       }
     },
     "ERP": {
       "episode_number": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "trajectory_length": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "path_length": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_path_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "path_length_ratio": {
-        "pearson_r": 1.0000000000000002,
+        "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "total_displacement": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_total_displacement": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "efficiency": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_efficiency": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_gt_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_backtracks": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "avg_curvature": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "direction_similarity": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_trajectory_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       }
     },
     "DDTW": {
       "episode_number": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "trajectory_length": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "path_length": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_path_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "path_length_ratio": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "total_displacement": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_total_displacement": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "efficiency": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_efficiency": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_gt_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_backtracks": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "avg_curvature": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "direction_similarity": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_trajectory_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       }
     },
     "TWED": {
       "episode_number": {
-        "pearson_r": -0.9999999999999998,
+        "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "trajectory_length": {
-        "pearson_r": 0.9999999999999998,
+        "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "path_length": {
-        "pearson_r": 0.9999999999999998,
+        "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_path_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "path_length_ratio": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "total_displacement": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_total_displacement": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "efficiency": {
-        "pearson_r": -1.0000000000000002,
+        "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_efficiency": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_gt_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_backtracks": {
-        "pearson_r": 0.9999999999999998,
+        "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "avg_curvature": {
-        "pearson_r": 0.9999999999999998,
+        "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "direction_similarity": {
-        "pearson_r": -0.9999999999999998,
+        "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_trajectory_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       }
     },
     "Sobolev": {
       "episode_number": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "trajectory_length": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "path_length": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_path_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "path_length_ratio": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "total_displacement": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_total_displacement": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "efficiency": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_efficiency": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_avg_speed": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "gt_speed_variance": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_gt_stops": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       },
       "num_backtracks": {
         "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "avg_curvature": {
-        "pearson_r": -1.0000000000000002,
+        "pearson_r": -1.0,
         "pearson_p": 1.0,
-        "spearman_r": -1.0,
-        "spearman_p": 1.0
+        "spearman_r": -0.9999999999999999,
+        "spearman_p": NaN
       },
       "direction_similarity": {
         "pearson_r": 1.0,
         "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "spearman_r": 0.9999999999999999,
+        "spearman_p": NaN
       },
       "gt_trajectory_length": {
-        "pearson_r": 0.0,
-        "pearson_p": 1.0,
-        "spearman_r": 1.0,
-        "spearman_p": 1.0
+        "pearson_r": NaN,
+        "pearson_p": NaN,
+        "spearman_r": NaN,
+        "spearman_p": NaN
       }
     }
   },
@@ -1166,128 +1166,128 @@
     "RMSE_vs_DTW": {
       "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     },
     "RMSE_vs_Fréchet": {
       "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     },
     "RMSE_vs_ERP": {
-      "pearson_r": 1.0000000000000002,
+      "pearson_r": 1.0,
       "pearson_p": 1.0,
-      "spearman_r": 1.0,
-      "spearman_p": 1.0
+      "spearman_r": 0.9999999999999999,
+      "spearman_p": NaN
     },
     "RMSE_vs_DDTW": {
       "pearson_r": 1.0,
       "pearson_p": 1.0,
-      "spearman_r": 1.0,
-      "spearman_p": 1.0
+      "spearman_r": 0.9999999999999999,
+      "spearman_p": NaN
     },
     "RMSE_vs_TWED": {
-      "pearson_r": 1.0000000000000002,
+      "pearson_r": 1.0,
       "pearson_p": 1.0,
-      "spearman_r": 1.0,
-      "spearman_p": 1.0
+      "spearman_r": 0.9999999999999999,
+      "spearman_p": NaN
     },
     "RMSE_vs_Sobolev": {
-      "pearson_r": -1.0000000000000002,
+      "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     },
     "DTW_vs_Fréchet": {
       "pearson_r": 1.0,
       "pearson_p": 1.0,
-      "spearman_r": 1.0,
-      "spearman_p": 1.0
+      "spearman_r": 0.9999999999999999,
+      "spearman_p": NaN
     },
     "DTW_vs_ERP": {
       "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     },
     "DTW_vs_DDTW": {
       "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     },
     "DTW_vs_TWED": {
       "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     },
     "DTW_vs_Sobolev": {
       "pearson_r": 1.0,
       "pearson_p": 1.0,
-      "spearman_r": 1.0,
-      "spearman_p": 1.0
+      "spearman_r": 0.9999999999999999,
+      "spearman_p": NaN
     },
     "Fréchet_vs_ERP": {
       "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     },
     "Fréchet_vs_DDTW": {
-      "pearson_r": -1.0000000000000002,
+      "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     },
     "Fréchet_vs_TWED": {
       "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     },
     "Fréchet_vs_Sobolev": {
       "pearson_r": 1.0,
       "pearson_p": 1.0,
-      "spearman_r": 1.0,
-      "spearman_p": 1.0
+      "spearman_r": 0.9999999999999999,
+      "spearman_p": NaN
     },
     "ERP_vs_DDTW": {
       "pearson_r": 1.0,
       "pearson_p": 1.0,
-      "spearman_r": 1.0,
-      "spearman_p": 1.0
+      "spearman_r": 0.9999999999999999,
+      "spearman_p": NaN
     },
     "ERP_vs_TWED": {
       "pearson_r": 1.0,
       "pearson_p": 1.0,
-      "spearman_r": 1.0,
-      "spearman_p": 1.0
+      "spearman_r": 0.9999999999999999,
+      "spearman_p": NaN
     },
     "ERP_vs_Sobolev": {
-      "pearson_r": -1.0000000000000002,
+      "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     },
     "DDTW_vs_TWED": {
       "pearson_r": 1.0,
       "pearson_p": 1.0,
-      "spearman_r": 1.0,
-      "spearman_p": 1.0
+      "spearman_r": 0.9999999999999999,
+      "spearman_p": NaN
     },
     "DDTW_vs_Sobolev": {
       "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     },
     "TWED_vs_Sobolev": {
       "pearson_r": -1.0,
       "pearson_p": 1.0,
-      "spearman_r": -1.0,
-      "spearman_p": 1.0
+      "spearman_r": -0.9999999999999999,
+      "spearman_p": NaN
     }
   }
 }

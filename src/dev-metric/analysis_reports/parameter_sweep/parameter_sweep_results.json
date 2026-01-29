@@ -1,0 +1,2813 @@
+{
+  "hogun": {
+    "group": "hogun",
+    "gt_episode": "hogun_episode1",
+    "gt_length": 35,
+    "episodes": {
+      "hogun_episode2": {
+        "episode_number": 2,
+        "trajectory_length": 46,
+        "TWED": {
+          "nu=0.10,lambda=0.50": {
+            "nu": 0.1,
+            "lambda": 0.5,
+            "distance": 57.44213562373096
+          },
+          "nu=0.10,lambda=1.00": {
+            "nu": 0.1,
+            "lambda": 1.0,
+            "distance": 62.94213562373097
+          },
+          "nu=0.10,lambda=2.00": {
+            "nu": 0.1,
+            "lambda": 2.0,
+            "distance": 73.94213562373092
+          },
+          "nu=0.10,lambda=5.00": {
+            "nu": 0.1,
+            "lambda": 5.0,
+            "distance": 106.94213562373086
+          },
+          "nu=0.25,lambda=0.50": {
+            "nu": 0.25,
+            "lambda": 0.5,
+            "distance": 90.80634918610404
+          },
+          "nu=0.25,lambda=1.00": {
+            "nu": 0.25,
+            "lambda": 1.0,
+            "distance": 96.30634918610404
+          },
+          "nu=0.25,lambda=2.00": {
+            "nu": 0.25,
+            "lambda": 2.0,
+            "distance": 107.30634918610404
+          },
+          "nu=0.25,lambda=5.00": {
+            "nu": 0.25,
+            "lambda": 5.0,
+            "distance": 140.30634918610406
+          },
+          "nu=0.50,lambda=0.50": {
+            "nu": 0.5,
+            "lambda": 0.5,
+            "distance": 112.28584445398434
+          },
+          "nu=0.50,lambda=1.00": {
+            "nu": 0.5,
+            "lambda": 1.0,
+            "distance": 126.99694700491233
+          },
+          "nu=0.50,lambda=2.00": {
+            "nu": 0.5,
+            "lambda": 2.0,
+            "distance": 152.57970953521055
+          },
+          "nu=0.50,lambda=5.00": {
+            "nu": 0.5,
+            "lambda": 5.0,
+            "distance": 188.61427157873055
+          },
+          "nu=1.00,lambda=0.50": {
+            "nu": 1.0,
+            "lambda": 0.5,
+            "distance": 144.49694700491233
+          },
+          "nu=1.00,lambda=1.00": {
+            "nu": 1.0,
+            "lambda": 1.0,
+            "distance": 158.99694700491233
+          },
+          "nu=1.00,lambda=2.00": {
+            "nu": 1.0,
+            "lambda": 2.0,
+            "distance": 182.78791346770993
+          },
+          "nu=1.00,lambda=5.00": {
+            "nu": 1.0,
+            "lambda": 5.0,
+            "distance": 219.25479660188608
+          },
+          "nu=2.00,lambda=0.50": {
+            "nu": 2.0,
+            "lambda": 0.5,
+            "distance": 208.49694700491233
+          },
+          "nu=2.00,lambda=1.00": {
+            "nu": 2.0,
+            "lambda": 1.0,
+            "distance": 220.99694700491233
+          },
+          "nu=2.00,lambda=2.00": {
+            "nu": 2.0,
+            "lambda": 2.0,
+            "distance": 241.06802335699047
+          },
+          "nu=2.00,lambda=5.00": {
+            "nu": 2.0,
+            "lambda": 5.0,
+            "distance": 274.2547966018861
+          },
+          "nu=5.00,lambda=0.50": {
+            "nu": 5.0,
+            "lambda": 0.5,
+            "distance": 389.56802335699047
+          },
+          "nu=5.00,lambda=1.00": {
+            "nu": 5.0,
+            "lambda": 1.0,
+            "distance": 395.2547966018861
+          },
+          "nu=5.00,lambda=2.00": {
+            "nu": 5.0,
+            "lambda": 2.0,
+            "distance": 406.2547966018861
+          },
+          "nu=5.00,lambda=5.00": {
+            "nu": 5.0,
+            "lambda": 5.0,
+            "distance": 439.2547966018861
+          }
+        },
+        "Sobolev": {
+          "alpha=0.10,beta=0.10": {
+            "alpha": 0.1,
+            "beta": 0.1,
+            "distance": 4.491074825297365
+          },
+          "alpha=0.10,beta=0.50": {
+            "alpha": 0.1,
+            "beta": 0.5,
+            "distance": 5.40466876361951
+          },
+          "alpha=0.10,beta=1.00": {
+            "alpha": 0.1,
+            "beta": 1.0,
+            "distance": 6.364849459490405
+          },
+          "alpha=0.10,beta=2.00": {
+            "alpha": 0.1,
+            "beta": 2.0,
+            "distance": 7.944371406035661
+          },
+          "alpha=0.10,beta=5.00": {
+            "alpha": 0.1,
+            "beta": 5.0,
+            "distance": 11.441950105739066
+          },
+          "alpha=0.50,beta=0.10": {
+            "alpha": 0.5,
+            "beta": 0.1,
+            "distance": 9.58165299278126
+          },
+          "alpha=0.50,beta=0.50": {
+            "alpha": 0.5,
+            "beta": 0.5,
+            "distance": 10.0423486014029
+          },
+          "alpha=0.50,beta=1.00": {
+            "alpha": 0.5,
+            "beta": 1.0,
+            "distance": 10.590072220227283
+          },
+          "alpha=0.50,beta=2.00": {
+            "alpha": 0.5,
+            "beta": 2.0,
+            "distance": 11.608245260360901
+          },
+          "alpha=0.50,beta=5.00": {
+            "alpha": 0.5,
+            "beta": 5.0,
+            "distance": 14.23223605797334
+          },
+          "alpha=1.00,beta=0.10": {
+            "alpha": 1.0,
+            "beta": 0.1,
+            "distance": 13.466847266849133
+          },
+          "alpha=1.00,beta=0.50": {
+            "alpha": 1.0,
+            "beta": 0.5,
+            "distance": 13.798429862367191
+          },
+          "alpha=1.00,beta=1.00": {
+            "alpha": 1.0,
+            "beta": 1.0,
+            "distance": 14.202025590182462
+          },
+          "alpha=1.00,beta=2.00": {
+            "alpha": 1.0,
+            "beta": 2.0,
+            "distance": 14.976623760355979
+          },
+          "alpha=1.00,beta=5.00": {
+            "alpha": 1.0,
+            "beta": 5.0,
+            "distance": 17.09106329180383
+          },
+          "alpha=2.00,beta=0.10": {
+            "alpha": 2.0,
+            "beta": 0.1,
+            "distance": 18.985567618003362
+          },
+          "alpha=2.00,beta=0.50": {
+            "alpha": 2.0,
+            "beta": 0.5,
+            "distance": 19.222186897848083
+          },
+          "alpha=2.00,beta=1.00": {
+            "alpha": 2.0,
+            "beta": 1.0,
+            "distance": 19.513926650813602
+          },
+          "alpha=2.00,beta=2.00": {
+            "alpha": 2.0,
+            "beta": 2.0,
+            "distance": 20.0846972028058
+          },
+          "alpha=2.00,beta=5.00": {
+            "alpha": 2.0,
+            "beta": 5.0,
+            "distance": 21.7071473693247
+          },
+          "alpha=5.00,beta=0.10": {
+            "alpha": 5.0,
+            "beta": 0.1,
+            "distance": 29.96229605996819
+          },
+          "alpha=5.00,beta=0.50": {
+            "alpha": 5.0,
+            "beta": 0.5,
+            "distance": 30.112785931281913
+          },
+          "alpha=5.00,beta=1.00": {
+            "alpha": 5.0,
+            "beta": 1.0,
+            "distance": 30.299847206557672
+          },
+          "alpha=5.00,beta=2.00": {
+            "alpha": 5.0,
+            "beta": 2.0,
+            "distance": 30.670547258498708
+          },
+          "alpha=5.00,beta=5.00": {
+            "alpha": 5.0,
+            "beta": 5.0,
+            "distance": 31.756694637839555
+          }
+        },
+        "ERP": {
+          "gap=0.000": {
+            "gap": 0.0,
+            "distance": 29.532846554087754
+          },
+          "gap=0.500": {
+            "gap": 0.5,
+            "distance": 147.4051081357083
+          },
+          "gap=1.000": {
+            "gap": 1.0,
+            "distance": 140.04327347366473
+          },
+          "gap=2.000": {
+            "gap": 2.0,
+            "distance": 125.49492815871946
+          },
+          "gap=9.987": {
+            "gap": 9.986930234571787,
+            "distance": 53.203873928536396
+          },
+          "gap=19.974": {
+            "gap": 19.973860469143574,
+            "distance": 192.0598582011022
+          }
+        }
+      },
+      "hogun_episode3": {
+        "episode_number": 3,
+        "trajectory_length": 38,
+        "TWED": {
+          "nu=0.10,lambda=0.50": {
+            "nu": 0.1,
+            "lambda": 0.5,
+            "distance": 43.08477631085027
+          },
+          "nu=0.10,lambda=1.00": {
+            "nu": 0.1,
+            "lambda": 1.0,
+            "distance": 48.358156521946626
+          },
+          "nu=0.10,lambda=2.00": {
+            "nu": 0.1,
+            "lambda": 2.0,
+            "distance": 54.4749760323765
+          },
+          "nu=0.10,lambda=5.00": {
+            "nu": 0.1,
+            "lambda": 5.0,
+            "distance": 69.4749760323765
+          },
+          "nu=0.25,lambda=0.50": {
+            "nu": 0.25,
+            "lambda": 0.5,
+            "distance": 46.38477631085024
+          },
+          "nu=0.25,lambda=1.00": {
+            "nu": 0.25,
+            "lambda": 1.0,
+            "distance": 52.04705397101862
+          },
+          "nu=0.25,lambda=2.00": {
+            "nu": 0.25,
+            "lambda": 2.0,
+            "distance": 57.77497603237647
+          },
+          "nu=0.25,lambda=5.00": {
+            "nu": 0.25,
+            "lambda": 5.0,
+            "distance": 71.70395492948958
+          },
+          "nu=0.50,lambda=0.50": {
+            "nu": 0.5,
+            "lambda": 0.5,
+            "distance": 51.88477631085024
+          },
+          "nu=0.50,lambda=1.00": {
+            "nu": 0.5,
+            "lambda": 1.0,
+            "distance": 57.49032758631423
+          },
+          "nu=0.50,lambda=2.00": {
+            "nu": 0.5,
+            "lambda": 2.0,
+            "distance": 63.21824964767208
+          },
+          "nu=0.50,lambda=5.00": {
+            "nu": 0.5,
+            "lambda": 5.0,
+            "distance": 73.17509258978562
+          },
+          "nu=1.00,lambda=0.50": {
+            "nu": 1.0,
+            "lambda": 0.5,
+            "distance": 58.496947004912315
+          },
+          "nu=1.00,lambda=1.00": {
+            "nu": 1.0,
+            "lambda": 1.0,
+            "distance": 62.996947004912315
+          },
+          "nu=1.00,lambda=2.00": {
+            "nu": 1.0,
+            "lambda": 2.0,
+            "distance": 65.99694700491231
+          },
+          "nu=1.00,lambda=5.00": {
+            "nu": 1.0,
+            "lambda": 5.0,
+            "distance": 74.99694700491231
+          },
+          "nu=2.00,lambda=0.50": {
+            "nu": 2.0,
+            "lambda": 0.5,
+            "distance": 64.49694700491231
+          },
+          "nu=2.00,lambda=1.00": {
+            "nu": 2.0,
+            "lambda": 1.0,
+            "distance": 65.99694700491231
+          },
+          "nu=2.00,lambda=2.00": {
+            "nu": 2.0,
+            "lambda": 2.0,
+            "distance": 68.99694700491231
+          },
+          "nu=2.00,lambda=5.00": {
+            "nu": 2.0,
+            "lambda": 5.0,
+            "distance": 77.99694700491231
+          },
+          "nu=5.00,lambda=0.50": {
+            "nu": 5.0,
+            "lambda": 0.5,
+            "distance": 73.49694700491231
+          },
+          "nu=5.00,lambda=1.00": {
+            "nu": 5.0,
+            "lambda": 1.0,
+            "distance": 74.99694700491231
+          },
+          "nu=5.00,lambda=2.00": {
+            "nu": 5.0,
+            "lambda": 2.0,
+            "distance": 77.99694700491231
+          },
+          "nu=5.00,lambda=5.00": {
+            "nu": 5.0,
+            "lambda": 5.0,
+            "distance": 86.99694700491231
+          }
+        },
+        "Sobolev": {
+          "alpha=0.10,beta=0.10": {
+            "alpha": 0.1,
+            "beta": 0.1,
+            "distance": 5.489438029144855
+          },
+          "alpha=0.10,beta=0.50": {
+            "alpha": 0.1,
+            "beta": 0.5,
+            "distance": 6.460055948937588
+          },
+          "alpha=0.10,beta=1.00": {
+            "alpha": 0.1,
+            "beta": 1.0,
+            "distance": 7.498687491680236
+          },
+          "alpha=0.10,beta=2.00": {
+            "alpha": 0.1,
+            "beta": 2.0,
+            "distance": 9.231808954199446
+          },
+          "alpha=0.10,beta=5.00": {
+            "alpha": 0.1,
+            "beta": 5.0,
+            "distance": 13.123042481593334
+          },
+          "alpha=0.50,beta=0.10": {
+            "alpha": 0.5,
+            "beta": 0.1,
+            "distance": 11.792847679484655
+          },
+          "alpha=0.50,beta=0.50": {
+            "alpha": 0.5,
+            "beta": 0.5,
+            "distance": 12.274756591440369
+          },
+          "alpha=0.50,beta=1.00": {
+            "alpha": 0.5,
+            "beta": 1.0,
+            "distance": 12.851756324082187
+          },
+          "alpha=0.50,beta=2.00": {
+            "alpha": 0.5,
+            "beta": 2.0,
+            "distance": 13.934260765557028
+          },
+          "alpha=0.50,beta=5.00": {
+            "alpha": 0.5,
+            "beta": 5.0,
+            "distance": 16.7675749734244
+          },
+          "alpha=1.00,beta=0.10": {
+            "alpha": 1.0,
+            "beta": 0.1,
+            "distance": 16.590446483930375
+          },
+          "alpha=1.00,beta=0.50": {
+            "alpha": 1.0,
+            "beta": 0.5,
+            "distance": 16.93639003813209
+          },
+          "alpha=1.00,beta=1.00": {
+            "alpha": 1.0,
+            "beta": 1.0,
+            "distance": 17.359127246443514
+          },
+          "alpha=1.00,beta=2.00": {
+            "alpha": 1.0,
+            "beta": 2.0,
+            "distance": 18.175128093831223
+          },
+          "alpha=1.00,beta=5.00": {
+            "alpha": 1.0,
+            "beta": 5.0,
+            "distance": 20.428490610763177
+          },
+          "alpha=2.00,beta=0.10": {
+            "alpha": 2.0,
+            "beta": 0.1,
+            "distance": 23.400560481010274
+          },
+          "alpha=2.00,beta=0.50": {
+            "alpha": 2.0,
+            "beta": 0.5,
+            "distance": 23.647084890383464
+          },
+          "alpha=2.00,beta=1.00": {
+            "alpha": 2.0,
+            "beta": 1.0,
+            "distance": 23.951672489566977
+          },
+          "alpha=2.00,beta=2.00": {
+            "alpha": 2.0,
+            "beta": 2.0,
+            "distance": 24.549513182880737
+          },
+          "alpha=2.00,beta=5.00": {
+            "alpha": 2.0,
+            "beta": 5.0,
+            "distance": 26.261503097182032
+          },
+          "alpha=5.00,beta=0.10": {
+            "alpha": 5.0,
+            "beta": 0.1,
+            "distance": 36.94071168363173
+          },
+          "alpha=5.00,beta=0.50": {
+            "alpha": 5.0,
+            "beta": 0.5,
+            "distance": 37.09736611514069
+          },
+          "alpha=5.00,beta=1.00": {
+            "alpha": 5.0,
+            "beta": 1.0,
+            "distance": 37.292258766602835
+          },
+          "alpha=5.00,beta=2.00": {
+            "alpha": 5.0,
+            "beta": 2.0,
+            "distance": 37.67901997643014
+          },
+          "alpha=5.00,beta=5.00": {
+            "alpha": 5.0,
+            "beta": 5.0,
+            "distance": 38.81618855311644
+          }
+        },
+        "ERP": {
+          "gap=0.000": {
+            "gap": 0.0,
+            "distance": 16.807708870861447
+          },
+          "gap=0.500": {
+            "gap": 0.5,
+            "distance": 82.82976611983165
+          },
+          "gap=1.000": {
+            "gap": 1.0,
+            "distance": 80.83694760031413
+          },
+          "gap=2.000": {
+            "gap": 2.0,
+            "distance": 76.94153555818346
+          },
+          "gap=9.987": {
+            "gap": 9.986930234571787,
+            "distance": 59.18375479367484
+          },
+          "gap=19.974": {
+            "gap": 19.973860469143574,
+            "distance": 104.90177469893854
+          }
+        }
+      }
+    }
+  },
+  "hogun_0125": {
+    "group": "hogun_0125",
+    "gt_episode": "hogun_0125_episode1",
+    "gt_length": 35,
+    "episodes": {
+      "hogun_0125_episode2": {
+        "episode_number": 2,
+        "trajectory_length": 46,
+        "TWED": {
+          "nu=0.10,lambda=0.50": {
+            "nu": 0.1,
+            "lambda": 0.5,
+            "distance": 57.44213562373096
+          },
+          "nu=0.10,lambda=1.00": {
+            "nu": 0.1,
+            "lambda": 1.0,
+            "distance": 62.94213562373097
+          },
+          "nu=0.10,lambda=2.00": {
+            "nu": 0.1,
+            "lambda": 2.0,
+            "distance": 73.94213562373092
+          },
+          "nu=0.10,lambda=5.00": {
+            "nu": 0.1,
+            "lambda": 5.0,
+            "distance": 106.94213562373086
+          },
+          "nu=0.25,lambda=0.50": {
+            "nu": 0.25,
+            "lambda": 0.5,
+            "distance": 90.80634918610404
+          },
+          "nu=0.25,lambda=1.00": {
+            "nu": 0.25,
+            "lambda": 1.0,
+            "distance": 96.30634918610404
+          },
+          "nu=0.25,lambda=2.00": {
+            "nu": 0.25,
+            "lambda": 2.0,
+            "distance": 107.30634918610404
+          },
+          "nu=0.25,lambda=5.00": {
+            "nu": 0.25,
+            "lambda": 5.0,
+            "distance": 140.30634918610406
+          },
+          "nu=0.50,lambda=0.50": {
+            "nu": 0.5,
+            "lambda": 0.5,
+            "distance": 112.28584445398434
+          },
+          "nu=0.50,lambda=1.00": {
+            "nu": 0.5,
+            "lambda": 1.0,
+            "distance": 126.99694700491233
+          },
+          "nu=0.50,lambda=2.00": {
+            "nu": 0.5,
+            "lambda": 2.0,
+            "distance": 152.57970953521055
+          },
+          "nu=0.50,lambda=5.00": {
+            "nu": 0.5,
+            "lambda": 5.0,
+            "distance": 188.61427157873055
+          },
+          "nu=1.00,lambda=0.50": {
+            "nu": 1.0,
+            "lambda": 0.5,
+            "distance": 144.49694700491233
+          },
+          "nu=1.00,lambda=1.00": {
+            "nu": 1.0,
+            "lambda": 1.0,
+            "distance": 158.99694700491233
+          },
+          "nu=1.00,lambda=2.00": {
+            "nu": 1.0,
+            "lambda": 2.0,
+            "distance": 182.78791346770993
+          },
+          "nu=1.00,lambda=5.00": {
+            "nu": 1.0,
+            "lambda": 5.0,
+            "distance": 219.25479660188608
+          },
+          "nu=2.00,lambda=0.50": {
+            "nu": 2.0,
+            "lambda": 0.5,
+            "distance": 208.49694700491233
+          },
+          "nu=2.00,lambda=1.00": {
+            "nu": 2.0,
+            "lambda": 1.0,
+            "distance": 220.99694700491233
+          },
+          "nu=2.00,lambda=2.00": {
+            "nu": 2.0,
+            "lambda": 2.0,
+            "distance": 241.06802335699047
+          },
+          "nu=2.00,lambda=5.00": {
+            "nu": 2.0,
+            "lambda": 5.0,
+            "distance": 274.2547966018861
+          },
+          "nu=5.00,lambda=0.50": {
+            "nu": 5.0,
+            "lambda": 0.5,
+            "distance": 389.56802335699047
+          },
+          "nu=5.00,lambda=1.00": {
+            "nu": 5.0,
+            "lambda": 1.0,
+            "distance": 395.2547966018861
+          },
+          "nu=5.00,lambda=2.00": {
+            "nu": 5.0,
+            "lambda": 2.0,
+            "distance": 406.2547966018861
+          },
+          "nu=5.00,lambda=5.00": {
+            "nu": 5.0,
+            "lambda": 5.0,
+            "distance": 439.2547966018861
+          }
+        },
+        "Sobolev": {
+          "alpha=0.10,beta=0.10": {
+            "alpha": 0.1,
+            "beta": 0.1,
+            "distance": 4.491074825297365
+          },
+          "alpha=0.10,beta=0.50": {
+            "alpha": 0.1,
+            "beta": 0.5,
+            "distance": 5.40466876361951
+          },
+          "alpha=0.10,beta=1.00": {
+            "alpha": 0.1,
+            "beta": 1.0,
+            "distance": 6.364849459490405
+          },
+          "alpha=0.10,beta=2.00": {
+            "alpha": 0.1,
+            "beta": 2.0,
+            "distance": 7.944371406035661
+          },
+          "alpha=0.10,beta=5.00": {
+            "alpha": 0.1,
+            "beta": 5.0,
+            "distance": 11.441950105739066
+          },
+          "alpha=0.50,beta=0.10": {
+            "alpha": 0.5,
+            "beta": 0.1,
+            "distance": 9.58165299278126
+          },
+          "alpha=0.50,beta=0.50": {
+            "alpha": 0.5,
+            "beta": 0.5,
+            "distance": 10.0423486014029
+          },
+          "alpha=0.50,beta=1.00": {
+            "alpha": 0.5,
+            "beta": 1.0,
+            "distance": 10.590072220227283
+          },
+          "alpha=0.50,beta=2.00": {
+            "alpha": 0.5,
+            "beta": 2.0,
+            "distance": 11.608245260360901
+          },
+          "alpha=0.50,beta=5.00": {
+            "alpha": 0.5,
+            "beta": 5.0,
+            "distance": 14.23223605797334
+          },
+          "alpha=1.00,beta=0.10": {
+            "alpha": 1.0,
+            "beta": 0.1,
+            "distance": 13.466847266849133
+          },
+          "alpha=1.00,beta=0.50": {
+            "alpha": 1.0,
+            "beta": 0.5,
+            "distance": 13.798429862367191
+          },
+          "alpha=1.00,beta=1.00": {
+            "alpha": 1.0,
+            "beta": 1.0,
+            "distance": 14.202025590182462
+          },
+          "alpha=1.00,beta=2.00": {
+            "alpha": 1.0,
+            "beta": 2.0,
+            "distance": 14.976623760355979
+          },
+          "alpha=1.00,beta=5.00": {
+            "alpha": 1.0,
+            "beta": 5.0,
+            "distance": 17.09106329180383
+          },
+          "alpha=2.00,beta=0.10": {
+            "alpha": 2.0,
+            "beta": 0.1,
+            "distance": 18.985567618003362
+          },
+          "alpha=2.00,beta=0.50": {
+            "alpha": 2.0,
+            "beta": 0.5,
+            "distance": 19.222186897848083
+          },
+          "alpha=2.00,beta=1.00": {
+            "alpha": 2.0,
+            "beta": 1.0,
+            "distance": 19.513926650813602
+          },
+          "alpha=2.00,beta=2.00": {
+            "alpha": 2.0,
+            "beta": 2.0,
+            "distance": 20.0846972028058
+          },
+          "alpha=2.00,beta=5.00": {
+            "alpha": 2.0,
+            "beta": 5.0,
+            "distance": 21.7071473693247
+          },
+          "alpha=5.00,beta=0.10": {
+            "alpha": 5.0,
+            "beta": 0.1,
+            "distance": 29.96229605996819
+          },
+          "alpha=5.00,beta=0.50": {
+            "alpha": 5.0,
+            "beta": 0.5,
+            "distance": 30.112785931281913
+          },
+          "alpha=5.00,beta=1.00": {
+            "alpha": 5.0,
+            "beta": 1.0,
+            "distance": 30.299847206557672
+          },
+          "alpha=5.00,beta=2.00": {
+            "alpha": 5.0,
+            "beta": 2.0,
+            "distance": 30.670547258498708
+          },
+          "alpha=5.00,beta=5.00": {
+            "alpha": 5.0,
+            "beta": 5.0,
+            "distance": 31.756694637839555
+          }
+        },
+        "ERP": {
+          "gap=0.000": {
+            "gap": 0.0,
+            "distance": 29.532846554087754
+          },
+          "gap=0.500": {
+            "gap": 0.5,
+            "distance": 147.4051081357083
+          },
+          "gap=1.000": {
+            "gap": 1.0,
+            "distance": 140.04327347366473
+          },
+          "gap=2.000": {
+            "gap": 2.0,
+            "distance": 125.49492815871946
+          },
+          "gap=9.987": {
+            "gap": 9.986930234571787,
+            "distance": 53.203873928536396
+          },
+          "gap=19.974": {
+            "gap": 19.973860469143574,
+            "distance": 192.0598582011022
+          }
+        }
+      },
+      "hogun_0125_episode3": {
+        "episode_number": 3,
+        "trajectory_length": 38,
+        "TWED": {
+          "nu=0.10,lambda=0.50": {
+            "nu": 0.1,
+            "lambda": 0.5,
+            "distance": 43.08477631085027
+          },
+          "nu=0.10,lambda=1.00": {
+            "nu": 0.1,
+            "lambda": 1.0,
+            "distance": 48.358156521946626
+          },
+          "nu=0.10,lambda=2.00": {
+            "nu": 0.1,
+            "lambda": 2.0,
+            "distance": 54.4749760323765
+          },
+          "nu=0.10,lambda=5.00": {
+            "nu": 0.1,
+            "lambda": 5.0,
+            "distance": 69.4749760323765
+          },
+          "nu=0.25,lambda=0.50": {
+            "nu": 0.25,
+            "lambda": 0.5,
+            "distance": 46.38477631085024
+          },
+          "nu=0.25,lambda=1.00": {
+            "nu": 0.25,
+            "lambda": 1.0,
+            "distance": 52.04705397101862
+          },
+          "nu=0.25,lambda=2.00": {
+            "nu": 0.25,
+            "lambda": 2.0,
+            "distance": 57.77497603237647
+          },
+          "nu=0.25,lambda=5.00": {
+            "nu": 0.25,
+            "lambda": 5.0,
+            "distance": 71.70395492948958
+          },
+          "nu=0.50,lambda=0.50": {
+            "nu": 0.5,
+            "lambda": 0.5,
+            "distance": 51.88477631085024
+          },
+          "nu=0.50,lambda=1.00": {
+            "nu": 0.5,
+            "lambda": 1.0,
+            "distance": 57.49032758631423
+          },
+          "nu=0.50,lambda=2.00": {
+            "nu": 0.5,
+            "lambda": 2.0,
+            "distance": 63.21824964767208
+          },
+          "nu=0.50,lambda=5.00": {
+            "nu": 0.5,
+            "lambda": 5.0,
+            "distance": 73.17509258978562
+          },
+          "nu=1.00,lambda=0.50": {
+            "nu": 1.0,
+            "lambda": 0.5,
+            "distance": 58.496947004912315
+          },
+          "nu=1.00,lambda=1.00": {
+            "nu": 1.0,
+            "lambda": 1.0,
+            "distance": 62.996947004912315
+          },
+          "nu=1.00,lambda=2.00": {
+            "nu": 1.0,
+            "lambda": 2.0,
+            "distance": 65.99694700491231
+          },
+          "nu=1.00,lambda=5.00": {
+            "nu": 1.0,
+            "lambda": 5.0,
+            "distance": 74.99694700491231
+          },
+          "nu=2.00,lambda=0.50": {
+            "nu": 2.0,
+            "lambda": 0.5,
+            "distance": 64.49694700491231
+          },
+          "nu=2.00,lambda=1.00": {
+            "nu": 2.0,
+            "lambda": 1.0,
+            "distance": 65.99694700491231
+          },
+          "nu=2.00,lambda=2.00": {
+            "nu": 2.0,
+            "lambda": 2.0,
+            "distance": 68.99694700491231
+          },
+          "nu=2.00,lambda=5.00": {
+            "nu": 2.0,
+            "lambda": 5.0,
+            "distance": 77.99694700491231
+          },
+          "nu=5.00,lambda=0.50": {
+            "nu": 5.0,
+            "lambda": 0.5,
+            "distance": 73.49694700491231
+          },
+          "nu=5.00,lambda=1.00": {
+            "nu": 5.0,
+            "lambda": 1.0,
+            "distance": 74.99694700491231
+          },
+          "nu=5.00,lambda=2.00": {
+            "nu": 5.0,
+            "lambda": 2.0,
+            "distance": 77.99694700491231
+          },
+          "nu=5.00,lambda=5.00": {
+            "nu": 5.0,
+            "lambda": 5.0,
+            "distance": 86.99694700491231
+          }
+        },
+        "Sobolev": {
+          "alpha=0.10,beta=0.10": {
+            "alpha": 0.1,
+            "beta": 0.1,
+            "distance": 5.489438029144855
+          },
+          "alpha=0.10,beta=0.50": {
+            "alpha": 0.1,
+            "beta": 0.5,
+            "distance": 6.460055948937588
+          },
+          "alpha=0.10,beta=1.00": {
+            "alpha": 0.1,
+            "beta": 1.0,
+            "distance": 7.498687491680236
+          },
+          "alpha=0.10,beta=2.00": {
+            "alpha": 0.1,
+            "beta": 2.0,
+            "distance": 9.231808954199446
+          },
+          "alpha=0.10,beta=5.00": {
+            "alpha": 0.1,
+            "beta": 5.0,
+            "distance": 13.123042481593334
+          },
+          "alpha=0.50,beta=0.10": {
+            "alpha": 0.5,
+            "beta": 0.1,
+            "distance": 11.792847679484655
+          },
+          "alpha=0.50,beta=0.50": {
+            "alpha": 0.5,
+            "beta": 0.5,
+            "distance": 12.274756591440369
+          },
+          "alpha=0.50,beta=1.00": {
+            "alpha": 0.5,
+            "beta": 1.0,
+            "distance": 12.851756324082187
+          },
+          "alpha=0.50,beta=2.00": {
+            "alpha": 0.5,
+            "beta": 2.0,
+            "distance": 13.934260765557028
+          },
+          "alpha=0.50,beta=5.00": {
+            "alpha": 0.5,
+            "beta": 5.0,
+            "distance": 16.7675749734244
+          },
+          "alpha=1.00,beta=0.10": {
+            "alpha": 1.0,
+            "beta": 0.1,
+            "distance": 16.590446483930375
+          },
+          "alpha=1.00,beta=0.50": {
+            "alpha": 1.0,
+            "beta": 0.5,
+            "distance": 16.93639003813209
+          },
+          "alpha=1.00,beta=1.00": {
+            "alpha": 1.0,
+            "beta": 1.0,
+            "distance": 17.359127246443514
+          },
+          "alpha=1.00,beta=2.00": {
+            "alpha": 1.0,
+            "beta": 2.0,
+            "distance": 18.175128093831223
+          },
+          "alpha=1.00,beta=5.00": {
+            "alpha": 1.0,
+            "beta": 5.0,
+            "distance": 20.428490610763177
+          },
+          "alpha=2.00,beta=0.10": {
+            "alpha": 2.0,
+            "beta": 0.1,
+            "distance": 23.400560481010274
+          },
+          "alpha=2.00,beta=0.50": {
+            "alpha": 2.0,
+            "beta": 0.5,
+            "distance": 23.647084890383464
+          },
+          "alpha=2.00,beta=1.00": {
+            "alpha": 2.0,
+            "beta": 1.0,
+            "distance": 23.951672489566977
+          },
+          "alpha=2.00,beta=2.00": {
+            "alpha": 2.0,
+            "beta": 2.0,
+            "distance": 24.549513182880737
+          },
+          "alpha=2.00,beta=5.00": {
+            "alpha": 2.0,
+            "beta": 5.0,
+            "distance": 26.261503097182032
+          },
+          "alpha=5.00,beta=0.10": {
+            "alpha": 5.0,
+            "beta": 0.1,
+            "distance": 36.94071168363173
+          },
+          "alpha=5.00,beta=0.50": {
+            "alpha": 5.0,
+            "beta": 0.5,
+            "distance": 37.09736611514069
+          },
+          "alpha=5.00,beta=1.00": {
+            "alpha": 5.0,
+            "beta": 1.0,
+            "distance": 37.292258766602835
+          },
+          "alpha=5.00,beta=2.00": {
+            "alpha": 5.0,
+            "beta": 2.0,
+            "distance": 37.67901997643014
+          },
+          "alpha=5.00,beta=5.00": {
+            "alpha": 5.0,
+            "beta": 5.0,
+            "distance": 38.81618855311644
+          }
+        },
+        "ERP": {
+          "gap=0.000": {
+            "gap": 0.0,
+            "distance": 16.807708870861447
+          },
+          "gap=0.500": {
+            "gap": 0.5,
+            "distance": 82.82976611983165
+          },
+          "gap=1.000": {
+            "gap": 1.0,
+            "distance": 80.83694760031413
+          },
+          "gap=2.000": {
+            "gap": 2.0,
+            "distance": 76.94153555818346
+          },
+          "gap=9.987": {
+            "gap": 9.986930234571787,
+            "distance": 59.18375479367484
+          },
+          "gap=19.974": {
+            "gap": 19.973860469143574,
+            "distance": 104.90177469893854
+          }
+        }
+      }
+    }
+  },
+  "other": {
+    "group": "other",
+    "gt_episode": "Episode_1_1",
+    "gt_length": 46,
+    "episodes": {
+      "Episode_2_1_Test_Entropy": {
+        "episode_number": 2,
+        "trajectory_length": 40,
+        "TWED": {
+          "nu=0.10,lambda=0.50": {
+            "nu": 0.1,
+            "lambda": 0.5,
+            "distance": 32.571067811865504
+          },
+          "nu=0.10,lambda=1.00": {
+            "nu": 0.1,
+            "lambda": 1.0,
+            "distance": 35.571067811865504
+          },
+          "nu=0.10,lambda=2.00": {
+            "nu": 0.1,
+            "lambda": 2.0,
+            "distance": 41.571067811865504
+          },
+          "nu=0.10,lambda=5.00": {
+            "nu": 0.1,
+            "lambda": 5.0,
+            "distance": 59.571067811865504
+          },
+          "nu=0.25,lambda=0.50": {
+            "nu": 0.25,
+            "lambda": 0.5,
+            "distance": 57.32106781186547
+          },
+          "nu=0.25,lambda=1.00": {
+            "nu": 0.25,
+            "lambda": 1.0,
+            "distance": 60.32106781186547
+          },
+          "nu=0.25,lambda=2.00": {
+            "nu": 0.25,
+            "lambda": 2.0,
+            "distance": 66.32106781186548
+          },
+          "nu=0.25,lambda=5.00": {
+            "nu": 0.25,
+            "lambda": 5.0,
+            "distance": 84.32106781186546
+          },
+          "nu=0.50,lambda=0.50": {
+            "nu": 0.5,
+            "lambda": 0.5,
+            "distance": 96.63169110970202
+          },
+          "nu=0.50,lambda=1.00": {
+            "nu": 0.5,
+            "lambda": 1.0,
+            "distance": 99.63169110970202
+          },
+          "nu=0.50,lambda=2.00": {
+            "nu": 0.5,
+            "lambda": 2.0,
+            "distance": 105.63169110970202
+          },
+          "nu=0.50,lambda=5.00": {
+            "nu": 0.5,
+            "lambda": 5.0,
+            "distance": 123.63169110970202
+          },
+          "nu=1.00,lambda=0.50": {
+            "nu": 1.0,
+            "lambda": 0.5,
+            "distance": 116.87316089762194
+          },
+          "nu=1.00,lambda=1.00": {
+            "nu": 1.0,
+            "lambda": 1.0,
+            "distance": 133.06007349474038
+          },
+          "nu=1.00,lambda=2.00": {
+            "nu": 1.0,
+            "lambda": 2.0,
+            "distance": 145.65419057629708
+          },
+          "nu=1.00,lambda=5.00": {
+            "nu": 1.0,
+            "lambda": 5.0,
+            "distance": 163.65419057629708
+          },
+          "nu=2.00,lambda=0.50": {
+            "nu": 2.0,
+            "lambda": 0.5,
+            "distance": 145.06007349474038
+          },
+          "nu=2.00,lambda=1.00": {
+            "nu": 2.0,
+            "lambda": 1.0,
+            "distance": 154.65419057629708
+          },
+          "nu=2.00,lambda=2.00": {
+            "nu": 2.0,
+            "lambda": 2.0,
+            "distance": 160.65419057629708
+          },
+          "nu=2.00,lambda=5.00": {
+            "nu": 2.0,
+            "lambda": 5.0,
+            "distance": 178.65419057629708
+          },
+          "nu=5.00,lambda=0.50": {
+            "nu": 5.0,
+            "lambda": 0.5,
+            "distance": 196.65419057629708
+          },
+          "nu=5.00,lambda=1.00": {
+            "nu": 5.0,
+            "lambda": 1.0,
+            "distance": 199.65419057629708
+          },
+          "nu=5.00,lambda=2.00": {
+            "nu": 5.0,
+            "lambda": 2.0,
+            "distance": 205.65419057629708
+          },
+          "nu=5.00,lambda=5.00": {
+            "nu": 5.0,
+            "lambda": 5.0,
+            "distance": 223.65419057629708
+          }
+        },
+        "Sobolev": {
+          "alpha=0.10,beta=0.10": {
+            "alpha": 0.1,
+            "beta": 0.1,
+            "distance": 3.7641584569314954
+          },
+          "alpha=0.10,beta=0.50": {
+            "alpha": 0.1,
+            "beta": 0.5,
+            "distance": 4.878979856941864
+          },
+          "alpha=0.10,beta=1.00": {
+            "alpha": 0.1,
+            "beta": 1.0,
+            "distance": 5.987394165151389
+          },
+          "alpha=0.10,beta=2.00": {
+            "alpha": 0.1,
+            "beta": 2.0,
+            "distance": 7.741949223404774
+          },
+          "alpha=0.10,beta=5.00": {
+            "alpha": 0.1,
+            "beta": 5.0,
+            "distance": 11.498019153073473
+          },
+          "alpha=0.50,beta=0.10": {
+            "alpha": 0.5,
+            "beta": 0.1,
+            "distance": 7.823610987829656
+          },
+          "alpha=0.50,beta=0.50": {
+            "alpha": 0.5,
+            "beta": 0.5,
+            "distance": 8.416914187779538
+          },
+          "alpha=0.50,beta=1.00": {
+            "alpha": 0.5,
+            "beta": 1.0,
+            "distance": 9.104333522498445
+          },
+          "alpha=0.50,beta=2.00": {
+            "alpha": 0.5,
+            "beta": 2.0,
+            "distance": 10.3430062253572
+          },
+          "alpha=0.50,beta=5.00": {
+            "alpha": 0.5,
+            "beta": 5.0,
+            "distance": 13.388220361364107
+          },
+          "alpha=1.00,beta=0.10": {
+            "alpha": 1.0,
+            "beta": 0.1,
+            "distance": 10.954856863003231
+          },
+          "alpha=1.00,beta=0.50": {
+            "alpha": 1.0,
+            "beta": 0.5,
+            "distance": 11.386151432527345
+          },
+          "alpha=1.00,beta=1.00": {
+            "alpha": 1.0,
+            "beta": 1.0,
+            "distance": 11.903314197688347
+          },
+          "alpha=1.00,beta=2.00": {
+            "alpha": 1.0,
+            "beta": 2.0,
+            "distance": 12.875471943885314
+          },
+          "alpha=1.00,beta=5.00": {
+            "alpha": 1.0,
+            "beta": 5.0,
+            "distance": 15.428689006018772
+          },
+          "alpha=2.00,beta=0.10": {
+            "alpha": 2.0,
+            "beta": 0.1,
+            "distance": 15.414567424643776
+          },
+          "alpha=2.00,beta=0.50": {
+            "alpha": 2.0,
+            "beta": 0.5,
+            "distance": 15.724008536134944
+          },
+          "alpha=2.00,beta=1.00": {
+            "alpha": 2.0,
+            "beta": 1.0,
+            "distance": 16.102449779114018
+          },
+          "alpha=2.00,beta=2.00": {
+            "alpha": 2.0,
+            "beta": 2.0,
+            "distance": 16.833828375559076
+          },
+          "alpha=2.00,beta=5.00": {
+            "alpha": 2.0,
+            "beta": 5.0,
+            "distance": 18.858537706949726
+          },
+          "alpha=5.00,beta=0.10": {
+            "alpha": 5.0,
+            "beta": 0.1,
+            "distance": 24.298330989779718
+          },
+          "alpha=5.00,beta=0.50": {
+            "alpha": 5.0,
+            "beta": 0.5,
+            "distance": 24.495804629455325
+          },
+          "alpha=5.00,beta=1.00": {
+            "alpha": 5.0,
+            "beta": 1.0,
+            "distance": 24.74043024866159
+          },
+          "alpha=5.00,beta=2.00": {
+            "alpha": 5.0,
+            "beta": 2.0,
+            "distance": 25.22256485327728
+          },
+          "alpha=5.00,beta=5.00": {
+            "alpha": 5.0,
+            "beta": 5.0,
+            "distance": 26.616619703569516
+          }
+        },
+        "ERP": {
+          "gap=0.000": {
+            "gap": 0.0,
+            "distance": 29.92044887340219
+          },
+          "gap=0.500": {
+            "gap": 0.5,
+            "distance": 84.47979930590616
+          },
+          "gap=1.000": {
+            "gap": 1.0,
+            "distance": 80.30487504570772
+          },
+          "gap=2.000": {
+            "gap": 2.0,
+            "distance": 71.98137816809633
+          },
+          "gap=10.481": {
+            "gap": 10.48098918115561,
+            "distance": 20.90034372092488
+          },
+          "gap=20.962": {
+            "gap": 20.96197836231122,
+            "distance": 103.1349577342179
+          }
+        }
+      },
+      "Episode_4_1_Test_Entropy": {
+        "episode_number": 4,
+        "trajectory_length": 56,
+        "TWED": {
+          "nu=0.10,lambda=0.50": {
+            "nu": 0.1,
+            "lambda": 0.5,
+            "distance": 85.14213562373097
+          },
+          "nu=0.10,lambda=1.00": {
+            "nu": 0.1,
+            "lambda": 1.0,
+            "distance": 92.7416305603426
+          },
+          "nu=0.10,lambda=2.00": {
+            "nu": 0.1,
+            "lambda": 2.0,
+            "distance": 106.7416305603426
+          },
+          "nu=0.10,lambda=5.00": {
+            "nu": 0.1,
+            "lambda": 5.0,
+            "distance": 137.78582285372852
+          },
+          "nu=0.25,lambda=0.50": {
+            "nu": 0.25,
+            "lambda": 0.5,
+            "distance": 117.63618401021463
+          },
+          "nu=0.25,lambda=1.00": {
+            "nu": 0.25,
+            "lambda": 1.0,
+            "distance": 124.80039757258773
+          },
+          "nu=0.25,lambda=2.00": {
+            "nu": 0.25,
+            "lambda": 2.0,
+            "distance": 137.3127563885655
+          },
+          "nu=0.25,lambda=5.00": {
+            "nu": 0.25,
+            "lambda": 5.0,
+            "distance": 167.3127563885655
+          },
+          "nu=0.50,lambda=0.50": {
+            "nu": 0.5,
+            "lambda": 0.5,
+            "distance": 146.67666527161376
+          },
+          "nu=0.50,lambda=1.00": {
+            "nu": 0.5,
+            "lambda": 1.0,
+            "distance": 161.60420036618854
+          },
+          "nu=0.50,lambda=2.00": {
+            "nu": 0.5,
+            "lambda": 2.0,
+            "distance": 176.88416024129862
+          },
+          "nu=0.50,lambda=5.00": {
+            "nu": 0.5,
+            "lambda": 5.0,
+            "distance": 206.88416024129862
+          },
+          "nu=1.00,lambda=0.50": {
+            "nu": 1.0,
+            "lambda": 0.5,
+            "distance": 174.89309781526055
+          },
+          "nu=1.00,lambda=1.00": {
+            "nu": 1.0,
+            "lambda": 1.0,
+            "distance": 188.080010412379
+          },
+          "nu=1.00,lambda=2.00": {
+            "nu": 1.0,
+            "lambda": 2.0,
+            "distance": 207.6590924614906
+          },
+          "nu=1.00,lambda=5.00": {
+            "nu": 1.0,
+            "lambda": 5.0,
+            "distance": 238.80122808522154
+          },
+          "nu=2.00,lambda=0.50": {
+            "nu": 2.0,
+            "lambda": 0.5,
+            "distance": 228.080010412379
+          },
+          "nu=2.00,lambda=1.00": {
+            "nu": 2.0,
+            "lambda": 1.0,
+            "distance": 239.00998182081707
+          },
+          "nu=2.00,lambda=2.00": {
+            "nu": 2.0,
+            "lambda": 2.0,
+            "distance": 253.80122808522154
+          },
+          "nu=2.00,lambda=5.00": {
+            "nu": 2.0,
+            "lambda": 5.0,
+            "distance": 283.8012280852215
+          },
+          "nu=5.00,lambda=0.50": {
+            "nu": 5.0,
+            "lambda": 0.5,
+            "distance": 373.8012280852215
+          },
+          "nu=5.00,lambda=1.00": {
+            "nu": 5.0,
+            "lambda": 1.0,
+            "distance": 378.8012280852215
+          },
+          "nu=5.00,lambda=2.00": {
+            "nu": 5.0,
+            "lambda": 2.0,
+            "distance": 388.8012280852215
+          },
+          "nu=5.00,lambda=5.00": {
+            "nu": 5.0,
+            "lambda": 5.0,
+            "distance": 418.8012280852215
+          }
+        },
+        "Sobolev": {
+          "alpha=0.10,beta=0.10": {
+            "alpha": 0.1,
+            "beta": 0.1,
+            "distance": 5.167404195116004
+          },
+          "alpha=0.10,beta=0.50": {
+            "alpha": 0.1,
+            "beta": 0.5,
+            "distance": 6.425896728109671
+          },
+          "alpha=0.10,beta=1.00": {
+            "alpha": 0.1,
+            "beta": 1.0,
+            "distance": 7.715552609250726
+          },
+          "alpha=0.10,beta=2.00": {
+            "alpha": 0.1,
+            "beta": 2.0,
+            "distance": 9.798212014326182
+          },
+          "alpha=0.10,beta=5.00": {
+            "alpha": 0.1,
+            "beta": 5.0,
+            "distance": 14.33284962986763
+          },
+          "alpha=0.50,beta=0.10": {
+            "alpha": 0.5,
+            "beta": 0.1,
+            "distance": 10.905056072019267
+          },
+          "alpha=0.50,beta=0.50": {
+            "alpha": 0.5,
+            "beta": 0.5,
+            "distance": 11.55466704749697
+          },
+          "alpha=0.50,beta=1.00": {
+            "alpha": 0.5,
+            "beta": 1.0,
+            "distance": 12.318601133420039
+          },
+          "alpha=0.50,beta=2.00": {
+            "alpha": 0.5,
+            "beta": 2.0,
+            "distance": 13.719443884351426
+          },
+          "alpha=0.50,beta=5.00": {
+            "alpha": 0.5,
+            "beta": 5.0,
+            "distance": 17.252500118260496
+          },
+          "alpha=1.00,beta=0.10": {
+            "alpha": 1.0,
+            "beta": 0.1,
+            "distance": 15.303364832827175
+          },
+          "alpha=1.00,beta=0.50": {
+            "alpha": 1.0,
+            "beta": 0.5,
+            "distance": 15.772858265109708
+          },
+          "alpha=1.00,beta=1.00": {
+            "alpha": 1.0,
+            "beta": 1.0,
+            "distance": 16.340766847275702
+          },
+          "alpha=1.00,beta=2.00": {
+            "alpha": 1.0,
+            "beta": 2.0,
+            "distance": 17.4211327923472
+          },
+          "alpha=1.00,beta=5.00": {
+            "alpha": 1.0,
+            "beta": 5.0,
+            "distance": 20.320469669850294
+          },
+          "alpha=2.00,beta=0.10": {
+            "alpha": 2.0,
+            "beta": 0.1,
+            "distance": 21.557792784792834
+          },
+          "alpha=2.00,beta=0.50": {
+            "alpha": 2.0,
+            "beta": 0.5,
+            "distance": 21.893572399147065
+          },
+          "alpha=2.00,beta=1.00": {
+            "alpha": 2.0,
+            "beta": 1.0,
+            "distance": 22.306190075906716
+          },
+          "alpha=2.00,beta=2.00": {
+            "alpha": 2.0,
+            "beta": 2.0,
+            "distance": 23.10933409499394
+          },
+          "alpha=2.00,beta=5.00": {
+            "alpha": 2.0,
+            "beta": 5.0,
+            "distance": 25.366650195655716
+          },
+          "alpha=5.00,beta=0.10": {
+            "alpha": 5.0,
+            "beta": 0.1,
+            "distance": 34.00551122080698
+          },
+          "alpha=5.00,beta=0.50": {
+            "alpha": 5.0,
+            "beta": 0.5,
+            "distance": 34.21936405068127
+          },
+          "alpha=5.00,beta=1.00": {
+            "alpha": 5.0,
+            "beta": 1.0,
+            "distance": 34.48481519943007
+          },
+          "alpha=5.00,beta=2.00": {
+            "alpha": 5.0,
+            "beta": 2.0,
+            "distance": 35.009679889287945
+          },
+          "alpha=5.00,beta=5.00": {
+            "alpha": 5.0,
+            "beta": 5.0,
+            "distance": 36.539065474983396
+          }
+        },
+        "ERP": {
+          "gap=0.000": {
+            "gap": 0.0,
+            "distance": 32.386000615990966
+          },
+          "gap=0.500": {
+            "gap": 0.5,
+            "distance": 132.0543168269413
+          },
+          "gap=1.000": {
+            "gap": 1.0,
+            "distance": 125.42447475857871
+          },
+          "gap=2.000": {
+            "gap": 2.0,
+            "distance": 112.4311633675845
+          },
+          "gap=10.481": {
+            "gap": 10.48098918115561,
+            "distance": 117.09504465740895
+          },
+          "gap=20.962": {
+            "gap": 20.96197836231122,
+            "distance": 261.00983046084883
+          }
+        }
+      },
+      "Episode_1_2_Test_Entropy": {
+        "episode_number": 1,
+        "trajectory_length": 60,
+        "TWED": {
+          "nu=0.10,lambda=0.50": {
+            "nu": 0.1,
+            "lambda": 0.5,
+            "distance": 76.8137084989847
+          },
+          "nu=0.10,lambda=1.00": {
+            "nu": 0.1,
+            "lambda": 1.0,
+            "distance": 83.8137084989847
+          },
+          "nu=0.10,lambda=2.00": {
+            "nu": 0.1,
+            "lambda": 2.0,
+            "distance": 97.8137084989847
+          },
+          "nu=0.10,lambda=5.00": {
+            "nu": 0.1,
+            "lambda": 5.0,
+            "distance": 139.81370849898474
+          },
+          "nu=0.25,lambda=0.50": {
+            "nu": 0.25,
+            "lambda": 0.5,
+            "distance": 139.73528137423858
+          },
+          "nu=0.25,lambda=1.00": {
+            "nu": 0.25,
+            "lambda": 1.0,
+            "distance": 152.0637084989848
+          },
+          "nu=0.25,lambda=2.00": {
+            "nu": 0.25,
+            "lambda": 2.0,
+            "distance": 166.0637084989848
+          },
+          "nu=0.25,lambda=5.00": {
+            "nu": 0.25,
+            "lambda": 5.0,
+            "distance": 208.0637084989848
+          },
+          "nu=0.50,lambda=0.50": {
+            "nu": 0.5,
+            "lambda": 0.5,
+            "distance": 169.70005801635745
+          },
+          "nu=0.50,lambda=1.00": {
+            "nu": 0.5,
+            "lambda": 1.0,
+            "distance": 194.4573096615577
+          },
+          "nu=0.50,lambda=2.00": {
+            "nu": 0.5,
+            "lambda": 2.0,
+            "distance": 231.9858824593882
+          },
+          "nu=0.50,lambda=5.00": {
+            "nu": 0.5,
+            "lambda": 5.0,
+            "distance": 284.13893079635676
+          },
+          "nu=1.00,lambda=0.50": {
+            "nu": 1.0,
+            "lambda": 0.5,
+            "distance": 224.4573096615577
+          },
+          "nu=1.00,lambda=1.00": {
+            "nu": 1.0,
+            "lambda": 1.0,
+            "distance": 248.4573096615577
+          },
+          "nu=1.00,lambda=2.00": {
+            "nu": 1.0,
+            "lambda": 2.0,
+            "distance": 281.72680967112365
+          },
+          "nu=1.00,lambda=5.00": {
+            "nu": 1.0,
+            "lambda": 5.0,
+            "distance": 335.8806501452665
+          },
+          "nu=2.00,lambda=0.50": {
+            "nu": 2.0,
+            "lambda": 0.5,
+            "distance": 332.4573096615577
+          },
+          "nu=2.00,lambda=1.00": {
+            "nu": 2.0,
+            "lambda": 1.0,
+            "distance": 350.2276392758267
+          },
+          "nu=2.00,lambda=2.00": {
+            "nu": 2.0,
+            "lambda": 2.0,
+            "distance": 379.0069195604042
+          },
+          "nu=2.00,lambda=5.00": {
+            "nu": 2.0,
+            "lambda": 5.0,
+            "distance": 426.8806501452665
+          },
+          "nu=5.00,lambda=0.50": {
+            "nu": 5.0,
+            "lambda": 0.5,
+            "distance": 631.0069195604042
+          },
+          "nu=5.00,lambda=1.00": {
+            "nu": 5.0,
+            "lambda": 1.0,
+            "distance": 642.1829345416743
+          },
+          "nu=5.00,lambda=2.00": {
+            "nu": 5.0,
+            "lambda": 2.0,
+            "distance": 657.8806501452665
+          },
+          "nu=5.00,lambda=5.00": {
+            "nu": 5.0,
+            "lambda": 5.0,
+            "distance": 699.8806501452665
+          }
+        },
+        "Sobolev": {
+          "alpha=0.10,beta=0.10": {
+            "alpha": 0.1,
+            "beta": 0.1,
+            "distance": 5.4139384624671
+          },
+          "alpha=0.10,beta=0.50": {
+            "alpha": 0.1,
+            "beta": 0.5,
+            "distance": 6.679421032249406
+          },
+          "alpha=0.10,beta=1.00": {
+            "alpha": 0.1,
+            "beta": 1.0,
+            "distance": 7.98402059675447
+          },
+          "alpha=0.10,beta=2.00": {
+            "alpha": 0.1,
+            "beta": 2.0,
+            "distance": 10.09972395742019
+          },
+          "alpha=0.10,beta=5.00": {
+            "alpha": 0.1,
+            "beta": 5.0,
+            "distance": 14.72358452945989
+          },
+          "alpha=0.50,beta=0.10": {
+            "alpha": 0.5,
+            "beta": 0.1,
+            "distance": 11.456426699727452
+          },
+          "alpha=0.50,beta=0.50": {
+            "alpha": 0.5,
+            "beta": 0.5,
+            "distance": 12.105934428077129
+          },
+          "alpha=0.50,beta=1.00": {
+            "alpha": 0.5,
+            "beta": 1.0,
+            "distance": 12.871812923603537
+          },
+          "alpha=0.50,beta=2.00": {
+            "alpha": 0.5,
+            "beta": 2.0,
+            "distance": 14.280875570739168
+          },
+          "alpha=0.50,beta=5.00": {
+            "alpha": 0.5,
+            "beta": 5.0,
+            "distance": 17.85281278810143
+          },
+          "alpha=1.00,beta=0.10": {
+            "alpha": 1.0,
+            "beta": 0.1,
+            "distance": 16.083328061685098
+          },
+          "alpha=1.00,beta=0.50": {
+            "alpha": 1.0,
+            "beta": 0.5,
+            "distance": 16.55226199618839
+          },
+          "alpha=1.00,beta=1.00": {
+            "alpha": 1.0,
+            "beta": 1.0,
+            "distance": 17.120376653386053
+          },
+          "alpha=1.00,beta=2.00": {
+            "alpha": 1.0,
+            "beta": 2.0,
+            "distance": 18.203492408889403
+          },
+          "alpha=1.00,beta=5.00": {
+            "alpha": 1.0,
+            "beta": 5.0,
+            "distance": 21.122183913141114
+          },
+          "alpha=2.00,beta=0.10": {
+            "alpha": 2.0,
+            "beta": 0.1,
+            "distance": 22.660999518267193
+          },
+          "alpha=2.00,beta=0.50": {
+            "alpha": 2.0,
+            "beta": 0.5,
+            "distance": 22.996191745973526
+          },
+          "alpha=2.00,beta=1.00": {
+            "alpha": 2.0,
+            "beta": 1.0,
+            "distance": 23.40843340296238
+          },
+          "alpha=2.00,beta=2.00": {
+            "alpha": 2.0,
+            "beta": 2.0,
+            "distance": 24.211868856154258
+          },
+          "alpha=2.00,beta=5.00": {
+            "alpha": 2.0,
+            "beta": 5.0,
+            "distance": 26.47629337516254
+          },
+          "alpha=5.00,beta=0.10": {
+            "alpha": 5.0,
+            "beta": 0.1,
+            "distance": 35.75001079787615
+          },
+          "alpha=5.00,beta=0.50": {
+            "alpha": 5.0,
+            "beta": 0.5,
+            "distance": 35.96341485035781
+          },
+          "alpha=5.00,beta=1.00": {
+            "alpha": 5.0,
+            "beta": 1.0,
+            "distance": 36.22840221790467
+          },
+          "alpha=5.00,beta=2.00": {
+            "alpha": 5.0,
+            "beta": 2.0,
+            "distance": 36.752645705975624
+          },
+          "alpha=5.00,beta=5.00": {
+            "alpha": 5.0,
+            "beta": 5.0,
+            "distance": 38.28232599737157
+          }
+        },
+        "ERP": {
+          "gap=0.000": {
+            "gap": 0.0,
+            "distance": 42.23393311412652
+          },
+          "gap=0.500": {
+            "gap": 0.5,
+            "distance": 179.84118348854236
+          },
+          "gap=1.000": {
+            "gap": 1.0,
+            "distance": 170.17044217512415
+          },
+          "gap=2.000": {
+            "gap": 2.0,
+            "distance": 150.94178720604395
+          },
+          "gap=10.481": {
+            "gap": 10.48098918115561,
+            "distance": 52.311605789048286
+          },
+          "gap=20.962": {
+            "gap": 20.96197836231122,
+            "distance": 249.6775088149959
+          }
+        }
+      },
+      "Episode_5_2_Test_Entropy": {
+        "episode_number": 5,
+        "trajectory_length": 27,
+        "TWED": {
+          "nu=0.10,lambda=0.50": {
+            "nu": 0.1,
+            "lambda": 0.5,
+            "distance": 88.87106781186547
+          },
+          "nu=0.10,lambda=1.00": {
+            "nu": 0.1,
+            "lambda": 1.0,
+            "distance": 102.92792206135785
+          },
+          "nu=0.10,lambda=2.00": {
+            "nu": 0.1,
+            "lambda": 2.0,
+            "distance": 123.71037817406523
+          },
+          "nu=0.10,lambda=5.00": {
+            "nu": 0.1,
+            "lambda": 5.0,
+            "distance": 180.71037817406523
+          },
+          "nu=0.25,lambda=0.50": {
+            "nu": 0.25,
+            "lambda": 0.5,
+            "distance": 118.61039977432108
+          },
+          "nu=0.25,lambda=1.00": {
+            "nu": 0.25,
+            "lambda": 1.0,
+            "distance": 130.27267743448948
+          },
+          "nu=0.25,lambda=2.00": {
+            "nu": 0.25,
+            "lambda": 2.0,
+            "distance": 149.3603781740652
+          },
+          "nu=0.25,lambda=5.00": {
+            "nu": 0.25,
+            "lambda": 5.0,
+            "distance": 206.3603781740652
+          },
+          "nu=0.50,lambda=0.50": {
+            "nu": 0.5,
+            "lambda": 0.5,
+            "distance": 163.1103781740652
+          },
+          "nu=0.50,lambda=1.00": {
+            "nu": 0.5,
+            "lambda": 1.0,
+            "distance": 173.1103781740652
+          },
+          "nu=0.50,lambda=2.00": {
+            "nu": 0.5,
+            "lambda": 2.0,
+            "distance": 192.1103781740652
+          },
+          "nu=0.50,lambda=5.00": {
+            "nu": 0.5,
+            "lambda": 5.0,
+            "distance": 249.1103781740652
+          },
+          "nu=1.00,lambda=0.50": {
+            "nu": 1.0,
+            "lambda": 0.5,
+            "distance": 249.1103781740652
+          },
+          "nu=1.00,lambda=1.00": {
+            "nu": 1.0,
+            "lambda": 1.0,
+            "distance": 258.6103781740652
+          },
+          "nu=1.00,lambda=2.00": {
+            "nu": 1.0,
+            "lambda": 2.0,
+            "distance": 277.6103781740652
+          },
+          "nu=1.00,lambda=5.00": {
+            "nu": 1.0,
+            "lambda": 5.0,
+            "distance": 334.6103781740652
+          },
+          "nu=2.00,lambda=0.50": {
+            "nu": 2.0,
+            "lambda": 0.5,
+            "distance": 420.1103781740652
+          },
+          "nu=2.00,lambda=1.00": {
+            "nu": 2.0,
+            "lambda": 1.0,
+            "distance": 429.6103781740652
+          },
+          "nu=2.00,lambda=2.00": {
+            "nu": 2.0,
+            "lambda": 2.0,
+            "distance": 448.6103781740652
+          },
+          "nu=2.00,lambda=5.00": {
+            "nu": 2.0,
+            "lambda": 5.0,
+            "distance": 505.6103781740652
+          },
+          "nu=5.00,lambda=0.50": {
+            "nu": 5.0,
+            "lambda": 0.5,
+            "distance": 933.1103781740652
+          },
+          "nu=5.00,lambda=1.00": {
+            "nu": 5.0,
+            "lambda": 1.0,
+            "distance": 942.6103781740652
+          },
+          "nu=5.00,lambda=2.00": {
+            "nu": 5.0,
+            "lambda": 2.0,
+            "distance": 961.6103781740652
+          },
+          "nu=5.00,lambda=5.00": {
+            "nu": 5.0,
+            "lambda": 5.0,
+            "distance": 1018.6103781740652
+          }
+        },
+        "Sobolev": {
+          "alpha=0.10,beta=0.10": {
+            "alpha": 0.1,
+            "beta": 0.1,
+            "distance": 9.806053811703498
+          },
+          "alpha=0.10,beta=0.50": {
+            "alpha": 0.1,
+            "beta": 0.5,
+            "distance": 10.715553481727067
+          },
+          "alpha=0.10,beta=1.00": {
+            "alpha": 0.1,
+            "beta": 1.0,
+            "distance": 11.753875116186729
+          },
+          "alpha=0.10,beta=2.00": {
+            "alpha": 0.1,
+            "beta": 2.0,
+            "distance": 13.594652180222727
+          },
+          "alpha=0.10,beta=5.00": {
+            "alpha": 0.1,
+            "beta": 5.0,
+            "distance": 18.022140018993234
+          },
+          "alpha=0.50,beta=0.10": {
+            "alpha": 0.5,
+            "beta": 0.1,
+            "distance": 21.49718729807216
+          },
+          "alpha=0.50,beta=0.50": {
+            "alpha": 0.5,
+            "beta": 0.5,
+            "distance": 21.92700291398994
+          },
+          "alpha=0.50,beta=1.00": {
+            "alpha": 0.5,
+            "beta": 1.0,
+            "distance": 22.45270475059261
+          },
+          "alpha=0.50,beta=2.00": {
+            "alpha": 0.5,
+            "beta": 2.0,
+            "distance": 23.468807772692777
+          },
+          "alpha=0.50,beta=5.00": {
+            "alpha": 0.5,
+            "beta": 5.0,
+            "distance": 26.282463758836762
+          },
+          "alpha=1.00,beta=0.10": {
+            "alpha": 1.0,
+            "beta": 0.1,
+            "distance": 30.32477575665413
+          },
+          "alpha=1.00,beta=0.50": {
+            "alpha": 1.0,
+            "beta": 0.5,
+            "distance": 30.63097157703435
+          },
+          "alpha=1.00,beta=1.00": {
+            "alpha": 1.0,
+            "beta": 1.0,
+            "distance": 31.00946490315895
+          },
+          "alpha=1.00,beta=2.00": {
+            "alpha": 1.0,
+            "beta": 2.0,
+            "distance": 31.75291957024689
+          },
+          "alpha=1.00,beta=5.00": {
+            "alpha": 1.0,
+            "beta": 5.0,
+            "distance": 33.885555391605
+          },
+          "alpha=2.00,beta=0.10": {
+            "alpha": 2.0,
+            "beta": 0.1,
+            "distance": 42.8312730445557
+          },
+          "alpha=2.00,beta=0.50": {
+            "alpha": 2.0,
+            "beta": 0.5,
+            "distance": 43.04860445681152
+          },
+          "alpha=2.00,beta=1.00": {
+            "alpha": 2.0,
+            "beta": 1.0,
+            "distance": 43.31873543290677
+          },
+          "alpha=2.00,beta=2.00": {
+            "alpha": 2.0,
+            "beta": 2.0,
+            "distance": 43.85400582797988
+          },
+          "alpha=2.00,beta=5.00": {
+            "alpha": 2.0,
+            "beta": 5.0,
+            "distance": 45.42198575715792
+          },
+          "alpha=5.00,beta=0.10": {
+            "alpha": 5.0,
+            "beta": 0.1,
+            "distance": 67.67049377974911
+          },
+          "alpha=5.00,beta=0.50": {
+            "alpha": 5.0,
+            "beta": 0.5,
+            "distance": 67.80825999431626
+          },
+          "alpha=5.00,beta=1.00": {
+            "alpha": 5.0,
+            "beta": 1.0,
+            "distance": 67.98007514914903
+          },
+          "alpha=5.00,beta=2.00": {
+            "alpha": 5.0,
+            "beta": 2.0,
+            "distance": 68.3224092442463
+          },
+          "alpha=5.00,beta=5.00": {
+            "alpha": 5.0,
+            "beta": 5.0,
+            "distance": 69.33927146935736
+          }
+        },
+        "ERP": {
+          "gap=0.000": {
+            "gap": 0.0,
+            "distance": 15.872507424205203
+          },
+          "gap=0.500": {
+            "gap": 0.5,
+            "distance": 193.82076802629012
+          },
+          "gap=1.000": {
+            "gap": 1.0,
+            "distance": 181.41581406145588
+          },
+          "gap=2.000": {
+            "gap": 2.0,
+            "distance": 157.2508444570132
+          },
+          "gap=10.481": {
+            "gap": 10.48098918115561,
+            "distance": 165.94085035287097
+          },
+          "gap=20.962": {
+            "gap": 20.96197836231122,
+            "distance": 428.89375221379197
+          }
+        }
+      },
+      "Episode_2_2_Test_Entropy": {
+        "episode_number": 2,
+        "trajectory_length": 41,
+        "TWED": {
+          "nu=0.10,lambda=0.50": {
+            "nu": 0.1,
+            "lambda": 0.5,
+            "distance": 36.399494936611696
+          },
+          "nu=0.10,lambda=1.00": {
+            "nu": 0.1,
+            "lambda": 1.0,
+            "distance": 39.89949493661169
+          },
+          "nu=0.10,lambda=2.00": {
+            "nu": 0.1,
+            "lambda": 2.0,
+            "distance": 46.89949493661169
+          },
+          "nu=0.10,lambda=5.00": {
+            "nu": 0.1,
+            "lambda": 5.0,
+            "distance": 67.89949493661169
+          },
+          "nu=0.25,lambda=0.50": {
+            "nu": 0.25,
+            "lambda": 0.5,
+            "distance": 61.89949493661166
+          },
+          "nu=0.25,lambda=1.00": {
+            "nu": 0.25,
+            "lambda": 1.0,
+            "distance": 65.39949493661166
+          },
+          "nu=0.25,lambda=2.00": {
+            "nu": 0.25,
+            "lambda": 2.0,
+            "distance": 72.39949493661166
+          },
+          "nu=0.25,lambda=5.00": {
+            "nu": 0.25,
+            "lambda": 5.0,
+            "distance": 93.39949493661166
+          },
+          "nu=0.50,lambda=0.50": {
+            "nu": 0.5,
+            "lambda": 0.5,
+            "distance": 100.60652796991167
+          },
+          "nu=0.50,lambda=1.00": {
+            "nu": 0.5,
+            "lambda": 1.0,
+            "distance": 105.9601182344482
+          },
+          "nu=0.50,lambda=2.00": {
+            "nu": 0.5,
+            "lambda": 2.0,
+            "distance": 112.62239589461659
+          },
+          "nu=0.50,lambda=5.00": {
+            "nu": 0.5,
+            "lambda": 5.0,
+            "distance": 127.62239589461659
+          },
+          "nu=1.00,lambda=0.50": {
+            "nu": 1.0,
+            "lambda": 0.5,
+            "distance": 114.39292573545903
+          },
+          "nu=1.00,lambda=1.00": {
+            "nu": 1.0,
+            "lambda": 1.0,
+            "distance": 129.68538960804148
+          },
+          "nu=1.00,lambda=2.00": {
+            "nu": 1.0,
+            "lambda": 2.0,
+            "distance": 141.1804871760054
+          },
+          "nu=1.00,lambda=5.00": {
+            "nu": 1.0,
+            "lambda": 5.0,
+            "distance": 156.1804871760054
+          },
+          "nu=2.00,lambda=0.50": {
+            "nu": 2.0,
+            "lambda": 0.5,
+            "distance": 137.18538960804148
+          },
+          "nu=2.00,lambda=1.00": {
+            "nu": 2.0,
+            "lambda": 1.0,
+            "distance": 146.1804871760054
+          },
+          "nu=2.00,lambda=2.00": {
+            "nu": 2.0,
+            "lambda": 2.0,
+            "distance": 151.1804871760054
+          },
+          "nu=2.00,lambda=5.00": {
+            "nu": 2.0,
+            "lambda": 5.0,
+            "distance": 166.1804871760054
+          },
+          "nu=5.00,lambda=0.50": {
+            "nu": 5.0,
+            "lambda": 0.5,
+            "distance": 173.6804871760054
+          },
+          "nu=5.00,lambda=1.00": {
+            "nu": 5.0,
+            "lambda": 1.0,
+            "distance": 176.1804871760054
+          },
+          "nu=5.00,lambda=2.00": {
+            "nu": 5.0,
+            "lambda": 2.0,
+            "distance": 181.1804871760054
+          },
+          "nu=5.00,lambda=5.00": {
+            "nu": 5.0,
+            "lambda": 5.0,
+            "distance": 196.1804871760054
+          }
+        },
+        "Sobolev": {
+          "alpha=0.10,beta=0.10": {
+            "alpha": 0.1,
+            "beta": 0.1,
+            "distance": 4.504798538951904
+          },
+          "alpha=0.10,beta=0.50": {
+            "alpha": 0.1,
+            "beta": 0.5,
+            "distance": 5.700281561163729
+          },
+          "alpha=0.10,beta=1.00": {
+            "alpha": 0.1,
+            "beta": 1.0,
+            "distance": 6.909646146984895
+          },
+          "alpha=0.10,beta=2.00": {
+            "alpha": 0.1,
+            "beta": 2.0,
+            "distance": 8.845519197681003
+          },
+          "alpha=0.10,beta=5.00": {
+            "alpha": 0.1,
+            "beta": 5.0,
+            "distance": 13.028553637167219
+          },
+          "alpha=0.50,beta=0.10": {
+            "alpha": 0.5,
+            "beta": 0.1,
+            "distance": 9.448071199071057
+          },
+          "alpha=0.50,beta=0.50": {
+            "alpha": 0.5,
+            "beta": 0.5,
+            "distance": 10.07303575803819
+          },
+          "alpha=0.50,beta=1.00": {
+            "alpha": 0.5,
+            "beta": 1.0,
+            "distance": 10.803520231050433
+          },
+          "alpha=0.50,beta=2.00": {
+            "alpha": 0.5,
+            "beta": 2.0,
+            "distance": 12.133262108053053
+          },
+          "alpha=0.50,beta=5.00": {
+            "alpha": 0.5,
+            "beta": 5.0,
+            "distance": 15.450438485127727
+          },
+          "alpha=1.00,beta=0.10": {
+            "alpha": 1.0,
+            "beta": 0.1,
+            "distance": 13.24696564370241
+          },
+          "alpha=1.00,beta=0.50": {
+            "alpha": 1.0,
+            "beta": 0.5,
+            "distance": 13.69971163073997
+          },
+          "alpha=1.00,beta=1.00": {
+            "alpha": 1.0,
+            "beta": 1.0,
+            "distance": 14.245423783286757
+          },
+          "alpha=1.00,beta=2.00": {
+            "alpha": 1.0,
+            "beta": 2.0,
+            "distance": 15.278484832123635
+          },
+          "alpha=1.00,beta=5.00": {
+            "alpha": 1.0,
+            "beta": 5.0,
+            "distance": 18.025873037537792
+          },
+          "alpha=2.00,beta=0.10": {
+            "alpha": 2.0,
+            "beta": 0.1,
+            "distance": 18.65245821683737
+          },
+          "alpha=2.00,beta=0.50": {
+            "alpha": 2.0,
+            "beta": 0.5,
+            "distance": 18.976675091566065
+          },
+          "alpha=2.00,beta=1.00": {
+            "alpha": 2.0,
+            "beta": 1.0,
+            "distance": 19.374317988792896
+          },
+          "alpha=2.00,beta=2.00": {
+            "alpha": 2.0,
+            "beta": 2.0,
+            "distance": 20.14607151607638
+          },
+          "alpha=2.00,beta=5.00": {
+            "alpha": 2.0,
+            "beta": 5.0,
+            "distance": 22.30166355971823
+          },
+          "alpha=5.00,beta=0.10": {
+            "alpha": 5.0,
+            "beta": 0.1,
+            "distance": 29.414460624447287
+          },
+          "alpha=5.00,beta=0.50": {
+            "alpha": 5.0,
+            "beta": 0.5,
+            "distance": 29.621115674922848
+          },
+          "alpha=5.00,beta=1.00": {
+            "alpha": 5.0,
+            "beta": 1.0,
+            "distance": 29.877424484502676
+          },
+          "alpha=5.00,beta=2.00": {
+            "alpha": 5.0,
+            "beta": 2.0,
+            "distance": 30.38355630644905
+          },
+          "alpha=5.00,beta=5.00": {
+            "alpha": 5.0,
+            "beta": 5.0,
+            "distance": 31.85373594772142
+          }
+        },
+        "ERP": {
+          "gap=0.000": {
+            "gap": 0.0,
+            "distance": 30.21349817564652
+          },
+          "gap=0.500": {
+            "gap": 0.5,
+            "distance": 96.92023603215614
+          },
+          "gap=1.000": {
+            "gap": 1.0,
+            "distance": 93.42519249943894
+          },
+          "gap=2.000": {
+            "gap": 2.0,
+            "distance": 84.30561972158777
+          },
+          "gap=10.481": {
+            "gap": 10.48098918115561,
+            "distance": 33.047480545016505
+          },
+          "gap=20.962": {
+            "gap": 20.96197836231122,
+            "distance": 112.3696623101049
+          }
+        }
+      },
+      "Episode_3_2_Test_Entropy": {
+        "episode_number": 3,
+        "trajectory_length": 78,
+        "TWED": {
+          "nu=0.10,lambda=0.50": {
+            "nu": 0.1,
+            "lambda": 0.5,
+            "distance": 205.4071938057227
+          },
+          "nu=0.10,lambda=1.00": {
+            "nu": 0.1,
+            "lambda": 1.0,
+            "distance": 221.40719380572267
+          },
+          "nu=0.10,lambda=2.00": {
+            "nu": 0.1,
+            "lambda": 2.0,
+            "distance": 253.40719380572267
+          },
+          "nu=0.10,lambda=5.00": {
+            "nu": 0.1,
+            "lambda": 5.0,
+            "distance": 349.4071938057227
+          },
+          "nu=0.25,lambda=0.50": {
+            "nu": 0.25,
+            "lambda": 0.5,
+            "distance": 295.28067944372924
+          },
+          "nu=0.25,lambda=1.00": {
+            "nu": 0.25,
+            "lambda": 1.0,
+            "distance": 331.9640006446623
+          },
+          "nu=0.25,lambda=2.00": {
+            "nu": 0.25,
+            "lambda": 2.0,
+            "distance": 387.95357720619495
+          },
+          "nu=0.25,lambda=5.00": {
+            "nu": 0.25,
+            "lambda": 5.0,
+            "distance": 497.9573177730237
+          },
+          "nu=0.50,lambda=0.50": {
+            "nu": 0.5,
+            "lambda": 0.5,
+            "distance": 427.1690475583122
+          },
+          "nu=0.50,lambda=1.00": {
+            "nu": 0.5,
+            "lambda": 1.0,
+            "distance": 463.5633886151677
+          },
+          "nu=0.50,lambda=2.00": {
+            "nu": 0.5,
+            "lambda": 2.0,
+            "distance": 517.9988921887184
+          },
+          "nu=0.50,lambda=5.00": {
+            "nu": 0.5,
+            "lambda": 5.0,
+            "distance": 623.4720363987851
+          },
+          "nu=1.00,lambda=0.50": {
+            "nu": 1.0,
+            "lambda": 0.5,
+            "distance": 686.6690475583121
+          },
+          "nu=1.00,lambda=1.00": {
+            "nu": 1.0,
+            "lambda": 1.0,
+            "distance": 718.9871446625482
+          },
+          "nu=1.00,lambda=2.00": {
+            "nu": 1.0,
+            "lambda": 2.0,
+            "distance": 769.9020164261512
+          },
+          "nu=1.00,lambda=5.00": {
+            "nu": 1.0,
+            "lambda": 5.0,
+            "distance": 872.7542067615786
+          },
+          "nu=2.00,lambda=0.50": {
+            "nu": 2.0,
+            "lambda": 0.5,
+            "distance": 1198.9871446625482
+          },
+          "nu=2.00,lambda=1.00": {
+            "nu": 2.0,
+            "lambda": 1.0,
+            "distance": 1225.842037939226
+          },
+          "nu=2.00,lambda=2.00": {
+            "nu": 2.0,
+            "lambda": 2.0,
+            "distance": 1270.25525460081
+          },
+          "nu=2.00,lambda=5.00": {
+            "nu": 2.0,
+            "lambda": 5.0,
+            "distance": 1368.7542067615786
+          },
+          "nu=5.00,lambda=0.50": {
+            "nu": 5.0,
+            "lambda": 0.5,
+            "distance": 2710.25525460081
+          },
+          "nu=5.00,lambda=1.00": {
+            "nu": 5.0,
+            "lambda": 1.0,
+            "distance": 2728.69194901328
+          },
+          "nu=5.00,lambda=2.00": {
+            "nu": 5.0,
+            "lambda": 2.0,
+            "distance": 2760.7542067615786
+          },
+          "nu=5.00,lambda=5.00": {
+            "nu": 5.0,
+            "lambda": 5.0,
+            "distance": 2856.7542067615786
+          }
+        },
+        "Sobolev": {
+          "alpha=0.10,beta=0.10": {
+            "alpha": 0.1,
+            "beta": 0.1,
+            "distance": 5.546857999357497
+          },
+          "alpha=0.10,beta=0.50": {
+            "alpha": 0.1,
+            "beta": 0.5,
+            "distance": 7.03381347218882
+          },
+          "alpha=0.10,beta=1.00": {
+            "alpha": 0.1,
+            "beta": 1.0,
+            "distance": 8.535698848493942
+          },
+          "alpha=0.10,beta=2.00": {
+            "alpha": 0.1,
+            "beta": 2.0,
+            "distance": 10.937339739326585
+          },
+          "alpha=0.10,beta=5.00": {
+            "alpha": 0.1,
+            "beta": 5.0,
+            "distance": 16.12225597729014
+          },
+          "alpha=0.50,beta=0.10": {
+            "alpha": 0.5,
+            "beta": 0.1,
+            "distance": 11.624597628678277
+          },
+          "alpha=0.50,beta=0.50": {
+            "alpha": 0.5,
+            "beta": 0.5,
+            "distance": 12.40315154810185
+          },
+          "alpha=0.50,beta=1.00": {
+            "alpha": 0.5,
+            "beta": 1.0,
+            "distance": 13.312467509662405
+          },
+          "alpha=0.50,beta=2.00": {
+            "alpha": 0.5,
+            "beta": 2.0,
+            "distance": 14.96626329238828
+          },
+          "alpha=0.50,beta=5.00": {
+            "alpha": 0.5,
+            "beta": 5.0,
+            "distance": 19.08640286069913
+          },
+          "alpha=1.00,beta=0.10": {
+            "alpha": 1.0,
+            "beta": 0.1,
+            "distance": 16.29680384257042
+          },
+          "alpha=1.00,beta=0.50": {
+            "alpha": 1.0,
+            "beta": 0.5,
+            "distance": 16.860981993339735
+          },
+          "alpha=1.00,beta=1.00": {
+            "alpha": 1.0,
+            "beta": 1.0,
+            "distance": 17.540705135494484
+          },
+          "alpha=1.00,beta=2.00": {
+            "alpha": 1.0,
+            "beta": 2.0,
+            "distance": 18.826672100815756
+          },
+          "alpha=1.00,beta=5.00": {
+            "alpha": 1.0,
+            "beta": 5.0,
+            "distance": 22.242871208894087
+          },
+          "alpha=2.00,beta=0.10": {
+            "alpha": 2.0,
+            "beta": 0.1,
+            "distance": 22.94547681771527
+          },
+          "alpha=2.00,beta=0.50": {
+            "alpha": 2.0,
+            "beta": 0.5,
+            "distance": 23.349556841379613
+          },
+          "alpha=2.00,beta=1.00": {
+            "alpha": 2.0,
+            "beta": 1.0,
+            "distance": 23.845029409909593
+          },
+          "alpha=2.00,beta=2.00": {
+            "alpha": 2.0,
+            "beta": 2.0,
+            "distance": 24.8063030962037
+          },
+          "alpha=2.00,beta=5.00": {
+            "alpha": 2.0,
+            "beta": 5.0,
+            "distance": 27.489168967514104
+          },
+          "alpha=5.00,beta=0.10": {
+            "alpha": 5.0,
+            "beta": 0.1,
+            "distance": 36.183175359821334
+          },
+          "alpha=5.00,beta=0.50": {
+            "alpha": 5.0,
+            "beta": 0.5,
+            "distance": 36.44076120796725
+          },
+          "alpha=5.00,beta=1.00": {
+            "alpha": 5.0,
+            "beta": 1.0,
+            "distance": 36.760205389615635
+          },
+          "alpha=5.00,beta=2.00": {
+            "alpha": 5.0,
+            "beta": 2.0,
+            "distance": 37.39090726403945
+          },
+          "alpha=5.00,beta=5.00": {
+            "alpha": 5.0,
+            "beta": 5.0,
+            "distance": 39.222209056245326
+          }
+        },
+        "ERP": {
+          "gap=0.000": {
+            "gap": 0.0,
+            "distance": 42.669882623567894
+          },
+          "gap=0.500": {
+            "gap": 0.5,
+            "distance": 327.9715660702428
+          },
+          "gap=1.000": {
+            "gap": 1.0,
+            "distance": 306.24098714974394
+          },
+          "gap=2.000": {
+            "gap": 2.0,
+            "distance": 263.50777346150113
+          },
+          "gap=10.481": {
+            "gap": 10.48098918115561,
+            "distance": 194.28445363991847
+          },
+          "gap=20.962": {
+            "gap": 20.96197836231122,
+            "distance": 652.0179994197073
+          }
+        }
+      }
+    }
+  }
+}

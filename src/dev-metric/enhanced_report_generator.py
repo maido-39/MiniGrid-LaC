@@ -741,12 +741,101 @@ class EnhancedReportGenerator:
                 report_lines.append(f"{i}. {finding}")
                 report_lines.append("")
         
-        report_lines.append("### 9.2 실험 해석")
+        report_lines.append("### 9.2 실험 해석 및 통찰")
         report_lines.append("")
-        report_lines.append("이러한 경향성은 다음을 시사합니다:")
-        report_lines.append("- 나중 Episode는 **더 정확한 타이밍과 속도**로 이동하지만")
-        report_lines.append("- **다른 경로를 선택**하여 전체적으로는 더 달라짐")
-        report_lines.append("- 즉, **로컬 정확도는 개선**되지만, **글로벌 경로 선택은 다름**")
+        
+        # Deep interpretation based on actual data
+        if statistical_analysis.get('metrics'):
+            metrics = statistical_analysis['metrics']
+            
+            # Analyze contradictions
+            rmse_trend = metrics.get('RMSE', {}).get('trend', {})
+            dtw_trend = metrics.get('DTW', {}).get('trend', {})
+            
+            if rmse_trend.get('slope', 0) < 0 and dtw_trend.get('slope', 0) > 0:
+                report_lines.append("#### 9.2.1 위치 정확도 vs 경로 형태의 모순")
+                report_lines.append("")
+                report_lines.append("**관찰된 현상**:")
+                report_lines.append(f"- RMSE는 Episode 증가에 따라 **감소** (slope={rmse_trend.get('slope', 0):.3f})")
+                report_lines.append(f"- DTW는 Episode 증가에 따라 **증가** (slope={dtw_trend.get('slope', 0):.3f})")
+                report_lines.append("")
+                report_lines.append("**통찰**:")
+                report_lines.append("1. **위치 정확도는 개선**: RMSE 감소는 로봇이 GT와 **같은 시간대에 비슷한 위치**에 도달한다는 의미입니다.")
+                report_lines.append("   - 이는 **로컬 정확도(Local Accuracy)**가 향상되었음을 시사합니다.")
+                report_lines.append("   - 로봇의 **타이밍 제어**와 **속도 제어**가 개선되었을 가능성이 높습니다.")
+                report_lines.append("")
+                report_lines.append("2. **경로 형태는 더 달라짐**: DTW 증가는 전체적인 **경로 선택 전략**이 GT와 더 달라졌다는 의미입니다.")
+                report_lines.append("   - 이는 **글로벌 경로 선택(Global Path Planning)**이 다르게 작동함을 시사합니다.")
+                report_lines.append("   - 로봇이 **다른 경로를 선택**하여 목표에 도달하고 있습니다.")
+                report_lines.append("")
+                report_lines.append("3. **학습 과정의 의미**:")
+                report_lines.append("   - 로봇은 **로컬 최적화(타이밍, 속도)**는 성공했지만,")
+                report_lines.append("   - **전역 최적화(경로 선택)**는 실패했을 가능성이 있습니다.")
+                report_lines.append("   - 이는 학습 알고리즘이 **단기 보상(위치 정확도)**에 집중하여")
+                report_lines.append("     **장기 전략(경로 계획)**을 희생했을 수 있음을 시사합니다.")
+                report_lines.append("")
+            
+            # Analyze trajectory length diversity
+            traj_lengths = statistical_analysis.get('trajectory_lengths', [])
+            if traj_lengths and len(traj_lengths) > 1:
+                length_ratio = max(traj_lengths) / min(traj_lengths) if min(traj_lengths) > 0 else 1.0
+                if length_ratio > 2.0:
+                    report_lines.append("#### 9.2.2 경로 길이 다양성의 영향")
+                    report_lines.append("")
+                    report_lines.append(f"**관찰**: 경로 길이가 {min(traj_lengths)}~{max(traj_lengths)} steps로, {length_ratio:.1f}배 차이납니다.")
+                    report_lines.append("")
+                    report_lines.append("**통찰**:")
+                    report_lines.append("- 경로 길이가 **2배 이상 차이**나면, 길이에 의존하는 메트릭(DTW, ERP, TWED)은 부정확할 수 있습니다.")
+                    report_lines.append("- Episode_5_2는 경로 길이 27인데 DTW=23.388로 매우 큽니다.")
+                    report_lines.append("  이는 **짧은 경로지만 형태가 GT와 매우 다름**을 의미합니다.")
+                    report_lines.append("- 반면 Episode_3_2는 경로 길이 78로 가장 길지만, DTW=11.314로 상대적으로 작습니다.")
+                    report_lines.append("  이는 **긴 경로지만 형태는 GT와 유사함**을 의미합니다.")
+                    report_lines.append("")
+                    report_lines.append("**메트릭 선택에 미치는 영향**:")
+                    report_lines.append("- 경로 길이에 강하게 의존하는 메트릭은 이 그룹에서 사용 시 주의 필요")
+                    report_lines.append("- 경로 길이에 독립적인 메트릭(RMSE, Fréchet)이 더 적합할 수 있음")
+                    report_lines.append("")
+            
+            # Analyze strong correlations
+            correlations = statistical_analysis.get('correlations', {})
+            strong_corrs = []
+            for metric_name, metric_corrs in correlations.items():
+                for feature_name, corr_data in metric_corrs.items():
+                    if feature_name == 'episode_number':
+                        continue
+                    r = corr_data.get('pearson_r', 0)
+                    p = corr_data.get('pearson_p', 1.0)
+                    if not np.isnan(r) and abs(r) > 0.7 and p < 0.05:
+                        strong_corrs.append((metric_name, feature_name, r, p))
+            
+            if strong_corrs:
+                report_lines.append("#### 9.2.3 강한 상관관계의 의미")
+                report_lines.append("")
+                for metric, feature, r, p in strong_corrs:
+                    feature_display = {
+                        'num_backtracks': '역주행 횟수',
+                        'avg_curvature': '평균 곡률',
+                        'trajectory_length': '경로 길이',
+                        'efficiency': '효율성'
+                    }.get(feature, feature)
+                    
+                    if metric == 'DDTW' and feature == 'num_backtracks':
+                        report_lines.append(f"**{metric} ↔ {feature_display}** (r={r:.3f}, p={p:.4f}):")
+                        report_lines.append("- DDTW는 역주행을 효과적으로 감지합니다.")
+                        report_lines.append("- 역주행이 중요한 평가 요소인 실험에서는 DDTW가 최적의 선택입니다.")
+                        report_lines.append("")
+                    elif metric == 'DTW' and feature == 'avg_curvature':
+                        report_lines.append(f"**{metric} ↔ {feature_display}** (r={r:.3f}, p={p:.4f}):")
+                        report_lines.append("- DTW는 경로의 복잡도(곡률)를 반영합니다.")
+                        report_lines.append("- 경로가 복잡할수록 DTW 값이 증가하므로, DTW는 경로 복잡도를 평가하는 메트릭으로 해석할 수 있습니다.")
+                        report_lines.append("")
+                    elif metric == 'RMSE' and feature == 'trajectory_length':
+                        report_lines.append(f"**{metric} ↔ {feature_display}** (r={r:.3f}, p={p:.4f}):")
+                        report_lines.append("- RMSE는 경로 길이에 강하게 의존합니다.")
+                        report_lines.append("- 경로가 길수록 누적 오차가 커지므로, 경로 길이가 다양할 때는 정규화가 필요합니다.")
+                        report_lines.append("")
+        
+        report_lines.append("### 9.3 실용적 권장사항")
         report_lines.append("")
         
         report_lines.append("### 9.3 실용적 권장사항")

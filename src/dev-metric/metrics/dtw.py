@@ -1,21 +1,25 @@
 """
 DTW (Dynamic Time Warping) metric.
 
-Standard DTW algorithm with Euclidean distance.
+Standard DTW algorithm using dtaidistance library (C-based fast computation).
 """
 
 import numpy as np
 from typing import Union
 
-
-def euclidean_distance(p1: np.ndarray, p2: np.ndarray) -> float:
-    """Calculate Euclidean distance between two points."""
-    return float(np.linalg.norm(p1 - p2))
+try:
+    from dtaidistance import dtw_ndim
+    HAS_DTAIDISTANCE = True
+except ImportError:
+    HAS_DTAIDISTANCE = False
+    print("Warning: dtaidistance not available. Install with: pip install dtaidistance")
 
 
 def dtw_distance(trajectory1: np.ndarray, trajectory2: np.ndarray) -> float:
     """
-    Calculate DTW distance between two trajectories.
+    Calculate DTW distance between two trajectories using dtaidistance library.
+    
+    Uses C-based fast computation for improved performance.
     
     Args:
         trajectory1: First trajectory, shape (N, 2) with [x, y] coordinates
@@ -23,28 +27,31 @@ def dtw_distance(trajectory1: np.ndarray, trajectory2: np.ndarray) -> float:
         
     Returns:
         DTW distance (non-negative float)
+        
+    Raises:
+        ImportError: If dtaidistance is not installed
     """
+    if not HAS_DTAIDISTANCE:
+        raise ImportError(
+            "dtaidistance is required. Install with: pip install dtaidistance"
+        )
+    
     if len(trajectory1) == 0 or len(trajectory2) == 0:
         return np.inf
     
-    n = len(trajectory1)
-    m = len(trajectory2)
+    # dtaidistance expects 2D array where each row is a time point
+    # and columns are features (x, y coordinates)
+    # This matches our trajectory format
     
-    # Initialize cost matrix
-    cost_matrix = np.full((n + 1, m + 1), np.inf)
-    cost_matrix[0, 0] = 0.0
-    
-    # Fill cost matrix
-    for i in range(1, n + 1):
-        for j in range(1, m + 1):
-            # Cost of matching trajectory1[i-1] with trajectory2[j-1]
-            cost = euclidean_distance(trajectory1[i-1], trajectory2[j-1])
-            
-            # Take minimum of three possible paths
-            cost_matrix[i, j] = cost + min(
-                cost_matrix[i-1, j],      # Insertion
-                cost_matrix[i, j-1],      # Deletion
-                cost_matrix[i-1, j-1]    # Match
-            )
-    
-    return float(cost_matrix[n, m])
+    try:
+        # dtaidistance requires double precision for 2D trajectories
+        traj1_double = np.asarray(trajectory1, dtype=np.double)
+        traj2_double = np.asarray(trajectory2, dtype=np.double)
+        
+        # Use dtw_ndim for multi-dimensional trajectories
+        distance = dtw_ndim.distance_fast(traj1_double, traj2_double)
+        return float(distance)
+    except Exception as e:
+        # Fallback: if there's an error, return inf
+        print(f"Error computing DTW: {e}")
+        return np.inf
