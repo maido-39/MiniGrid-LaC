@@ -1,2 +1,3 @@
-## Mission
-Your mission is: **$mission**
+## MISSION
+Your mission is:
+**$mission**

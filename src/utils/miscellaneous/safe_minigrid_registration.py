@@ -1,12 +1,14 @@
 ######################################################
 #                                                    #
-#                      MiniGrid-LaC                  #
-#                        PROGRAM                     #
+#                     SAFE MINIGRID                  #
+#                     REGISTRATION                   #
 #                                                    #
 ######################################################
 
 
-"""Main Program"""
+"""
+This program aims to safely register a custom MiniGrid environment.
+"""
 
 
 
@@ -34,6 +36,7 @@ from utils.miscellaneous.global_variables import ENV_ID
 
 def safe_minigrid_reg():
     """
+    Safely register a custom MiniGrid environment if not already registered.
     """
     
     if ENV_ID not in registry:

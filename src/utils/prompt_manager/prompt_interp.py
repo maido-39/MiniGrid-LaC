@@ -6,7 +6,18 @@
 ######################################################
 
 
-""""""
+"""
+Module for interpreting prompt inputs and performing variable substitution in prompt templates.
+
+This module provides functions to load prompt templates from files, perform security checks, and substitute variables dynamically.
+It is designed to be flexible and future-proof, allowing easy addition or removal of variables without changing the core logic.
+
+Functions
+---------
+- file_checking: Perform security and existence checks on prompt file paths.
+- mission_input_interp: Interpret user input for mission prompts, handling direct text or file paths.
+- system_prompt_interp: Load and render prompt templates with variable substitution.
+"""
 
 
 
@@ -18,7 +29,6 @@
 ######################################################
 
 
-import os
 import re
 from pathlib import Path
 from string import Template

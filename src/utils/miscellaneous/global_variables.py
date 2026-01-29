@@ -6,7 +6,9 @@
 ######################################################
 
 
-""""""
+"""
+Global variables for MiniGrid-LaC project.
+"""
 
 
 
@@ -58,7 +60,7 @@ USE_VERBALIZED_ENTROPY = True
 # Map Configuration
 # MAP_FILE_NAME: 사용할 맵 파일 이름 (config/ 디렉토리 아래에 있어야 함)
 #   예: "example_map.json", "scenario135_example_map.json"
-MAP_FILE_NAME = "example_map.json"
+MAP_FILE_NAME = "scenario_2_4_map.json"
 
 # Mission/Task Setup
 DEFAULT_INITIAL_MISSION = "Explore your surroundings and gather as much information as possible."
@@ -94,7 +96,7 @@ GROUNDING_MERGE_FORMAT = "txt"  # "txt" | "json" | "both"
 # JSON 파일 예시(RECOMMENDED): "logs/grounding/grounding_latest.json,logs/grounding/episode1_grounding.json"
 # 혼합 예시: "logs/grounding/grounding_latest.txt,logs/grounding/grounding_latest.json"
 # GROUNDING_FILE_PATH = "logs/scenario2_absolute_example_map_20260123_170550/episode_1_20260123_170552_scenario2_test_absolutemove_modularized/grounding_episode_1.txt,logs/scenario2_absolute_example_map_20260123_165532/episode_1_20260123_165535_scenario2_test_absolutemove_modularized/grounding_episode_1.txt"  # None | str | List[str] | "file1.txt,file2.txt"
-GROUNDING_FILE_PATH = "logs_good/Hogun/episode1/grounding/grounding_latest.txt,logs_good/Hogun/episode1/grounding/grounding_latest.txt"
+GROUNDING_FILE_PATH = "logs_good/Stan/Predefined_Grounding_Scenario_2/grounding/predefined_grounding.txt"
 
 # 현재 에피소드에서 생성된 Grounding은 다음 에피소드부터 사용 가능 (즉석 적용 안 됨)
 # 여러 파일 지원: 쉼표로 구분된 문자열 또는 리스트 형식

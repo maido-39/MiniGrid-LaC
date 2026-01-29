@@ -1,7 +1,8 @@
-## System Prompt Used
+## SYSTEM PROMPT USED
 $system_prompt
 
-## User Feedback
-feedback : $user_feedback
+## USER FEEDBACK
+Feedback : $user_feedback
+
 
 Please analyze the feedback and generate concise knowledge to improve future actions.
