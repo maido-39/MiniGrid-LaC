@@ -6,7 +6,11 @@
 ######################################################
 
 
-""""""
+"""
+Scenario Experiment Runner - Absolute Coordinate Version
+
+This program implements the main class for running scenario experiments.
+"""
 
 
 
@@ -68,7 +72,9 @@ from utils.miscellaneous.grounding_file_manager import GroundingFileManager
 
 
 class ScenarioExperiment:
-    """Scenario 2 Experiment Main Class (Runner) - Absolute Coordinate Version"""
+    """
+    Scenario 2 Experiment Main Class (Runner) - Absolute Coordinate Version
+    """
     
     def __init__(self,
                  log_dir: Path = None,
@@ -149,6 +155,7 @@ class ScenarioExperiment:
         logprobs는 Vertex AI Gemini(-vertex/-logprobs) 모델에서만 사용.
         Gemini 인증 방법(GCP key 또는 API key)도 global_variables 설정에 따라 결정.
         """
+        
         import os
         
         model_lower = (self.vlm_model or "").lower()
@@ -208,6 +215,11 @@ class ScenarioExperiment:
     def _evaluate_feedback(self, user_prompt: str) -> bool:
         """
         Feedback Evaluation (Internal Method)
+        
+        Args:
+            user_prompt: 사용자 입력 문자열
+        Returns:
+            Feedback 제공 여부
         """
         
         if not user_prompt or not isinstance(user_prompt, str):

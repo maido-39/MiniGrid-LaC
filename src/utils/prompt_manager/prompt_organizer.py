@@ -6,7 +6,11 @@
 ######################################################
 
 
-""""""
+"""
+Prompt Organizer for MiniGrid-LaC
+- Handles system prompt generation, grounding knowledge management, and user prompt input
+- Absolute Coordinate Version
+"""
 
 
 

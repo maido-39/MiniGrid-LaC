@@ -6,7 +6,11 @@
 ######################################################
 
 
-""""""
+"""
+Episode Manager Module
+
+This module provides the EpisodeManager class for managing episode data, including saving and loading episode information in JSON format.
+"""
 
 
 

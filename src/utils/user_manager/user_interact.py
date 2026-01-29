@@ -6,7 +6,11 @@
 ######################################################
 
 
-""""""
+"""
+User Interaction Module
+
+This module handles user interactions such as receiving input from the user.
+"""
 
 
 

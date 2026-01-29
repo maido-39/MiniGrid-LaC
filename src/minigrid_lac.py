@@ -6,7 +6,13 @@
 ######################################################
 
 
-"""Main Program"""
+"""
+MiniGrid-LaC Main Program
+-------------------------
+
+This program initializes and runs the MiniGrid-LaC environment, which is designed for scenario-based experiments using the MiniGrid framework.
+It supports loading custom map configurations and provides a terminal-based interface for user interaction.
+"""
 
 
 
@@ -50,18 +56,18 @@ def main():
     """Main function"""
     import sys
     
-        if len(sys.argv) > 1:
-            if sys.argv[1] == "--help" or sys.argv[1] == "-h":
-                tfu.cprint("-- Usage Instructions --", tfu.LIGHT_GREEN, True)
-                tfu.cprint("python minigrid_lac.py <json_map_path>", tfu.LIGHT_RED, italic=True, indent=8)
-                tfu.cprint(f"Example: python minigrid_lac.py config/{MAP_FILE_NAME}", tfu.LIGHT_BLACK, italic=True)
-                tfu.cprint(f"Default: Uses MAP_FILE_NAME from global_variables.py (currently: {MAP_FILE_NAME})", tfu.LIGHT_BLACK, italic=True)
-                return
-            else:
-                json_map_path = sys.argv[1]
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--help" or sys.argv[1] == "-h":
+            tfu.cprint("-- Usage Instructions --", tfu.LIGHT_GREEN, True)
+            tfu.cprint("python minigrid_lac.py <json_map_path>", tfu.LIGHT_RED, italic=True, indent=8)
+            tfu.cprint(f"Example: python minigrid_lac.py config/{MAP_FILE_NAME}", tfu.LIGHT_BLACK, italic=True)
+            tfu.cprint(f"Default: Uses MAP_FILE_NAME from global_variables.py (currently: {MAP_FILE_NAME})", tfu.LIGHT_BLACK, italic=True)
+            return
         else:
-            # Use global MAP_FILE_NAME (will be set to config/{MAP_FILE_NAME} in ScenarioExperiment.__init__)
-            json_map_path = None
+            json_map_path = sys.argv[1]
+    else:
+        # Use global MAP_FILE_NAME (will be set to config/{MAP_FILE_NAME} in ScenarioExperiment.__init__)
+        json_map_path = None
     
     try:
         experiment = ScenarioExperiment(json_map_path = json_map_path)

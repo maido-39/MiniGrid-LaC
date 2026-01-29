@@ -5,7 +5,11 @@
 ######################################################
 
 
-""""""
+"""
+Visualizer Module
+
+This module provides visualization utilities for the MiniGrid-LaC environment.
+"""
 
 
 
