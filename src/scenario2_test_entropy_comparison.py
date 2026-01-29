@@ -387,6 +387,8 @@ class EntropyComparisonExperiment(ScenarioExperiment):
                           if r.get('action_logprobs_info', {}).get('action_logprobs'))
         tfu.cprint(f"\n[Entropy Comparison] {success_count}/3 VLM calls returned valid data", 
                   tfu.LIGHT_GREEN if success_count == 3 else tfu.LIGHT_YELLOW, bold=True)
+        if success_count == 0:
+            tfu.cprint("[Hint] Entropy/Trust require logprobs. Use Vertex AI Gemini with LOGPROBS_ENABLED=True in global_variables.py.", tfu.LIGHT_BLACK, italic=True)
         
         # Calculate entropies
         self.entropy_H_X = self._calculate_entropy_from_logprobs(H_X_result.get('action_logprobs_info', {}))
@@ -633,78 +635,6 @@ class EntropyComparisonExperiment(ScenarioExperiment):
         # Update logprobs info from H(X|L,S) result for logging
         self.logprobs_metadata = H_X_given_LS_result.get('logprobs_metadata', {})
         self.action_logprobs_info = H_X_given_LS_result.get('action_logprobs_info', {})
-        
-        # 새 Grounding 시스템: Step Feedback 수집 (부모 클래스 로직 추가)
-        feedback_dict = None
-        is_termination = False
-        
-        if getattr(self, 'use_new_grounding_system', False) and getattr(self, 'episode_manager', None) is not None:
-            # Instruction 추출 (user_prompt에서)
-            instruction = self.user_prompt if self.user_prompt else "Continue mission"
-            
-            # Status 결정
-            if self.last_action_result.get("success", True):
-                status = "SUCCESS"
-            else:
-                status = "FAILURE"
-            
-            # Step Feedback 수집
-            feedback_dict, is_termination = self._collect_step_feedback(
-                step_id=self.step,
-                instruction=instruction
-            )
-            
-            # 종료 명령 확인
-            if is_termination:
-                tfu.cprint("\n[Episode Termination] User requested episode end.", tfu.LIGHT_YELLOW, True)
-                self.done = True
-                if self.episode_manager:
-                    self.episode_manager.set_termination_reason("user_command")
-            
-            # Feedback이 있으면 저장
-            if feedback_dict:
-                # EpisodeManager에 Step 추가
-                action_info = {
-                    "index": int(self.action_index),
-                    "name": str(self.action_name)
-                }
-                # Convert numpy types to Python native types
-                agent_pos = self.state['agent_pos']
-                if isinstance(agent_pos, np.ndarray):
-                    agent_pos = [int(x) for x in agent_pos.tolist()]
-                else:
-                    agent_pos = [int(x) for x in list(agent_pos)]
-                state_info = {
-                    "agent_pos": agent_pos,
-                    "agent_dir": int(self.state['agent_dir'])
-                }
-                image_path = f"images/step_{self.step:04d}.png"
-                
-                self.episode_manager.add_step(
-                    step_id=self.step,
-                    instruction=instruction,
-                    status=status,
-                    feedback=feedback_dict,
-                    action=action_info,
-                    state=state_info,
-                    image_path=image_path
-                )
-                
-                # GroundingFileManager에 Step feedback 추가
-                if getattr(self, 'grounding_file_manager', None):
-                    self.grounding_file_manager.append_step_feedback(
-                        step_id=self.step,
-                        instruction=instruction,
-                        status=status,
-                        feedback=feedback_dict
-                    )
-                
-                # 이미지 저장 (Episode 폴더 내)
-                if self.episode_manager:
-                    episode_images_dir = self.episode_manager.get_episode_dir() / "images"
-                    image_path_full = episode_images_dir / f"step_{self.step:04d}.png"
-                    img_pil = Image.fromarray(updated_image)
-                    img_pil.save(image_path_full)
         
         self._log_step()
         

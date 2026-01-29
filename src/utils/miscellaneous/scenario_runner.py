@@ -49,17 +49,10 @@ from utils.miscellaneous.global_variables import (
     LOGPROBS_TOPK,
     MAP_FILE_NAME,
     DEBUG,
-    USE_NEW_GROUNDING_SYSTEM,
-    GROUNDING_VLM_MODEL,
-    GROUNDING_VLM_TEMPERATURE,
-    GROUNDING_VLM_MAX_TOKENS,
     GROUNDING_FILE_PATH,
     USE_VERBALIZED_ENTROPY,
     USE_GCP_KEY,
 )
-
-from utils.miscellaneous.episode_manager import EpisodeManager
-from utils.miscellaneous.grounding_file_manager import GroundingFileManager
 
 
 
@@ -124,11 +117,6 @@ class ScenarioExperiment:
         self.state = None
         self.image = None
         
-        # 새 Grounding 시스템 관련 초기화
-        self.use_new_grounding_system = USE_NEW_GROUNDING_SYSTEM
-        self.episode_manager = None
-        self.grounding_file_manager = None
-        self.episode_id = None
         self.user_prompt = ""
         self.vlm_response_raw = ""
         self.vlm_response_parsed = {}
@@ -237,159 +225,6 @@ class ScenarioExperiment:
                 return True
         
         return False
-    
-    def _parse_step_feedback(self, feedback_input: str) -> Tuple[Optional[Dict[str, Optional[str]]], bool]:
-        """
-        Step Feedback 파싱
-        
-        Args:
-            feedback_input: 사용자 입력 문자열
-            
-        Returns:
-            (feedback_dict, is_termination_command)
-            - feedback_dict: {"user_preference": ..., "spatial": ..., "procedural": ..., "general": ...} 또는 None
-            - is_termination_command: 종료 명령 여부
-        """
-        if not feedback_input or not isinstance(feedback_input, str):
-            return None, False
-        
-        feedback_input = feedback_input.strip()
-        
-        # 종료 명령 확인
-        from utils.miscellaneous.global_variables import EPISODE_TERMINATION_KEYWORDS
-        if feedback_input.lower() in [kw.lower() for kw in EPISODE_TERMINATION_KEYWORDS]:
-            return None, True
-        
-        # 형식 파싱: {s/w/f} : (u: ..., s: ..., p: ..., g: ...)
-        import re
-        
-        # 상태 추출 (s/w/f)
-        status_match = re.match(r'^([swfSWF])\s*:\s*\(', feedback_input)
-        if not status_match:
-            return None, False
-        
-        status_char = status_match.group(1).lower()
-        
-        # 괄호 안의 내용 추출
-        content_match = re.search(r'\((.+)\)', feedback_input)
-        if not content_match:
-            return None, False
-        
-        content = content_match.group(1)
-        
-        # 각 타입별 피드백 추출
-        feedback_dict = {
-            "user_preference": None,
-            "spatial": None,
-            "procedural": None,
-            "general": None
-        }
-        
-        # 타입 매핑
-        type_mapping = {
-            'u': 'user_preference',
-            's': 'spatial',
-            'p': 'procedural',
-            'g': 'general'
-        }
-        type_keys = list(type_mapping.keys())
-        
-        # 각 타입별로 다음 타입 구분자나 끝까지 추출
-        for key, feedback_type in type_mapping.items():
-            # 현재 타입 구분자 찾기
-            pattern = rf'{key}\s*:\s*'
-            match = re.search(pattern, content, re.IGNORECASE)
-            if match:
-                start = match.end()
-                # 다음 타입 구분자 찾기 (현재 타입이 아닌 다른 타입들)
-                next_keys = [k for k in type_keys if k.lower() != key.lower()]
-                next_pattern = '|'.join([rf'\s*{k}\s*:' for k in next_keys])
-                end_match = re.search(next_pattern, content[start:], re.IGNORECASE)
-                
-                if end_match:
-                    end = start + end_match.start()
-                else:
-                    end = len(content)
-                
-                # 추출 후 앞뒤 공백 및 마지막 쉼표 제거
-                feedback_text = content[start:end].strip().rstrip(',')
-                if feedback_text:
-                    feedback_dict[feedback_type] = feedback_text
-        
-        return feedback_dict, False
-    
-    def _collect_step_feedback(self, step_id: int, instruction: str) -> tuple[Optional[Dict[str, Optional[str]]], bool]:
-        """
-        Step Feedback 수집
-        
-        Args:
-            step_id: Step 번호
-            instruction: Instruction 내용
-            
-        Returns:
-            (feedback_dict, is_termination_command)
-        """
-        tfu.cprint("\n" + "=" * 80, bold=True)
-        tfu.cprint(f"[Step {step_id} Feedback]", bold=True, indent=8)
-        tfu.cprint("=" * 80 + "\n", bold=True)
-        
-        tfu.cprint(f"Instruction: {instruction}", tfu.LIGHT_BLUE)
-        tfu.cprint("Status changed image displayed above.\n", tfu.LIGHT_BLACK)
-        
-        # Feedback format and examples - visually enhanced
-        tfu.cprint("─" * 80, tfu.LIGHT_WHITE)
-        tfu.cprint("📋 Feedback Format & Grounding Stacking", tfu.LIGHT_WHITE, bold=True)
-        tfu.cprint("─" * 80, tfu.LIGHT_WHITE)
-        
-        tfu.cprint("\n  Format:", tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("    >> {s/f/w}:(u: (feedback), s: (feedback), p: (feedback), g: (feedback))", tfu.LIGHT_YELLOW)
-        
-        tfu.cprint("\n  Status Codes & Elements:", tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("    " + "s (Success)".ljust(25) + ": Entering the target area", tfu.LIGHT_GREEN)
-        tfu.cprint("      " + "→ Reasons for Success", tfu.LIGHT_BLACK)
-        tfu.cprint("      " + "  Example: " + "[Reason]", tfu.LIGHT_YELLOW, bold=True, underline=True)
-        tfu.cprint("    " + "f (Failure)".ljust(25) + ": Taking an abnormal path as judged by a human observer", tfu.LIGHT_RED)
-        tfu.cprint("      " + "→ Reasons for Failure and Next Plan", tfu.LIGHT_BLACK)
-        tfu.cprint("      " + "  Example: " + "[Reason]. [The PLAN to be carried out in the next episode].", tfu.LIGHT_YELLOW, bold=True, underline=True)
-        tfu.cprint("    " + "w (Work in Progress)".ljust(25) + ": When simply moving to the target room", tfu.LIGHT_YELLOW)
-        tfu.cprint("      " + "→ Feedback not required (Null)", tfu.LIGHT_BLACK)
-        
-        tfu.cprint("\n  Feedback Types:", tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("    " + "u".ljust(5) + "= User Preference", tfu.LIGHT_BLUE)
-        tfu.cprint("    " + "s".ljust(5) + "= Spatial", tfu.LIGHT_MAGENTA)
-        tfu.cprint("    " + "p".ljust(5) + "= Procedural", tfu.LIGHT_CYAN)
-        tfu.cprint("    " + "g".ljust(5) + "= General", tfu.LIGHT_WHITE)
-        
-        tfu.cprint("\n  Notes:", tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("    • You only need to write the necessary elements (u, s, p, g)", tfu.LIGHT_BLACK, italic=True)
-        tfu.cprint("    • Colon spacing is optional: 's:' or 's :' both work", tfu.LIGHT_BLACK, italic=True)
-        
-        tfu.cprint("\n  Examples:", tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("    " + ">> s:(u: Spicy preference. Add Pepper., s: , p: )", tfu.LIGHT_BLACK)
-        tfu.cprint("    " + ">> f:(u: , s: , g: Wall blocking movement, failed)", tfu.LIGHT_BLACK)
-        tfu.cprint("    " + ">> w:", tfu.LIGHT_BLACK)
-        
-        tfu.cprint("\n" + "─" * 80, tfu.LIGHT_WHITE)
-        tfu.cprint("종료하려면: end", tfu.LIGHT_YELLOW, bold=True)
-        
-        # 눈에 띄는 feedback 입력 프롬프트
-        tfu.cprint("\n" + "═" * 80, tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("📝 " + " " * 28 + "FEEDBACK 입력" + " " * 28, tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("═" * 80, tfu.LIGHT_CYAN, bold=True)
-        tfu.cprint("\nEnter feedback:", tfu.LIGHT_CYAN, bold=True)
-        
-        # 색상이 적용된 입력 프롬프트
-        sys.stdout.write(f"{Fore.LIGHTCYAN_EX}{Style.BRIGHT}> {Style.RESET_ALL}")
-        sys.stdout.flush()
-        user_input = input().strip()
-        
-        if not user_input:
-            return None, False
-        
-        # 파싱
-        feedback_dict, is_termination = self._parse_step_feedback(user_input)
-        
-        return feedback_dict, is_termination
     
     def _format_carrying_object(self, carrying_obj) -> str:
         """
@@ -625,270 +460,6 @@ class ScenarioExperiment:
             tfu.cprint("\n" + "=" * 80, bold=True)
         
         return knowledge
-    
-    def _create_grounding_vlm_processor(self) -> VLMProcessor:
-        """
-        Grounding 생성 전용 VLMProcessor 생성
-        Gemini 인증 방법(GCP key 또는 API key)도 global_variables 설정에 따라 결정.
-        
-        Returns:
-            VLMProcessor 인스턴스
-        """
-        grounding_model = GROUNDING_VLM_MODEL if GROUNDING_VLM_MODEL else VLM_MODEL
-        model_lower = (grounding_model or "").lower()
-        
-        # Gemini 인증 방법 결정 (GCP key 또는 API key)
-        credentials = None
-        vertexai = False
-        project_id = None
-        location = None
-        
-        # Gemini 모델인 경우에만 인증 방법 확인
-        if model_lower.startswith("gemini"):
-            # Vertex AI 모델인 경우: 항상 GCP key 사용
-            if "-vertex" in model_lower or "-logprobs" in model_lower:
-                vertexai = True
-                project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
-                location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
-            else:
-                # 일반 Gemini 모델인 경우: USE_GCP_KEY=True면 Vertex AI 경로로 강제 전환
-                if USE_GCP_KEY:
-                    vertexai = True
-                    project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
-                    location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
-        
-        return VLMProcessor(
-            model=grounding_model,
-            temperature=GROUNDING_VLM_TEMPERATURE,
-            max_tokens=GROUNDING_VLM_MAX_TOKENS,
-            debug=self.debug,
-            vertexai=vertexai,
-            credentials=credentials,
-            project_id=project_id,
-            location=location,
-        )
-    
-    def _generate_grounding_from_episode(self):
-        """
-        에피소드 종료 시 일괄 Grounding 생성
-        """
-        if not self.episode_manager or not self.grounding_file_manager:
-            return
-        
-        tfu.cprint("\n" + "=" * 80, bold=True)
-        tfu.cprint("[Grounding Generation]", bold=True)
-        tfu.cprint("=" * 80 + "\n", bold=True)
-        tfu.cprint("Generating grounding from episode feedbacks...", tfu.LIGHT_BLACK)
-        
-        # GroundingFileManager에서 stacked_grounding 데이터 가져오기 (Status 포함)
-        stacked_grounding = self.grounding_file_manager.get_stacked_grounding()
-        
-        # Grounding 생성 시에는 항상 현재 에피소드 피드백만 사용
-        # 이전 Grounding은 다음 에피소드의 Action 생성 시에만 사용됨
-        previous_grounding = ""
-        tfu.cprint(f"[Grounding] Using only current episode feedbacks for grounding generation", tfu.LIGHT_CYAN)
-        
-        # 프롬프트 준비
-        system_prompt = system_prompt_interp(
-            file_name="grounding_generation_prompt.txt",
-            strict=True
-        )
-        
-        # User prompt 준비 (stacked_grounding에서 가져오기, 이미 Status 포함된 형식)
-        user_preference_feedbacks = "\n".join(stacked_grounding.get("user_preference", [])) or "None"
-        spatial_feedbacks = "\n".join(stacked_grounding.get("spatial", [])) or "None"
-        procedural_feedbacks = "\n".join(stacked_grounding.get("procedural", [])) or "None"
-        general_feedbacks = "\n".join(stacked_grounding.get("general", [])) or "None"
-        
-        # Grounding 생성 시에는 항상 현재 에피소드 피드백만 사용
-        # 이전 Grounding은 다음 에피소드의 Action 생성 시에만 사용됨
-        previous_grounding_display = "None (Only current episode feedbacks will be used)"
-        
-        user_prompt = system_prompt_interp(
-            file_name="grounding_generation_user_prompt.txt",
-            strict=True,
-            episode_id=self.episode_id,
-            total_steps=self.episode_manager.episode_data["total_steps"],
-            user_preference_feedbacks=user_preference_feedbacks,
-            spatial_feedbacks=spatial_feedbacks,
-            procedural_feedbacks=procedural_feedbacks,
-            general_feedbacks=general_feedbacks,
-            previous_grounding=previous_grounding_display
-        )
-        
-        # 초기 상태 이미지 가져오기
-        initial_image_path = self.episode_manager.get_initial_state_image_path()
-        initial_image = None
-        if initial_image_path and self.episode_manager:
-            episode_dir = self.episode_manager.get_episode_dir()
-            full_image_path = episode_dir / initial_image_path
-            if full_image_path.exists():
-                initial_image = np.array(Image.open(full_image_path))
-        
-        # VLM 호출
-        grounding_processor = self._create_grounding_vlm_processor()
-        
-        tfu.cprint("\n[Sending Grounding Generation Request to VLM...]", tfu.LIGHT_BLACK)
-        
-        raw_response = grounding_processor.requester(
-            image=initial_image,
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            debug=self.debug
-        )
-        
-        if not raw_response:
-            tfu.cprint("[Warning] Grounding VLM response is empty!", tfu.LIGHT_RED)
-            return
-        
-        tfu.cprint("Grounding VLM Response Received", tfu.LIGHT_GREEN, indent=8)
-        
-        # 파싱
-        tfu.cprint("\n[Parsing Grounding Response...]\n", tfu.LIGHT_BLACK)
-        
-        # JSON 파싱 시도
-        try:
-            import json
-            # JSON 블록 추출
-            json_match = None
-            if "```json" in raw_response:
-                import re
-                json_match = re.search(r'```json\s*(.*?)\s*```', raw_response, re.DOTALL)
-            elif "```" in raw_response:
-                import re
-                json_match = re.search(r'```\s*(.*?)\s*```', raw_response, re.DOTALL)
-            else:
-                json_match = re.search(r'\{.*\}', raw_response, re.DOTALL)
-            
-            if json_match:
-                parsed = json.loads(json_match.group(1))
-            else:
-                parsed = json.loads(raw_response)
-        except Exception as e:
-            tfu.cprint(f"[Error] Failed to parse grounding response: {e}", tfu.RED, True)
-            tfu.cprint(f"Raw response: {raw_response[:500]}...", tfu.LIGHT_RED)
-            return
-        
-        # Final Grounding 저장
-        if parsed:
-            # 입력이 없으면 빈 문자열로 설정 (임의의 내용 채우지 않음)
-            for key in ["user_preference_grounding", "spatial_grounding", "procedural_grounding", "general_grounding_rules"]:
-                if key in parsed and isinstance(parsed[key], dict):
-                    content = parsed[key].get("content", "")
-                    # "No specific", "None provided" 등의 placeholder 텍스트를 빈 문자열로 변환
-                    if content and any(placeholder in content.lower() for placeholder in ["no specific", "none provided", "no ", "were provided"]):
-                        parsed[key]["content"] = ""
-            
-            self.episode_manager.set_final_grounding(parsed)
-            self.grounding_file_manager.save_final_grounding(parsed)
-            tfu.cprint("\n[Grounding Generation Complete]", tfu.LIGHT_GREEN, True)
-        else:
-            tfu.cprint("[Warning] No grounding generated", tfu.LIGHT_RED)
-    
-    def _generate_reflexion(self):
-        """
-        Reflexion 생성 (에피소드 종료 시)
-        """
-        if not self.episode_manager:
-            return
-        
-        tfu.cprint("\n" + "=" * 80, bold=True)
-        tfu.cprint("[Reflexion Generation]", bold=True)
-        tfu.cprint("=" * 80 + "\n", bold=True)
-        tfu.cprint("Generating reflexion from episode trajectory...", tfu.LIGHT_BLACK)
-        
-        # Episode 데이터 가져오기
-        episode_data = self.episode_manager.episode_data
-        all_steps = self.episode_manager.get_all_steps()
-        final_grounding = episode_data.get("final_grounding", {})
-        
-        # Trajectory 요약 생성
-        trajectory_str = "\n".join([
-            f"Step {step['step_id']}: {step['instruction']} - {step['status']}"
-            for step in all_steps
-        ])
-        
-        # Feedbacks 요약 (grounding_per_step에서 가져오기)
-        all_steps = self.episode_manager.get_all_steps()
-        feedbacks_str = "\n".join([
-            f"Step {step['step_id']} ({step['status']}): {step.get('instruction', '')} - {', '.join([f'{k}: {v}' for k, v in step.get('feedback', {}).items() if v])}"
-            for step in all_steps
-            if step.get('feedback')
-        ]) or "None"
-        
-        # Final Grounding 문자열화
-        final_grounding_str = ""
-        if final_grounding:
-            for key, value in final_grounding.items():
-                if isinstance(value, dict) and "content" in value:
-                    final_grounding_str += f"{key}: {value['content']}\n"
-        
-        # 프롬프트 준비
-        system_prompt = system_prompt_interp(
-            file_name="reflexion_prompt.txt",
-            strict=True
-        )
-        
-        user_prompt = system_prompt_interp(
-            file_name="reflexion_user_prompt.txt",
-            strict=True,
-            episode_id=self.episode_id,
-            total_steps=episode_data["total_steps"],
-            termination_reason=episode_data.get("termination_reason", "unknown"),
-            episode_trajectory=trajectory_str,
-            step_feedbacks=feedbacks_str,
-            final_grounding=final_grounding_str or "None"
-        )
-        
-        # VLM 호출
-        tfu.cprint("\n[Sending Reflexion Generation Request to VLM...]", tfu.LIGHT_BLACK)
-        
-        raw_response = self.vlm_processor.requester(
-            image=None,
-            system_prompt=system_prompt,
-            user_prompt=user_prompt,
-            debug=self.debug
-        )
-        
-        if not raw_response:
-            tfu.cprint("[Warning] Reflexion VLM response is empty!", tfu.LIGHT_RED)
-            return
-        
-        tfu.cprint("Reflexion VLM Response Received", tfu.LIGHT_GREEN, indent=8)
-        
-        # 파싱
-        tfu.cprint("\n[Parsing Reflexion Response...]\n", tfu.LIGHT_BLACK)
-        
-        try:
-            import json
-            import re
-            # JSON 블록 추출
-            json_match = None
-            if "```json" in raw_response:
-                json_match = re.search(r'```json\s*(.*?)\s*```', raw_response, re.DOTALL)
-            elif "```" in raw_response:
-                json_match = re.search(r'```\s*(.*?)\s*```', raw_response, re.DOTALL)
-            else:
-                json_match = re.search(r'\{.*\}', raw_response, re.DOTALL)
-            
-            if json_match:
-                parsed = json.loads(json_match.group(1))
-            else:
-                parsed = json.loads(raw_response)
-            
-            # 필수 필드 확인
-            reflexion = {
-                "trajectory_summary": parsed.get("trajectory_summary", ""),
-                "error_diagnosis": parsed.get("error_diagnosis", ""),
-                "correction_plan": parsed.get("correction_plan", "")
-            }
-            
-            self.episode_manager.set_reflexion(reflexion)
-            tfu.cprint("\n[Reflexion Generation Complete]", tfu.LIGHT_GREEN, True)
-            
-        except Exception as e:
-            tfu.cprint(f"[Error] Failed to parse reflexion response: {e}", tfu.RED, True)
-            tfu.cprint(f"Raw response: {raw_response[:500]}...", tfu.LIGHT_RED)
     
     def _get_system_prompt_without_grounding(self, wrapper=None, last_action_result=None) -> str:
         """
@@ -1425,24 +996,6 @@ class ScenarioExperiment:
         is_pickup_json = (self.action_name.lower() in ['pickup', 'pick up'] or self.action_index == 4)
         is_drop_json = (self.action_name.lower() in ['drop'] or self.action_index == 5)
         
-        # 새 Grounding 시스템: 현재 step의 feedback 정보 가져오기
-        step_feedback_info = None
-        if self.use_new_grounding_system and self.episode_manager:
-            # 현재 step_id와 일치하는 step 찾기
-            all_steps = self.episode_manager.get_all_steps()
-            current_step_data = None
-            for step_data in all_steps:
-                if step_data.get("step_id") == self.step:
-                    current_step_data = step_data
-                    break
-            
-            if current_step_data:
-                step_feedback_info = {
-                    "feedback": current_step_data.get("feedback", {}),
-                    "status": current_step_data.get("status", ""),
-                    "instruction": current_step_data.get("instruction", "")
-                }
-        
         json_data = {
             "step": self.step,
             "timestamp": timestamp,
@@ -1498,9 +1051,6 @@ class ScenarioExperiment:
             json_data["trust_T"] = None
         
         # 새 Grounding 시스템: step feedback 정보 추가
-        if step_feedback_info:
-            json_data["step_feedback"] = step_feedback_info
-        
         all_data = []
         if json_path.exists():
             with open(json_path, 'r', encoding='utf-8') as f:
@@ -1533,27 +1083,6 @@ class ScenarioExperiment:
         tfu.cprint("Scenario 2: VLM Control Experiment (Absolute Coordinate Movement Version)", bold=True)
         tfu.cprint("\n" + "=" * 80 + "\n", bold=True)
         
-        # 새 Grounding 시스템 사용 시 Episode 번호 입력
-        if self.use_new_grounding_system:
-            tfu.cprint("\n[Episode Setup]", bold=True)
-            tfu.cprint("Enter Episode number:", tfu.LIGHT_WHITE)
-            episode_input = input("> ").strip()
-            
-            try:
-                self.episode_id = int(episode_input)
-            except ValueError:
-                tfu.cprint(f"[Warning] Invalid episode number '{episode_input}'. Using episode 1.", tfu.LIGHT_RED)
-                self.episode_id = 1
-            
-            # EpisodeManager 및 GroundingFileManager 초기화
-            self.episode_manager = EpisodeManager(self.episode_id, self.log_dir)
-            self.grounding_file_manager = GroundingFileManager(
-                self.episode_manager.get_episode_dir(),
-                self.episode_id
-            )
-            tfu.cprint(f"Episode {self.episode_id} initialized", tfu.LIGHT_GREEN)
-            tfu.cprint(f"Episode directory: {self.episode_manager.get_episode_dir()}", tfu.LIGHT_BLACK, italic=True)
-        
         tfu.cprint(f"\nMission: {DEFAULT_MISSION}", tfu.LIGHT_BLACK, italic=True)
         tfu.cprint("\nAction Space: Direct movement possible up/down/left/right (absolute coordinates)", tfu.LIGHT_BLACK, italic=True)
         tfu.cprint(f"\nLog directory: {self.log_dir}", tfu.LIGHT_BLACK, italic=True)
@@ -1580,11 +1109,6 @@ class ScenarioExperiment:
             "failure_reason": "",
             "position_changed": True
         }
-        
-        # 새 Grounding 시스템: 초기 상태 이미지 저장
-        if self.use_new_grounding_system and self.episode_manager:
-            initial_image = self.wrapper.get_image()
-            self.episode_manager.save_initial_state_image(initial_image)
         
         # Action Spatial Information Output
         action_space = self.wrapper.get_absolute_action_space()
@@ -1650,10 +1174,10 @@ class ScenarioExperiment:
             tfu.cprint("\n[4-1] Feedback processing complete! Proceeding to the next step.", tfu.LIGHT_GREEN, True)
             return True
         
-        # Grounding 파일 경로 가져오기 (새 Grounding 시스템 사용 시)
+        # Grounding 파일 경로 가져오기 (GROUNDING_FILE_PATH 설정 시)
         # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열
         grounding_file_path = None
-        if self.use_new_grounding_system and GROUNDING_FILE_PATH:
+        if GROUNDING_FILE_PATH:
             # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열 처리
             if isinstance(GROUNDING_FILE_PATH, str):
                 # 쉼표로 구분된 문자열인 경우 리스트로 변환
@@ -1734,7 +1258,7 @@ class ScenarioExperiment:
                 grounding_file_path = None
         
         # Create a General Action
-        # System Prompt 생성 시 grounding_file_path 전달 (USE_NEW_GROUNDING_SYSTEM=True일 때 System Prompt에 포함됨)
+        # System Prompt 생성 시 grounding_file_path 전달 (GROUNDING_FILE_PATH 설정 시 파일 내용 포함)
         system_prompt = self.prompt_organizer.get_system_prompt_by_mode(
             self.wrapper, 
             self.last_action_result,
@@ -2021,81 +1545,6 @@ class ScenarioExperiment:
         self.image = updated_image
         self.visualizer.display_image(updated_image)
         
-        # 새 Grounding 시스템: Step Feedback 수집
-        feedback_dict = None
-        is_termination = False
-        
-        if self.use_new_grounding_system:
-            if self.episode_manager is None:
-                tfu.cprint(f"\n[Warning] episode_manager is None. Skipping step feedback collection.", tfu.LIGHT_RED)
-            else:
-                # Instruction 추출 (user_prompt에서)
-                instruction = self.user_prompt if self.user_prompt else "Continue mission"
-                
-                # Status 결정
-                if self.last_action_result.get("success", True):
-                    status = "SUCCESS"
-                else:
-                    status = "FAILURE"
-                
-                # Step Feedback 수집
-                feedback_dict, is_termination = self._collect_step_feedback(
-                    step_id=self.step,
-                    instruction=instruction
-                )
-                
-                # 종료 명령 확인
-                if is_termination:
-                    tfu.cprint("\n[Episode Termination] User requested episode end.", tfu.LIGHT_YELLOW, True)
-                    self.done = True
-                    if self.episode_manager:
-                        self.episode_manager.set_termination_reason("user_command")
-                
-                # Feedback이 있으면 저장
-                if feedback_dict:
-                    # EpisodeManager에 Step 추가
-                    action_info = {
-                        "index": int(self.action_index),
-                        "name": str(self.action_name)
-                    }
-                    # Convert numpy types to Python native types
-                    agent_pos = self.state['agent_pos']
-                    if isinstance(agent_pos, np.ndarray):
-                        agent_pos = [int(x) for x in agent_pos.tolist()]
-                    else:
-                        agent_pos = [int(x) for x in list(agent_pos)]
-                    state_info = {
-                        "agent_pos": agent_pos,
-                        "agent_dir": int(self.state['agent_dir'])
-                    }
-                    image_path = f"images/step_{self.step:04d}.png"
-                    
-                    self.episode_manager.add_step(
-                        step_id=self.step,
-                        instruction=instruction,
-                        status=status,
-                        feedback=feedback_dict,
-                        action=action_info,
-                        state=state_info,
-                        image_path=image_path
-                    )
-                    
-                    # GroundingFileManager에 Step feedback 추가
-                    if self.grounding_file_manager:
-                        self.grounding_file_manager.append_step_feedback(
-                            step_id=self.step,
-                            instruction=instruction,
-                            status=status,
-                            feedback=feedback_dict
-                        )
-                    
-                    # 이미지 저장 (Episode 폴더 내)
-                    if self.episode_manager:
-                        episode_images_dir = self.episode_manager.get_episode_dir() / "images"
-                        image_path_full = episode_images_dir / f"step_{self.step:04d}.png"
-                        img_pil = Image.fromarray(updated_image)
-                        img_pil.save(image_path_full)
-        
         self._log_step()
         
         return True
@@ -2120,14 +1569,10 @@ class ScenarioExperiment:
                 tfu.cprint("\n" + "=" * 80)
                 tfu.cprint("Goal scored! Game ended.")
                 tfu.cprint("=" * 80)
-                if self.use_new_grounding_system and self.episode_manager:
-                    self.episode_manager.set_termination_reason("done")
                 break
             
             if self.step >= 100:
                 tfu.cprint("\nThe maximum number of steps (100) has been reached..")
-                if self.use_new_grounding_system and self.episode_manager:
-                    self.episode_manager.set_termination_reason("max_steps")
                 break
             
             if self.step >= 1:
@@ -2139,17 +1584,6 @@ class ScenarioExperiment:
         """
         Resource Cleanup
         """
-        
-        # 새 Grounding 시스템: 에피소드 종료 시 처리
-        if self.use_new_grounding_system and self.episode_manager:
-            # Grounding 생성 (일괄 처리)
-            self._generate_grounding_from_episode()
-            
-            # Reflexion 생성
-            self._generate_reflexion()
-            
-            # Episode 저장
-            self.episode_manager.save()
         
         self.visualizer.cleanup()
         if self.wrapper:

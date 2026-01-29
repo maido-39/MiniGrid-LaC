@@ -69,12 +69,6 @@ DEFAULT_MISSION = "Pursue your current mission!"
 # Path Directory to Prompts Text Files
 PROMPT_DIR = "utils/prompts"
 
-# Grounding System Configuration
-USE_NEW_GROUNDING_SYSTEM = True  # 새 Grounding 시스템 사용 여부
-GROUNDING_GENERATION_MODE = "episode"  # "episode"만 지원 (에피소드 종료 시 일괄 처리)
-GROUNDING_SAVE_FORMAT = "both"  # "json" | "txt" | "both"
-EPISODE_TERMINATION_KEYWORDS = ["end"]  # Episode 종료 키워드
-
 # Grounding Generation VLM Configuration
 # Grounding 생성 전용 모델 설정 (None이면 VLM_MODEL 사용)
 GROUNDING_VLM_MODEL = None  # None | "gpt-4o" | "gemini-2.5-flash" | etc.
@@ -96,7 +90,7 @@ GROUNDING_MERGE_FORMAT = "txt"  # "txt" | "json" | "both"
 # JSON 파일 예시(RECOMMENDED): "logs/grounding/grounding_latest.json,logs/grounding/episode1_grounding.json"
 # 혼합 예시: "logs/grounding/grounding_latest.txt,logs/grounding/grounding_latest.json"
 # GROUNDING_FILE_PATH = "logs/scenario2_absolute_example_map_20260123_170550/episode_1_20260123_170552_scenario2_test_absolutemove_modularized/grounding_episode_1.txt,logs/scenario2_absolute_example_map_20260123_165532/episode_1_20260123_165535_scenario2_test_absolutemove_modularized/grounding_episode_1.txt"  # None | str | List[str] | "file1.txt,file2.txt"
-GROUNDING_FILE_PATH = "logs_good/Stan/Predefined_Grounding_Scenario_2/grounding/predefined_grounding.txt"
+GROUNDING_FILE_PATH = None
 
 # 현재 에피소드에서 생성된 Grounding은 다음 에피소드부터 사용 가능 (즉석 적용 안 됨)
 # 여러 파일 지원: 쉼표로 구분된 문자열 또는 리스트 형식

@@ -70,7 +70,8 @@ class VLMProcessor:
                                       )
         self.debug = debug
         self.logprobs = logprobs
-        self.postprocessor_action = VLMResponsePostProcessor(required_fields=["action", "reasoning", "grounding", "memory"])
+        # grounding, memory are optional (may be missing in truncated responses)
+        self.postprocessor_action = VLMResponsePostProcessor(required_fields=["action", "reasoning"])
         self.postprocessor_feedback = VLMResponsePostProcessor(required_fields=["knowledge"])
     
     def requester(self,

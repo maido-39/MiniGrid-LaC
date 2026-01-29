@@ -41,7 +41,7 @@ from utils.miscellaneous.scenario_runner import ScenarioExperiment
 from utils.miscellaneous.safe_minigrid_registration import safe_minigrid_reg
 from utils.miscellaneous.global_variables import (
     MAP_FILE_NAME, DEBUG, DEFAULT_INITIAL_MISSION, DEFAULT_MISSION,
-    USE_NEW_GROUNDING_SYSTEM, GROUNDING_FILE_PATH
+    GROUNDING_FILE_PATH
 )
 from utils.vlm.vlm_postprocessor import VLMResponsePostProcessor
 
@@ -540,10 +540,10 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
                 "position_changed": True
             }
         
-        # Grounding 파일 경로 가져오기 (새 Grounding 시스템 사용 시)
+        # Grounding 파일 경로 가져오기 (GROUNDING_FILE_PATH 설정 시)
         # scenario_runner.py와 동일한 로직 사용
         grounding_file_path = None
-        if USE_NEW_GROUNDING_SYSTEM and GROUNDING_FILE_PATH:
+        if GROUNDING_FILE_PATH:
             from pathlib import Path
             # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열 처리
             if isinstance(GROUNDING_FILE_PATH, str):
@@ -868,82 +868,6 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
         updated_image = self.wrapper.get_image()
         self.image = updated_image
         self.visualizer.display_image(updated_image)
-        
-        # 새 Grounding 시스템: Step Feedback 수집 (부모 클래스 로직 추가)
-        feedback_dict = None
-        is_termination = False
-        
-        if getattr(self, 'use_new_grounding_system', False) and getattr(self, 'episode_manager', None) is not None:
-            # Instruction 추출 (user_prompt에서)
-            instruction = self.user_prompt if self.user_prompt else "Continue mission"
-            
-            # Status 결정
-            if self.last_action_result.get("success", True):
-                status = "SUCCESS"
-            else:
-                status = "FAILURE"
-            
-            # Step Feedback 수집
-            feedback_dict, is_termination = self._collect_step_feedback(
-                step_id=self.step,
-                instruction=instruction
-            )
-            
-            # 종료 명령 확인
-            if is_termination:
-                tfu.cprint("\n[Episode Termination] User requested episode end.", tfu.LIGHT_YELLOW, True)
-                self.done = True
-                if self.episode_manager:
-                    self.episode_manager.set_termination_reason("user_command")
-            
-            # Feedback이 있으면 저장
-            if feedback_dict:
-                # EpisodeManager에 Step 추가
-                action_info = {
-                    "index": int(self.action_index),
-                    "name": str(self.action_name)
-                }
-                # Convert numpy types to Python native types
-                agent_pos = self.state['agent_pos']
-                if isinstance(agent_pos, np.ndarray):
-                    agent_pos = [int(x) for x in agent_pos.tolist()]
-                else:
-                    agent_pos = [int(x) for x in list(agent_pos)]
-                state_info = {
-                    "agent_pos": agent_pos,
-                    "agent_dir": int(self.state['agent_dir'])
-                }
-                image_path = f"images/step_{self.step:04d}.png"
-                
-                self.episode_manager.add_step(
-                    step_id=self.step,
-                    instruction=instruction,
-                    status=status,
-                    feedback=feedback_dict,
-                    action=action_info,
-                    state=state_info,
-                    image_path=image_path
-                )
-                
-                # GroundingFileManager에 Step feedback 추가
-                if getattr(self, 'grounding_file_manager', None):
-                    self.grounding_file_manager.append_step_feedback(
-                        step_id=self.step,
-                        instruction=instruction,
-                        status=status,
-                        feedback=feedback_dict
-                    )
-                
-                # 이미지 저장 (Episode 폴더 내)
-                if self.episode_manager:
-                    try:
-                        episode_images_dir = self.episode_manager.get_episode_dir() / "images"
-                        episode_images_dir.mkdir(parents=True, exist_ok=True)
-                        image_path_full = episode_images_dir / f"step_{self.step:04d}.png"
-                        img_pil = Image.fromarray(updated_image)
-                        img_pil.save(image_path_full)
-                    except Exception as e:
-                        tfu.cprint(f"[Warning] Failed to save episode image: {e}", tfu.LIGHT_YELLOW)
         
         self._log_step()
         

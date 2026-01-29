@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Set
 
 from utils.miscellaneous.global_variables import (
-    DEFAULT_INITIAL_MISSION, DEFAULT_MISSION, USE_NEW_GROUNDING_SYSTEM, 
+    DEFAULT_INITIAL_MISSION, DEFAULT_MISSION,
     USE_VERBALIZED_ENTROPY, GROUNDING_MERGE_FORMAT
 )
 
@@ -181,54 +181,52 @@ class PromptOrganizer:
         """Generate Entire System Prompt (Absolute Coordinate Version)"""
         
         ## For handling prompt errors
-        # Grounding Content (Always displayed; if empty, displays an empty string)
-        if USE_NEW_GROUNDING_SYSTEM:
-            # 새 Grounding 시스템 사용 시: grounding_file_path에서 파일 내용 읽기
-            grounding_content = ""
-            if grounding_file_path:
-                try:
-                    # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열
-                    if isinstance(grounding_file_path, list):
-                        file_paths = [Path(f) for f in grounding_file_path]
-                    elif isinstance(grounding_file_path, str) and ',' in grounding_file_path:
-                        file_paths = [Path(f.strip()) for f in grounding_file_path.split(',')]
-                    else:
-                        file_paths = [Path(grounding_file_path)]
-                    
-                    # 파일 확장자별로 분류
-                    json_files = [p for p in file_paths if p.exists() and p.suffix.lower() == '.json']
-                    txt_files = [p for p in file_paths if p.exists() and p.suffix.lower() == '.txt']
-                    
-                    grounding_contents = []
-                    
-                    # JSON 파일 처리
-                    if json_files:
-                        if GROUNDING_MERGE_FORMAT in ["txt", "both"]:
-                            # JSON 병합 후 Markdown 렌더링
-                            merged_json = merge_grounding_json_files(json_files)
-                            markdown_content = render_grounding_to_markdown(merged_json)
-                            if markdown_content.strip():
-                                grounding_contents.append(markdown_content)
-                        elif GROUNDING_MERGE_FORMAT == "json":
-                            # JSON 형식으로 병합 (현재는 미구현, txt 사용)
-                            merged_json = merge_grounding_json_files(json_files)
-                            markdown_content = render_grounding_to_markdown(merged_json)
-                            if markdown_content.strip():
-                                grounding_contents.append(markdown_content)
-                    
-                    # TXT 파일 처리 (기존 방식)
-                    for txt_path in txt_files:
-                        content = txt_path.read_text(encoding='utf-8')
-                        if content.strip():
-                            grounding_contents.append(content)
-                    
-                    # 모든 내용 병합
-                    if grounding_contents:
-                        grounding_content = "\n\n---\n\n".join(grounding_contents)
-                except Exception as e:
-                    # 파일 읽기 실패 시 빈 문자열 사용
-                    tfu.cprint(f"[Warning] Failed to load grounding files: {e}", tfu.LIGHT_YELLOW)
-                    grounding_content = ""
+        # Grounding Content (from file when grounding_file_path is set, else in-memory grounding)
+        grounding_content = ""
+        if grounding_file_path:
+            try:
+                # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열
+                if isinstance(grounding_file_path, list):
+                    file_paths = [Path(f) for f in grounding_file_path]
+                elif isinstance(grounding_file_path, str) and ',' in grounding_file_path:
+                    file_paths = [Path(f.strip()) for f in grounding_file_path.split(',')]
+                else:
+                    file_paths = [Path(grounding_file_path)]
+                
+                # 파일 확장자별로 분류
+                json_files = [p for p in file_paths if p.exists() and p.suffix.lower() == '.json']
+                txt_files = [p for p in file_paths if p.exists() and p.suffix.lower() == '.txt']
+                
+                grounding_contents = []
+                
+                # JSON 파일 처리
+                if json_files:
+                    if GROUNDING_MERGE_FORMAT in ["txt", "both"]:
+                        # JSON 병합 후 Markdown 렌더링
+                        merged_json = merge_grounding_json_files(json_files)
+                        markdown_content = render_grounding_to_markdown(merged_json)
+                        if markdown_content.strip():
+                            grounding_contents.append(markdown_content)
+                    elif GROUNDING_MERGE_FORMAT == "json":
+                        # JSON 형식으로 병합 (현재는 미구현, txt 사용)
+                        merged_json = merge_grounding_json_files(json_files)
+                        markdown_content = render_grounding_to_markdown(merged_json)
+                        if markdown_content.strip():
+                            grounding_contents.append(markdown_content)
+                
+                # TXT 파일 처리 (기존 방식)
+                for txt_path in txt_files:
+                    content = txt_path.read_text(encoding='utf-8')
+                    if content.strip():
+                        grounding_contents.append(content)
+                
+                # 모든 내용 병합
+                if grounding_contents:
+                    grounding_content = "\n\n---\n\n".join(grounding_contents)
+            except Exception as e:
+                # 파일 읽기 실패 시 빈 문자열 사용
+                tfu.cprint(f"[Warning] Failed to load grounding files: {e}", tfu.LIGHT_YELLOW)
+                grounding_content = ""
         else:
             grounding_content = self.grounding if self.grounding else ""
         
@@ -268,54 +266,52 @@ class PromptOrganizer:
         Uses step1/step2/step3 probability distributions instead of action array
         """
         
-        # Grounding Content
-        if USE_NEW_GROUNDING_SYSTEM:
-            # 새 Grounding 시스템 사용 시: grounding_file_path에서 파일 내용 읽기
-            grounding_content = ""
-            if grounding_file_path:
-                try:
-                    # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열
-                    if isinstance(grounding_file_path, list):
-                        file_paths = [Path(f) for f in grounding_file_path]
-                    elif isinstance(grounding_file_path, str) and ',' in grounding_file_path:
-                        file_paths = [Path(f.strip()) for f in grounding_file_path.split(',')]
-                    else:
-                        file_paths = [Path(grounding_file_path)]
-                    
-                    # 파일 확장자별로 분류
-                    json_files = [p for p in file_paths if p.exists() and p.suffix.lower() == '.json']
-                    txt_files = [p for p in file_paths if p.exists() and p.suffix.lower() == '.txt']
-                    
-                    grounding_contents = []
-                    
-                    # JSON 파일 처리
-                    if json_files:
-                        if GROUNDING_MERGE_FORMAT in ["txt", "both"]:
-                            # JSON 병합 후 Markdown 렌더링
-                            merged_json = merge_grounding_json_files(json_files)
-                            markdown_content = render_grounding_to_markdown(merged_json)
-                            if markdown_content.strip():
-                                grounding_contents.append(markdown_content)
-                        elif GROUNDING_MERGE_FORMAT == "json":
-                            # JSON 형식으로 병합 (현재는 미구현, txt 사용)
-                            merged_json = merge_grounding_json_files(json_files)
-                            markdown_content = render_grounding_to_markdown(merged_json)
-                            if markdown_content.strip():
-                                grounding_contents.append(markdown_content)
-                    
-                    # TXT 파일 처리 (기존 방식)
-                    for txt_path in txt_files:
-                        content = txt_path.read_text(encoding='utf-8')
-                        if content.strip():
-                            grounding_contents.append(content)
-                    
-                    # 모든 내용 병합
-                    if grounding_contents:
-                        grounding_content = "\n\n---\n\n".join(grounding_contents)
-                except Exception as e:
-                    # 파일 읽기 실패 시 빈 문자열 사용
-                    tfu.cprint(f"[Warning] Failed to load grounding files: {e}", tfu.LIGHT_YELLOW)
-                    grounding_content = ""
+        # Grounding Content (from file when grounding_file_path is set, else in-memory grounding)
+        grounding_content = ""
+        if grounding_file_path:
+            try:
+                # 여러 파일 지원: 리스트 또는 쉼표로 구분된 문자열
+                if isinstance(grounding_file_path, list):
+                    file_paths = [Path(f) for f in grounding_file_path]
+                elif isinstance(grounding_file_path, str) and ',' in grounding_file_path:
+                    file_paths = [Path(f.strip()) for f in grounding_file_path.split(',')]
+                else:
+                    file_paths = [Path(grounding_file_path)]
+                
+                # 파일 확장자별로 분류
+                json_files = [p for p in file_paths if p.exists() and p.suffix.lower() == '.json']
+                txt_files = [p for p in file_paths if p.exists() and p.suffix.lower() == '.txt']
+                
+                grounding_contents = []
+                
+                # JSON 파일 처리
+                if json_files:
+                    if GROUNDING_MERGE_FORMAT in ["txt", "both"]:
+                        # JSON 병합 후 Markdown 렌더링
+                        merged_json = merge_grounding_json_files(json_files)
+                        markdown_content = render_grounding_to_markdown(merged_json)
+                        if markdown_content.strip():
+                            grounding_contents.append(markdown_content)
+                    elif GROUNDING_MERGE_FORMAT == "json":
+                        # JSON 형식으로 병합 (현재는 미구현, txt 사용)
+                        merged_json = merge_grounding_json_files(json_files)
+                        markdown_content = render_grounding_to_markdown(merged_json)
+                        if markdown_content.strip():
+                            grounding_contents.append(markdown_content)
+                
+                # TXT 파일 처리 (기존 방식)
+                for txt_path in txt_files:
+                    content = txt_path.read_text(encoding='utf-8')
+                    if content.strip():
+                        grounding_contents.append(content)
+                
+                # 모든 내용 병합
+                if grounding_contents:
+                    grounding_content = "\n\n---\n\n".join(grounding_contents)
+            except Exception as e:
+                # 파일 읽기 실패 시 빈 문자열 사용
+                tfu.cprint(f"[Warning] Failed to load grounding files: {e}", tfu.LIGHT_YELLOW)
+                grounding_content = ""
         else:
             grounding_content = self.grounding if self.grounding else ""
         
@@ -342,7 +338,7 @@ class PromptOrganizer:
             wrapper: Environment wrapper
             last_action_result: Last action result dictionary
             use_verbalized: Override for USE_VERBALIZED_ENTROPY (None = use global setting)
-            grounding_file_path: Path to grounding file(s) (for USE_NEW_GROUNDING_SYSTEM=True)
+            grounding_file_path: Path to grounding file(s) (optional; when set, file content is loaded into system prompt)
         
         Returns:
             System prompt string

@@ -1,0 +1,18 @@
+
+your task is generate "reasoning context" which contains 4 caption, from image and previous "reasoning context". 
+
+1. scene description : describe scene with important spatial information which matters traversability, transfer into other spaces, e.t.c
+2. high-level planning : sequential multi-step planning related moving behavior , should be more than 5 steps. 
+3. historical summrization : historical summrization(what i do, what i current done) based on recived reasoning context, observation. 
+4. immideate action instruction : in current stage, what should robot do? 
+
+{
+  "memory" :{
+    "spatial_description" : "string",
+    "high-level_planning" : [ "string", "string", ... ,"string"],
+    "historical_summrization" : "string",
+    "immidate_action_instruction" : "string"
+    ""
+  }
+}
+

@@ -862,9 +862,8 @@ class VLMResponsePostProcessor:
             memory = {}
         result['memory'] = memory
         
-        # grounding (있으면 포함)
-        if 'grounding' in parsed:
-            result['grounding'] = str(parsed.get('grounding', ''))
+        # grounding (optional; default "" if missing or truncated)
+        result['grounding'] = str(parsed.get('grounding', '')) if parsed.get('grounding') is not None else ""
         
         return result
     
