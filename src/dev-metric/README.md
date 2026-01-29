@@ -71,12 +71,39 @@
 - **특징**: 시간이 딱딱 맞는다는 전제하에 같은 시간의 점끼리 유클리드 거리 계산
 - **한계점**: 조금만 밀려도 값이 폭발하므로, 시퀀스 정렬 알고리즘이 필요한 이유를 설명하는 용도
 
+## 라이브러리 기반 구현
+
+본 프로젝트는 공신력 있는 라이브러리를 사용하여 메트릭을 구현합니다:
+
+- **DTW/DDTW**: `dtaidistance` (C 기반 고속 연산)
+- **Fréchet**: `similaritymeasures`
+- **ERP**: `aeon.distances`
+- **RMSE**: `scikit-learn`
+- **TWED**: Legacy 구현 (검증된 알고리즘, distancia는 timestamps 필요)
+- **Sobolev**: Custom 구현 (표준 라이브러리 없음)
+
+자세한 내용은 [MIGRATION.md](MIGRATION.md)를 참조하세요.
+
+## Legacy 코드
+
+기존 구현과 분석 결과는 다음 위치에 보관되어 있습니다:
+- `metrics/legacy/`: 기존 메트릭 구현
+- `analysis_reports/legacy/`: 기존 분석 결과
+
 ## 설치 및 사용법
 
 ### 요구사항
 
 ```bash
-pip install numpy matplotlib seaborn
+pip install -r requirements.txt
+```
+
+또는 개별 설치:
+```bash
+pip install numpy scipy scikit-learn
+pip install dtaidistance  # for DTW, DDTW
+pip install aeon          # for ERP
+pip install similaritymeasures  # for Fréchet
 ```
 
 ### 기본 사용법

@@ -330,8 +330,33 @@ def generate_detailed_analysis(
             if max_feature:
                 max_sensitivities[metric_name] = (max_feature, max_corr)
         
-        lines.append("#### 메트릭별 주요 민감 특성")
+        lines.append("#### 6.1.1 메트릭별 주요 민감 특성")
         lines.append("")
+        
+        # Add insights for each metric
+        metric_insights = {
+            'RMSE': {
+                'insight': 'RMSE는 Step별 위치 오차를 직접 측정하므로, 시간 동기화가 정확할 때 가장 신뢰할 수 있습니다.',
+                'limit': '경로 길이에 강하게 의존하므로, 경로 길이가 다양하면 정규화가 필요합니다.'
+            },
+            'DDTW': {
+                'insight': 'DDTW는 속도 벡터를 비교하므로, 역주행이나 정지와 같은 동역학적 특성을 잘 감지합니다.',
+                'limit': '역주행 횟수와 강한 상관관계를 보이므로, 역주행 평가에 최적입니다.'
+            },
+            'Sobolev': {
+                'insight': 'Sobolev는 위치와 속도를 모두 고려하는 종합 메트릭으로, 가장 포괄적인 평가를 제공합니다.',
+                'limit': '경로 곡률과 강한 상관관계를 보이므로, 경로 복잡도를 반영합니다.'
+            },
+            'DTW': {
+                'insight': 'DTW는 경로 형태를 평가하지만, 시간 왜곡을 허용하므로 정지에 둔감합니다.',
+                'limit': '평균 곡률과 강한 상관관계를 보이므로, 경로 복잡도를 평가하는 메트릭으로 해석할 수 있습니다.'
+            },
+            'Fréchet': {
+                'insight': 'Fréchet는 시간과 무관하게 형상만 비교하므로, 경로 길이에 상대적으로 독립적입니다.',
+                'limit': '역주행을 감지하지 못하므로, 동역학적 평가에는 부적합합니다.'
+            }
+        }
+        
         for metric_name, (feature, corr) in sorted(
             max_sensitivities.items(),
             key=lambda x: x[1][1],
@@ -343,23 +368,35 @@ def generate_detailed_analysis(
                 'direction_error': '방향 오차'
             }.get(feature, feature)
             lines.append(f"- **{metric_name}**: {feature_display}에 가장 민감 (상관계수: {corr:.3f})")
-        lines.append("")
+            if metric_name in metric_insights:
+                lines.append(f"  - **통찰**: {metric_insights[metric_name]['insight']}")
+                lines.append(f"  - **특징/한계**: {metric_insights[metric_name]['limit']}")
+            lines.append("")
     
-    lines.append("### 6.2 실용적 권장사항")
+    lines.append("### 6.2 실용적 권장사항 및 통찰")
     lines.append("")
     lines.append("Step-by-Step 분석 결과를 바탕으로:")
     lines.append("")
     lines.append("1. **위치 정확도 평가**가 중요하다면: **RMSE** 사용")
-    lines.append("   - Step별 위치 오차를 직접 측정")
+    lines.append("   - **이유**: Step별 위치 오차를 직접 측정하며, 위치 오차와 완벽한 상관관계(r=1.000)를 보입니다.")
+    lines.append("   - **주의**: 경로 길이에 강하게 의존하므로, 경로 길이가 다양하면 정규화 필요")
+    lines.append("   - **통찰**: RMSE는 시간 동기화가 정확할 때 가장 신뢰할 수 있지만, 경로 길이 다양성에 취약합니다.")
     lines.append("")
     lines.append("2. **속도/방향 패턴 평가**가 중요하다면: **DDTW** 사용")
-    lines.append("   - 속도 오차와 방향 오차에 모두 민감하게 반응")
+    lines.append("   - **이유**: 속도 오차와 방향 오차에 모두 민감하게 반응하며, 역주행을 효과적으로 감지합니다.")
+    lines.append("   - **특징**: 역주행 횟수와 강한 상관관계를 보이므로, 역주행 평가에 최적입니다.")
+    lines.append("   - **통찰**: DDTW는 속도 벡터를 비교하므로, 위치가 비슷해도 방향이 다르면 큰 오차를 보입니다.")
     lines.append("")
     lines.append("3. **종합적 평가**가 필요하다면: **Sobolev** 사용")
-    lines.append("   - 위치와 속도를 모두 고려하는 종합 메트릭")
+    lines.append("   - **이유**: 위치와 속도를 모두 고려하는 종합 메트릭으로, 가장 포괄적인 평가를 제공합니다.")
+    lines.append("   - **특징**: 경로 곡률과 강한 상관관계를 보이므로, 경로 복잡도를 반영합니다.")
+    lines.append("   - **통찰**: Sobolev는 위치와 속도 오차를 가중 합산하므로, 두 측면을 균형있게 평가합니다.")
     lines.append("")
     lines.append("4. **경로 형태 평가**가 중요하다면: **DTW** 또는 **Fréchet** 사용")
-    lines.append("   - 전체 경로의 기하학적 특성을 평가")
+    lines.append("   - **DTW**: 시간 왜곡을 허용하므로, 속도 차이를 어느 정도 보정합니다.")
+    lines.append("   - **Fréchet**: 시간과 무관하게 형상만 평가하므로, 경로 길이에 독립적입니다.")
+    lines.append("   - **주의**: 둘 다 역주행을 감지하지 못하므로, 동역학적 평가에는 부적합합니다.")
+    lines.append("   - **통찰**: 경로 형태만 평가하고 싶을 때는 Fréchet가 더 적합하며, 시간 정렬도 고려하려면 DTW가 적합합니다.")
     lines.append("")
     
     # Write document

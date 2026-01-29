@@ -1,0 +1,86 @@
+{
+  "group": "other",
+  "gt_episode": "Episode_1_1",
+  "gt_length": 46,
+  "analysis_date": "2026-01-28T23:59:00.208766",
+  "episodes": {
+    "Episode_1_2_Test_Entropy": {
+      "episode_number": 1,
+      "trajectory_length": 60,
+      "metrics": {
+        "RMSE": 3.247072259878053,
+        "DTW": 5.656854249492381,
+        "Fréchet": 2.0,
+        "ERP": 42.23393311412652,
+        "DDTW": 4.663689526544408,
+        "TWED": 194.4573096615577,
+        "Sobolev": 17.120376653386053
+      }
+    },
+    "Episode_2_1_Test_Entropy": {
+      "episode_number": 2,
+      "trajectory_length": 40,
+      "metrics": {
+        "RMSE": 2.5495097567963922,
+        "DTW": 4.123105625617661,
+        "Fréchet": 1.4142135623730951,
+        "ERP": 29.92044887340219,
+        "DDTW": 3.29772648956823,
+        "TWED": 99.63169110970202,
+        "Sobolev": 11.903314197688347
+      }
+    },
+    "Episode_2_2_Test_Entropy": {
+      "episode_number": 2,
+      "trajectory_length": 41,
+      "metrics": {
+        "RMSE": 2.523064338960976,
+        "DTW": 5.196152422706632,
+        "Fréchet": 2.23606797749979,
+        "ERP": 30.21349817564652,
+        "DDTW": 3.418698582794336,
+        "TWED": 105.9601182344482,
+        "Sobolev": 14.245423783286757
+      }
+    },
+    "Episode_3_2_Test_Entropy": {
+      "episode_number": 3,
+      "trajectory_length": 78,
+      "metrics": {
+        "RMSE": 3.2032592098076282,
+        "DTW": 11.313708498984761,
+        "Fréchet": 2.8284271247461903,
+        "ERP": 42.669882623567894,
+        "DDTW": 7.241374178980119,
+        "TWED": 463.5633886151677,
+        "Sobolev": 17.540705135494484
+      }
+    },
+    "Episode_4_1_Test_Entropy": {
+      "episode_number": 4,
+      "trajectory_length": 56,
+      "metrics": {
+        "RMSE": 2.4272009286060534,
+        "DTW": 9.433981132056603,
+        "Fréchet": 2.23606797749979,
+        "ERP": 32.386000615990966,
+        "DDTW": 5.356071321407137,
+        "TWED": 161.60420036618854,
+        "Sobolev": 16.340766847275702
+      }
+    },
+    "Episode_5_2_Test_Entropy": {
+      "episode_number": 5,
+      "trajectory_length": 27,
+      "metrics": {
+        "RMSE": 1.5275252316519465,
+        "DTW": 23.388031127053,
+        "Fréchet": 6.708203932499369,
+        "ERP": 15.872507424205203,
+        "DDTW": 5.629165124598851,
+        "TWED": 173.1103781740652,
+        "Sobolev": 31.00946490315895
+      }
+    }
+  }
+}
