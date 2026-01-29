@@ -1,47 +1,13 @@
-docs: Update documentation for Verbalized Entropy and Grounding system enhancements
+dev-memory: VLM-only script, lazy minigrid, memory dict formatting
 
-This commit updates all documentation to reflect recent codebase changes:
-
-## Major Updates
-
-### 1. Verbalized Entropy System Documentation
-- Added comprehensive documentation for Verbalized Entropy approach (Tian et al. 2023)
-- Documented step-wise probability distribution extraction
-- Explained weighted average entropy calculation (50/30/20)
-- Added new experiment script documentation: `scenario2_test_entropy_comparison_refined_entropy.py`
-- Updated entropy-trust-calculation.md with Verbalized Entropy section
-
-### 2. Grounding System Enhancements
-- Created new comprehensive guide: `docs/grounding-system.md`
-- Documented multiple file merging functionality (JSON/TXT)
-- Explained automatic Markdown rendering for JSON grounding files
-- Updated data-structure-overview.md with merging details
-- Clarified that grounding generation uses only current episode feedbacks
-
-### 3. README Updates
-- Updated both README.md and README_EN.md with:
-  - Verbalized Entropy system features
-  - Enhanced Grounding system capabilities
-  - New experiment script sections
-  - Updated configuration options (USE_VERBALIZED_ENTROPY, GROUNDING_MERGE_FORMAT, etc.)
-
-### 4. Documentation Index
-- Updated docs/README.md with new sections and links
-- Added Grounding system guide to documentation index
-- Updated experiment script descriptions
-
-## Key Features Documented
-
-- **Verbalized Entropy**: VLM directly outputs probability distributions for more accurate entropy calculation
-- **Grounding File Merging**: Automatic merging of multiple JSON/TXT grounding files
-- **System Prompt Integration**: Grounding automatically included in System Prompt
-- **Two Entropy Approaches**: Both Logprobs-based and Verbalized Entropy methods supported
-
-## Files Changed
-
-- README.md: Updated features, experiment scripts, configuration
-- README_EN.md: English version updates
-- docs/README.md: Documentation index updates
-- docs/entropy-trust-calculation.md: Added Verbalized Entropy section
-- docs/data-structure-overview.md: Added grounding file merging details
-- docs/grounding-system.md: New comprehensive guide (created)
+- run_memory_dev.py: default -p dev_prompt.txt, -i dummy_img.png; user_prompt
+  optional, read from terminal when omitted; _render_system_prompt override for
+  dev-memory local prompt files (no render_prompt_from_string in lib).
+- utils/__init__.py: lazy-load map_manager (MiniGridEmojiWrapper,
+  load_emoji_map_from_json) via __getattr__ so dev-memory does not load
+  gymnasium/minigrid.
+- memory_renderer.py: dict values render with leading newline and per-line
+  indent so "- Task Process: $memory[task_process]" shows goal/status/blocked_reason
+  on separate indented lines.
+- global_variables.py: USE_VERBALIZED_ENTROPY = False.
+- prompt_interp.py: remove trailing blank line.

@@ -90,11 +90,18 @@ def render_memory_value(
                 max_depth=max_depth,
                 _depth=_depth + 1,
             )
-            # Keep newlines for list/dict values; indent continuation lines per spec
+            # Indent continuation lines for nested list/dict
             if "\n" in v_str:
                 v_str = v_str.replace("\n", "\n  ")
             parts.append(f"{k}: {v_str}")
-        return "\n".join(parts) if parts else default_for_empty
+        if not parts:
+            return default_for_empty
+        body = "\n".join(parts)
+        # Leading newline + indent each line so "- Key: $memory[key]" renders as:
+        # - Key:
+        #   k1: v1
+        #   k2: v2
+        return "\n" + "\n".join("  " + line for line in body.split("\n"))
 
     # Fallback for unexpected types
     return str(value) if value is not None else default_for_empty

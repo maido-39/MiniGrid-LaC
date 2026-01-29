@@ -6,9 +6,12 @@ dev-memory: Prompt + 이미지로 VLM(gemini-2.5-flash, GCP key) 실행 후
   - memory로 렌더된 프롬프트
 를 출력하여 프롬프트 개발을 빠르게 할 수 있도록 하는 스크립트.
 
+Minigrid 환경/step 전혀 없음. 이미 렌더해 둔 예시 이미지(dummy_img)를 VLM에 넘기는 용도.
+
 사용법 (src/ 에서 실행):
-  python dev-memory/run_memory_dev.py --prompt system_prompt_start.txt --image path/to/image.png
-  python dev-memory/run_memory_dev.py -p system_prompt_start.txt -i path/to/image.png --user-prompt "Go to restroom."
+  python dev-memory/run_memory_dev.py              # user prompt 터미널 입력 대기
+  python dev-memory/run_memory_dev.py "Pick up the key."
+  (기본: -p dev_prompt.txt, -i dummy_img.png)
 """
 
 import argparse
@@ -17,13 +20,14 @@ import os
 import sys
 from pathlib import Path
 
-# 프로젝트 루트(src)를 path에 넣어 utils 임포트 가능하게
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _SRC_DIR = _SCRIPT_DIR.parent
 if str(_SRC_DIR) not in sys.path:
     sys.path.insert(0, str(_SRC_DIR))
 
-from utils.prompt_manager.prompt_interp import system_prompt_interp
+from string import Template
+
+from utils.prompt_manager.prompt_interp import system_prompt_interp, _substitute_memory_brackets
 from utils.vlm.vlm_processor import VLMProcessor
 from utils.miscellaneous.global_variables import (
     USE_GCP_KEY,
@@ -32,6 +36,29 @@ from utils.miscellaneous.global_variables import (
     VLM_THINKING_BUDGET,
 )
 import utils.prompt_manager.terminal_formatting_utils as tfu
+
+_DEFAULT_SYSTEM_PROMPT_FILE = "dev_prompt.txt"
+_DEFAULT_IMAGE = "dummy_img.png"
+
+
+def _render_system_prompt(prompt_file: str, memory: dict, strict: bool = False) -> str:
+    """dev-memory 내부에 해당 파일이 있으면 내용 읽어 _substitute_memory_brackets + Template으로 로컬 렌더, 없으면 system_prompt_interp 사용."""
+    candidate = _SCRIPT_DIR / prompt_file.strip()
+    if candidate.is_file():
+        template_text = candidate.read_text(encoding="utf-8")
+        memory_dict = memory if isinstance(memory, dict) else {}
+        template_text = _substitute_memory_brackets(
+            template_text, memory_dict, strict=strict, file_name=prompt_file
+        )
+        vars_for_template = {"last_action_str": "None", "grounding_content": ""}
+        return Template(template_text).safe_substitute(**vars_for_template)
+    return system_prompt_interp(
+        file_name=prompt_file,
+        strict=strict,
+        last_action_str="None",
+        grounding_content="",
+        memory=memory,
+    )
 
 
 def _create_vlm_processor():
@@ -58,50 +85,54 @@ def _create_vlm_processor():
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Prompt 파일 + 이미지로 VLM 실행 후 JSON, memory, 렌더된 프롬프트 출력"
+        description="Prompt + 이미지로 VLM 실행 후 JSON/memory/렌더된 프롬프트 출력 (Minigrid·step 없음, 예시 이미지 사용)"
+    )
+    parser.add_argument(
+        "user_prompt",
+        nargs="?",
+        default=None,
+        help="사용자(미션) 프롬프트. 생략하면 터미널에서 입력 대기.",
     )
     parser.add_argument(
         "-p", "--prompt",
-        required=True,
-        help="프롬프트 파일 이름 (utils/prompts/ 아래, 예: system_prompt_start.txt)",
+        default=_DEFAULT_SYSTEM_PROMPT_FILE,
+        help=f"시스템 프롬프트 파일 (기본: {_DEFAULT_SYSTEM_PROMPT_FILE})",
     )
     parser.add_argument(
         "-i", "--image",
-        required=True,
-        help="입력 이미지 경로 (예: logs_good/.../step_0001.png)",
-    )
-    parser.add_argument(
-        "--user-prompt",
-        default="Go to the target. Select one action.",
-        help="사용자(미션) 프롬프트 (기본: Go to the target. Select one action.)",
+        default=str(_SCRIPT_DIR / _DEFAULT_IMAGE),
+        help=f"입력 이미지 경로 (기본: dev-memory/{_DEFAULT_IMAGE})",
     )
     parser.add_argument(
         "--out-json",
         default=None,
-        help="파싱된 JSON을 저장할 파일 경로 (선택)",
+        help="파싱된 JSON 저장 경로 (선택)",
     )
     parser.add_argument(
         "--out-rendered",
         default=None,
-        help="memory로 렌더된 프롬프트를 저장할 파일 경로 (선택)",
+        help="렌더된 프롬프트 저장 경로 (선택)",
     )
     args = parser.parse_args()
 
     prompt_file = args.prompt.strip()
+    user_prompt_text = (args.user_prompt or "").strip()
+    if not user_prompt_text:
+        try:
+            user_prompt_text = input("User prompt (미션): ").strip() or "Go to the target. Select one action."
+        except (EOFError, KeyboardInterrupt):
+            tfu.cprint("\n[Aborted]", tfu.LIGHT_YELLOW)
+            sys.exit(0)
+        if not user_prompt_text:
+            user_prompt_text = "Go to the target. Select one action."
     image_path = Path(args.image.strip())
     if not image_path.is_file():
         tfu.cprint(f"[Error] Image not found: {image_path}", tfu.RED, bold=True)
         sys.exit(1)
 
-    # 1) 빈 memory로 시스템 프롬프트 생성 (VLM 호출용)
+    # 1) 빈 memory로 시스템 프롬프트 생성 (VLM 호출용). dev-memory 내 파일이면 문자열 렌더 오버라이드.
     try:
-        system_prompt_empty = system_prompt_interp(
-            file_name=prompt_file,
-            strict=False,
-            last_action_str="None",
-            grounding_content="",
-            memory={},
-        )
+        system_prompt_empty = _render_system_prompt(prompt_file, memory={}, strict=False)
     except Exception as e:
         tfu.cprint(f"[Error] Failed to load prompt '{prompt_file}': {e}", tfu.RED, bold=True)
         sys.exit(1)
@@ -112,7 +143,7 @@ def main():
     raw_response = processor.requester(
         image=str(image_path.resolve()),
         system_prompt=system_prompt_empty,
-        user_prompt=args.user_prompt,
+        user_prompt=user_prompt_text,
         debug=False,
     )
     if not raw_response:
@@ -139,15 +170,9 @@ def main():
     if not isinstance(memory, dict):
         memory = {}
 
-    # 4) memory로 프롬프트 렌더
+    # 4) memory로 프롬프트 렌더 (동일하게 _render_system_prompt 사용)
     try:
-        rendered_prompt = system_prompt_interp(
-            file_name=prompt_file,
-            strict=False,
-            last_action_str="None",
-            grounding_content="",
-            memory=memory,
-        )
+        rendered_prompt = _render_system_prompt(prompt_file, memory=memory, strict=False)
     except Exception as e:
         tfu.cprint(f"[Warning] Render with memory failed: {e}", tfu.LIGHT_YELLOW)
         rendered_prompt = system_prompt_empty

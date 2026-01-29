@@ -232,4 +232,3 @@ def system_prompt_interp(file_name: str,
     return filled_prompt
 
 
-

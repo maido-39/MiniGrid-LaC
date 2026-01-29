@@ -58,7 +58,7 @@ USE_GCP_KEY = True  # True: GCP 키 사용, False: Google AI Studio Key 사용
 # - False: 기존 logprobs 기반 entropy 계산 방식 사용
 #         → 시스템 프롬프트: system_prompt_start.txt
 # scenario_runner 등은 이 값에 따라 시스템 프롬프트를 전환함.
-USE_VERBALIZED_ENTROPY = True
+USE_VERBALIZED_ENTROPY = False
 
 # Map Configuration
 # MAP_FILE_NAME: 사용할 맵 파일 이름 (config/ 디렉토리 아래에 있어야 함)
