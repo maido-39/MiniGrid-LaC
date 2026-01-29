@@ -1,28 +1,27 @@
-## Episode Information
+## EPISODE INFORMATION
+- Episode ID: $episode_id
+- Total Steps: $total_steps
 
-Episode ID: $episode_id
-Total Steps: $total_steps
-
-## Step Feedbacks (Categorized by Type)
-
+## STEP FEEDBACKS (CATEGORIZED BY TYPE)
 Each feedback entry includes the step number and status (Success/Failure/WiP) in the format: [ StepN - Status ] : content
 
-### User Preference Feedbacks
+## USER PREFERENCES FEEDBACKS
 $user_preference_feedbacks
 
-### Spatial Feedbacks
+## SPATIAL FEEDBACKS
 $spatial_feedbacks
 
-### Procedural Feedbacks
+## PROCEDURAL FEEDBACKS
 $procedural_feedbacks
 
-### General Feedbacks
+## GENERAL FEEDBACKS
 $general_feedbacks
 
-## Previous Grounding Knowledge
+## PREVIOUS GROUNDING KNOWLEDGE
 $previous_grounding
 
-## Initial State Image
+## INITIAL STATE IMAGE
 An image of the initial state is provided as a reference. Remember that this image shows the INITIAL STATE, not the current state.
+
 
 Please analyze the feedbacks and generate grounding knowledge in the 4 categories specified in the system prompt.

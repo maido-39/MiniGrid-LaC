@@ -98,6 +98,7 @@ EMOJI_MAP = {
     "shirt": "👕",
     "short": "🩳",
     "dress": "👗",
+    "blouse": "👚",
 }
 
 # Color map for RGBA format (with alpha channel)
