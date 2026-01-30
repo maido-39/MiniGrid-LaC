@@ -27,6 +27,7 @@ import os
 import hashlib
 from imagetext_py import FontDB, Writer, Paint, TextAlign
 from utils.miscellaneous.global_variables import RENDER_GOAL
+from utils.map_manager.carrying_format import format_carrying_object as format_carrying_object_util
 
 # Register MiniGrid environments
 register_minigrid_envs()
@@ -99,6 +100,7 @@ EMOJI_MAP = {
     "short": "🩳",
     "dress": "👗",
     "blouse": "👚",
+    "robot": "🤖",
 }
 
 # Color map for RGBA format (with alpha channel)
@@ -331,75 +333,11 @@ class CustomRoomEnv(MiniGridEnv):
         return "explore"
     
     def _format_carrying_object(self, carrying_obj) -> str:
-        """
-        Format carrying object information for terminal display.
-        
-        Args:
-            carrying_obj: Can be a single object, a list of objects, or None
-            
-        Returns:
-            Formatted string describing the carrying object(s)
-        """
-        if carrying_obj is None:
-            return "None"
-        
-        # Handle list of objects
-        if isinstance(carrying_obj, list):
-            if len(carrying_obj) == 0:
-                return "None"
-            formatted_objects = [self._format_single_carrying_object(obj) for obj in carrying_obj]
-            return f"[{', '.join(formatted_objects)}]"
-        
-        # Handle single object
-        return self._format_single_carrying_object(carrying_obj)
-    
-    def _format_single_carrying_object(self, carrying_obj) -> str:
-        """
-        Format a single carrying object information for terminal display.
-        
-        Args:
-            carrying_obj: A single object being carried by the agent
-            
-        Returns:
-            Formatted string describing the carrying object
-        """
-        if carrying_obj is None:
-            return "None"
-
-        
-        emoji_char = '❓'
-        if hasattr(carrying_obj, 'emoji_name'):
-            emoji_char = EMOJI_MAP.get(carrying_obj.emoji_name, '❓')
-        
-        if hasattr(carrying_obj, 'type'):
-            obj_type = carrying_obj.type
-            
-            # Handle emoji objects
-            if obj_type == 'emoji' and hasattr(carrying_obj, 'emoji_name'):
-                emoji_name = carrying_obj.emoji_name
-                color = getattr(carrying_obj, 'color', 'N/A')
-                return f"{emoji_char} {emoji_name} (color: {color})"
-            
-            # Handle standard MiniGrid objects
-            elif obj_type == 'key':
-                color = getattr(carrying_obj, 'color', 'N/A')
-                return f"🔑 Key (color: {color})"
-            elif obj_type == 'ball':
-                color = getattr(carrying_obj, 'color', 'N/A')
-                return f"⚽ Ball (color: {color})"
-            elif obj_type == 'box':
-                color = getattr(carrying_obj, 'color', 'N/A')
-                return f"📦 Box (color: {color})"
-            else:
-                # Generic object with color if available
-                color = getattr(carrying_obj, 'color', None)
-                if color:
-                    return f"{obj_type} (color: {color})"
-                else:
-                    return f"{obj_type}"
-        else:
-            # Fallback: just return string representation
-            return str(carrying_obj)
+        """Format carrying object(s) for terminal display; delegates to shared carrying_format."""
+        return format_carrying_object_util(
+            carrying_obj,
+            emoji_objects=getattr(self, 'room_config', {}).get('emoji_objects') if getattr(self, 'room_config', None) else None,
+        )
     
     def _print_carrying_status(self):
         """Print current carrying status to terminal"""
@@ -667,7 +605,7 @@ class CustomRoomEnv(MiniGridEnv):
         
         floor_color = self.room_config.get('floor_color', None)
         if floor_color is not None or hasattr(self, 'floor_tiles'):
-            frame = self._apply_floor_colors(frame, floor_color, apply_robot_glow=False)
+            frame = self._apply_floor_colors(frame, floor_color, apply_robot_glow=False) 
         
         if not hasattr(self, 'agent_pos') or not hasattr(self, 'agent_dir'):
             return frame

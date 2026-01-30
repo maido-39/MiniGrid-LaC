@@ -22,7 +22,7 @@ import numpy as np
 from typing import Optional, Union
 from pathlib import Path
 
-from utils.prompt_manager.prompt_interp import *
+from utils.prompt_manager.prompt_interp import system_prompt_interp
 import utils.prompt_manager.terminal_formatting_utils as tfu
 from utils.vlm.vlm_wrapper import VLMWrapper
 from utils.vlm.vlm_postprocessor import VLMResponsePostProcessor

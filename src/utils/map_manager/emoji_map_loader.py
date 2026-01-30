@@ -308,9 +308,9 @@ class EmojiMapLoader:
         
         for y, row in enumerate(self.emoji_render):
             for x, emoji in enumerate(row):
-                # 🤖 and 🎯 are already replaced with ⬜️ in _parse_map_data, so skip here
-                if emoji == '🤖' or emoji == '🎯':
-                    # Should already be processed, but treat as empty space just in case
+                # 🎯 was already replaced with ⬜️ in _parse_map_data (goal marker).
+                # 🤖 at start_pos was also replaced with ⬜️; any remaining 🤖 are static robot tiles (process via emoji_objects).
+                if emoji == '🎯':
                     continue
                 
                 # Check emoji definition

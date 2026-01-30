@@ -11,14 +11,14 @@
       "⬛🟩🟩🟩⬜️⬜️🟨🟨🟨⬜️⬜️⬜️⬜️⬛",
       "⬛🟩🟩🟩⬜️⬜️🟨🟨🟨⬜️🟤🔴🟠⬛",
       "⬛🟩🟩🟩⬜️⬜️🟨🟨🟨⬜️🟣🟣🟣⬛",
-      "⬛⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️🟡🟢🔵⬛",
+      "⬛⬜️⬜️⚫⬜️⬜️⬜️⬜️⬜️⬜️🟡🟢🔵⬛",
       "⬛⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬛",
       "⬛⬜️⬜️⬜️⬜️🟪🟪🟪⬜️⬜️⬜️⬜️⬜️⬛",
       "⬛⬜️🤖⬜️⬜️🟪🟪🟪⬜️⬜️⬜️⬜️⬜️⬛",
       "⬛⬜️⬜️⬜️⬜️🟪🟪🟪⬜️⬜️⬜️⬜️⬜️⬛",
       "⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛"
     ],
-    "emoji_objects": {
+    "emoji_objects": { 
       "⬛": {
         "type": "emoji",
         "emoji_name": "brick",
@@ -140,6 +140,14 @@
         "can_overlap" : true,
         "use_emoji_color" : true
 
+      },
+      "⚫": {
+        "type": "emoji",
+        "emoji_name": "robot",
+        "color": "green",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
       }
     },
     "robot_config": {

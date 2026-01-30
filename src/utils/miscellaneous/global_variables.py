@@ -43,7 +43,7 @@ LOGPROBS_TOPK = 5
 # DEBUG: VLM 디버그 출력 활성화 여부
 #   - True: VLM API 호출 시 상세한 디버그 정보 출력 (응답, 토큰 사용량, inference time 등)
 #   - False: 디버그 정보 출력 안 함
-DEBUG = True
+DEBUG = False
 
 # Gemini Authentication Configuration
 # USE_GCP_KEY: 일반 Gemini 모델(gemini-2.5-flash 등)에서 GCP 키 사용 여부
@@ -63,7 +63,7 @@ USE_VERBALIZED_ENTROPY = False
 # Map Configuration
 # MAP_FILE_NAME: 사용할 맵 파일 이름 (config/ 디렉토리 아래에 있어야 함)
 #   예: "example_map.json", "scenario135_example_map.json"
-MAP_FILE_NAME = "scenario_2_4_map.json"
+MAP_FILE_NAME = "example_map.json"
 
 # Mission/Task Setup
 DEFAULT_INITIAL_MISSION = "Explore your surroundings and gather as much information as possible."
