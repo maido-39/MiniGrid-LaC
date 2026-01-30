@@ -69,15 +69,14 @@ def render_memory_value(
     Args:
     value : Any
         The value to render (from memory_dict[key] or nested).
-    default_for_empty : str, optional
+    default_for_empty: str, optional
         String to use for empty str or None. Default "None".
-    max_depth : int, optional
+    max_depth: int, optional
         Maximum recursion depth for dict/list. Default 8.
-    _depth : int, optional
+    _depth: int, optional
         Internal recursion depth; do not pass.
     Returns:
-        str
-            Rendered string safe for prompt insertion.
+        str: Rendered string safe for prompt insertion.
     """
     
     if _depth > max_depth:

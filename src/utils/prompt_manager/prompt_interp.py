@@ -53,7 +53,21 @@ logger = logging.getLogger(__name__)
 
 def file_checking(base_dir: Path, prompt_path: Path, terminal_msg: bool = False):
     """
+    Perform security and existence checks on the prompt file path.
+    - Ensures the prompt_path is within the base_dir to prevent path traversal.
+    - Checks if the prompt_path exists and is a file.
     
+    Args:
+        base_dir (Path): The base directory for prompts.
+        prompt_path (Path): The full path to the prompt file.
+        terminal_msg (bool): If True, prints a success message to the terminal.
+    
+    Raises:
+        ValueError: If path traversal is detected.
+        FileNotFoundError: If the prompt file does not exist.
+    
+    Returns:
+        None
     """
     
     # 🔒 Security check (path traversal)
@@ -69,7 +83,17 @@ def file_checking(base_dir: Path, prompt_path: Path, terminal_msg: bool = False)
 
 def mission_input_interp(user_input, actual_default) -> str:
     """
+    Interpret user input for mission prompts.
+    - If input is empty, use the actual_default mission.
+    - If input is a file path (contains '/' or ends with '.txt'), read the file content.
+    - Otherwise, treat input as the mission text directly.
     
+    Args:
+        user_input (str): The user's input for the mission.
+        actual_default (str): The default mission text to use if input is empty.
+    
+    Returns:
+        str: The final mission prompt text.
     """
     
     # Case 1: user pressed Enter → fallback
@@ -106,7 +130,17 @@ _MEMORY_BRACKET_PATTERN = re.compile(r"\$memory(?:\[[a-zA-Z0-9_-]+\])+")
 
 
 def _resolve_memory_path(memory_dict: Dict[str, Any], keys: List[str]) -> Any:
-    """Resolve keys like ['task_process', 'goal'] to memory_dict['task_process']['goal']."""
+    """
+    Resolve keys like ['task_process', 'goal'] to memory_dict['task_process']['goal'].
+    
+    Args:
+        memory_dict (Dict[str, Any]): The memory dictionary.
+        keys (List[str]): List of keys to traverse.
+    
+    Returns:
+        Any: The resolved value, or None if any key is missing.
+    """
+    
     obj: Any = memory_dict
     for key in keys:
         if not isinstance(obj, dict):
@@ -126,11 +160,32 @@ def _substitute_memory_brackets(
     Replace all $memory[key] and $memory[key][subkey]... with rendered values.
     Keys are restricted to [a-zA-Z0-9_-]+. Uses dict.get() only; no eval.
     When strict=True and a key is missing, logs a warning and still substitutes default.
+    
+    Args:
+        template_text (str): The prompt template text.
+        memory_dict (Optional[Dict[str, Any]]): The memory dictionary for substitution.
+        default_for_missing (str): Default value to use if a key is missing.
+        strict (bool): If True, log warnings for missing keys.
+        file_name (str): The name of the prompt file (for logging).
+        
+    Returns:
+        str: The template text with memory brackets substituted.
     """
+    
     if memory_dict is None or not isinstance(memory_dict, dict):
         memory_dict = {}
 
     def replacer(match: re.Match) -> str:
+        """
+        Replacement function for re.sub to handle $memory[...] patterns.
+        
+        Args:
+            match (re.Match): The regex match object.
+        
+        Returns:
+            str: The replacement string.
+        """
+        
         placeholder = match.group(0)
         keys = re.findall(r"\[([a-zA-Z0-9_-]+)\]", placeholder)
         if not keys:
@@ -152,38 +207,33 @@ def _substitute_memory_brackets(
     return _MEMORY_BRACKET_PATTERN.sub(replacer, template_text)
 
 
-def system_prompt_interp(file_name: str,
-                         strict: bool = False,
-                         **variables
-                        ) -> str:
+def system_prompt_interp(
+    file_name: str,
+    strict: bool = False,
+    **variables
+) -> str:
     """
     Load a prompt template from the global prompt directory and
     substitute variables dynamically.
 
     Supports:
     - Flat variables: $var_name, ${var_name}
-    - Memory bracket syntax: $memory[key], $memory[key][subkey] (resolved from
-      variables['memory'] dict, then rendered via MemoryRenderer)
+    - Memory bracket syntax: $memory[key], $memory[key][subkey] (resolved from variables['memory'] dict, then rendered via MemoryRenderer)
 
-    Parameters
-    ----------
+    Args:
     file_name : str
         Name of the prompt file (e.g. "system_prompt_start.txt").
-
     strict : bool, optional
         If True, raise an error when a variable required by the prompt
         is missing from `variables`.
         If False (default), missing variables are left untouched.
         If template contains $memory[...], memory must be in variables and
         be a dict (or normalized to {}).
-
     **variables : dict
         Arbitrary variables. Pass memory=<dict> for $memory[key] substitution.
 
-    Returns
-    -------
-    str
-        Fully rendered system prompt ready to be sent to the LLM.
+    Returns:
+        str: Fully rendered system prompt ready to be sent to the LLM.
     """
     
     base_dir = Path(PROMPT_DIR).resolve()
@@ -230,5 +280,6 @@ def system_prompt_interp(file_name: str,
     filled_prompt = template.safe_substitute(**vars_for_template)
 
     return filled_prompt
+
 
 
