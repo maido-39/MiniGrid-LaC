@@ -6,7 +6,7 @@
 
 ### USER PREFERENCES GROUNDING
 Human owner likes to save time, as a consequence he prefers time-optimal paths (i.e. the path that requires less steps).
-Human owner has OCD: he doesn't like mixing blue and green clothes.
+Prefer to NOT pile very dirty clothes with just worn clothes.
 
 ### SPATIAL GROUNDING
 The robot is in a family house environment.
@@ -18,7 +18,7 @@ Rooms knowledge:
 
 ### General Grounding rules
 Clothes information:
-- Shirt -> man laundry, blue
-- Dress -> child 1 laundry, blue
-- Short -> child 2 laundry, green, (wet or very dirty)
-- Blouse -> woman laundry, pink
+- Shirt -> man laundry, blue, worn
+- Dress -> child 1 laundry, blue, worn
+- Short -> child 2 laundry, green, covered in mud
+- Blouse -> woman laundry, pink, worn
