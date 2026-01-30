@@ -15,13 +15,41 @@ Renders memory_dict values (str, list, dict) to prompt-safe strings.
 """
 
 
+
+
+######################################################
+#                                                    #
+#                      LIBRARIES                     #
+#                                                    #
+######################################################
+
+
 from typing import Any
+
+
+
+
+######################################################
+#                                                    #
+#                      VARIABLES                     #
+#                                                    #
+######################################################
+
 
 # Allowed key chars for $memory[key]: alphanumeric, underscore, hyphen
 MEMORY_KEY_PATTERN = r"[a-zA-Z0-9_-]+"
 
 # Max recursion depth for dict/list rendering (safety)
 DEFAULT_MAX_DEPTH = 8
+
+
+
+
+######################################################
+#                                                    #
+#                      FUNCTIONS                     #
+#                                                    #
+######################################################
 
 
 def render_memory_value(
@@ -38,8 +66,7 @@ def render_memory_value(
     - dict: "key: value\\n" per pair (value rendered recursively).
     - int, float, bool, None: str(value) or default_for_empty for None.
 
-    Parameters
-    ----------
+    Args:
     value : Any
         The value to render (from memory_dict[key] or nested).
     default_for_empty : str, optional
@@ -48,12 +75,11 @@ def render_memory_value(
         Maximum recursion depth for dict/list. Default 8.
     _depth : int, optional
         Internal recursion depth; do not pass.
-
-    Returns
-    -------
-    str
-        Rendered string safe for prompt insertion.
+    Returns:
+        str
+            Rendered string safe for prompt insertion.
     """
+    
     if _depth > max_depth:
         return default_for_empty
 
@@ -105,3 +131,6 @@ def render_memory_value(
 
     # Fallback for unexpected types
     return str(value) if value is not None else default_for_empty
+
+
+

@@ -40,10 +40,27 @@ class Visualizer:
     """Visualization Class"""
     
     def __init__(self, window_name: str = "Scenario 2: VLM Control (Absolute)"):
+        """
+        Initialize the Visualizer
+
+        Args:
+            window_name (_type_, optional): _description_. Defaults to "Scenario 2: VLM Control (Absolute)".
+        Returns:
+            None
+        """
+        
         self.window_name = window_name
     
     def visualize_grid_cli(self, wrapper: MiniGridEmojiWrapper, state: dict):
-        """Visualize the grid as text in the CLI"""
+        """
+        Visualize the grid as text in the CLI
+        
+        Args:
+            wrapper (MiniGridEmojiWrapper): The MiniGrid environment wrapper
+            state (dict): The current state of the environment
+        Returns:
+            None
+        """
         
         env = wrapper.env
         size = wrapper.size
@@ -108,7 +125,14 @@ class Visualizer:
         print("=" * 60 + "\n")
 
     def display_image(self, img: np.ndarray):
-        """Displaying images using OpenCV"""
+        """
+        Displaying images using OpenCV
+        
+        Args:
+            img (np.ndarray): The image to be displayed
+        Returns:
+            None
+        """
         
         if img is not None:
             try:
@@ -129,7 +153,14 @@ class Visualizer:
                 print(f"Image display error: {e}")
     
     def cleanup(self):
-        """Resource Cleanup"""
+        """
+        Resource Cleanup
+        
+        Args:
+            None
+        Returns:
+            None
+        """
         
         cv2.destroyAllWindows()
 

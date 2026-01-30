@@ -78,6 +78,8 @@ class ScenarioExperiment:
                  use_verbalized: bool = None,
                 ):
         """
+        Init Scenario Experiment Runner - Absolute Coordinate Version
+        
         Args:
             log_dir: Log directory path
             json_map_path: JSON map file path (default: None, uses MAP_FILE_NAME from global_variables)
@@ -86,6 +88,8 @@ class ScenarioExperiment:
             debug: Enable debug output (default: None, uses DEBUG from global_variables)
             use_verbalized: Use verbalized entropy prompt (system_prompt_verbalized_entropy.txt) if True,
                 standard prompt (system_prompt_start.txt) if False. Default: None = use USE_VERBALIZED_ENTROPY from global_variables.
+        Returns:
+            None
         """
         
         self.use_verbalized_override = use_verbalized  # None = use global USE_VERBALIZED_ENTROPY

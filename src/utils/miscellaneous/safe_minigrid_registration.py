@@ -37,6 +37,11 @@ from utils.miscellaneous.global_variables import ENV_ID
 def safe_minigrid_reg():
     """
     Safely register a custom MiniGrid environment if not already registered.
+    
+    Args:
+        None
+    Returns:
+        None
     """
     
     if ENV_ID not in registry:
@@ -44,3 +49,6 @@ def safe_minigrid_reg():
             id=ENV_ID,
             entry_point="my_package.my_env:MyEnv",
         )
+
+
+

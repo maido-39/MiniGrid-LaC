@@ -1,7 +1,7 @@
 ######################################################
 #                                                    #
-#                      EPISODE                      #
-#                      MANAGER                      #
+#                       EPISODE                      #
+#                       MANAGER                      #
 #                                                    #
 ######################################################
 
@@ -13,8 +13,26 @@ Provides convert_numpy_types() for JSON serialization of objects containing nump
 """
 
 
+
+
+######################################################
+#                                                    #
+#                      LIBRARIES                     #
+#                                                    #
+######################################################
+
+
 import json
 import numpy as np
+
+
+
+
+######################################################
+#                                                    #
+#                      FUNCTIONS                     #
+#                                                    #
+######################################################
 
 
 def convert_numpy_types(obj):
@@ -27,6 +45,7 @@ def convert_numpy_types(obj):
     Returns:
         Object with all non-serializable types converted to Python native types
     """
+    
     if isinstance(obj, np.integer):
         return int(obj)
     elif isinstance(obj, np.floating):
@@ -56,3 +75,6 @@ def convert_numpy_types(obj):
             return obj
         except (TypeError, ValueError):
             return str(obj)
+
+
+
