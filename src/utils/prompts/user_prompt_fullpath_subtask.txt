@@ -1,0 +1,5 @@
+## MISSION
+Your mission is:
+**$mission**
+
+Current agent position (chess-style, column+row e.g. G7): $agent_chess.
