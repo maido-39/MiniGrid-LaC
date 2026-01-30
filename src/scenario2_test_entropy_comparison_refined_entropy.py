@@ -38,6 +38,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # Import modularized components
 import utils.prompt_manager.terminal_formatting_utils as tfu
 from utils.miscellaneous.scenario_runner import ScenarioExperiment
+from utils.prompt_manager.feedback_utils import strip_feedback_prefix
 from utils.miscellaneous.safe_minigrid_registration import safe_minigrid_reg
 from utils.miscellaneous.global_variables import (
     MAP_FILE_NAME, DEBUG, DEFAULT_INITIAL_MISSION, DEFAULT_MISSION,
@@ -478,7 +479,7 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
             user_prompt=user_prompt,
             include_grounding=True,
             include_language=True,
-            show_debug=True  # Only show debug output for H(X|L,S)
+            show_debug=DEBUG  # Respect global DEBUG for H(X|L,S) debug output
         )
     
     def run_step(self, init_step: bool = False):
@@ -520,11 +521,7 @@ class RefinedEntropyComparisonExperiment(ScenarioExperiment):
         has_feedback = self._evaluate_feedback(raw_user_input)
         
         if has_feedback:
-            if self.user_prompt.lower().startswith("feedback :"):
-                feedback_text = self.user_prompt[10:].strip()
-            else:
-                feedback_text = self.user_prompt
-            
+            feedback_text = strip_feedback_prefix(self.user_prompt)
             system_prompt = self.prompt_organizer.get_system_prompt(self.wrapper)
             self.vlm_gen_feedback(system_prompt, feedback_text)
             
