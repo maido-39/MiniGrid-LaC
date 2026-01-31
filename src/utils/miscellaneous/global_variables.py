@@ -70,7 +70,7 @@ USE_VERBALIZED_ENTROPY = False
 # Map Configuration
 # MAP_FILE_NAME: Name of the map file to use (must be located in the config/ directory)
 #   Good examples: "example_map.json", "scenario135_example_map.json"
-MAP_FILE_NAME = "scenario4_example_map.json"
+MAP_FILE_NAME = "scenario135_example_map.json"
 
 # Mission/Task Setup
 DEFAULT_INITIAL_MISSION = "Explore your surroundings and gather as much information as possible."
