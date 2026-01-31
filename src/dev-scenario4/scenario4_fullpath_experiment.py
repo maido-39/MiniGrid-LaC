@@ -56,7 +56,7 @@ DEFAULT_IMAGE_PATH = _DEV_DIR / "sc4.png"
 DEFAULT_GROUNDING_JSON_PATH = _DEV_DIR / "scenario4_map_vlm_output.json"
 DEFAULT_LOGS_BASE = _DEV_DIR / "logs"
 # OpenCV 창 표시: True = 맵/경로 시각화 창 띄움, False = 창 없이 터미널만
-SHOW_OPENCV_WINDOW = True
+SHOW_OPENCV_WINDOW = False
 # VLM 출력 길이: subtask 10개 이상 등 긴 경로 시 65535 권장 (Gemini 2.5 Flash max output)
 FULLPATH_MAX_TOKENS = 65535
 

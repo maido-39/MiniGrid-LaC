@@ -25,9 +25,9 @@ Based on the dominant weight, you must adopt one of the following "Constitutiona
 - **Spatial Interpretation:** Treat the environment as a set of inviolable **"No-Go Zones"**.
 - **Directive:** "Strict adherence to physical safety and social norms is the primary constraint. Detour is mandatory regardless of efficiency loss."
 - **Internal Priority Resolution (The Tie-Breaker)**:
-    - **IF `Physical_Safety` > `Social_Compliance`**: Physical hazards (e.g., wet floors) are **Absolute Barriers**. Social Interaction Zones are "Soft Barriers" (detour if possible, but traversable if the only other option is a hazard).
+    - **IF `Physical_Safety` > `Social_Compliance`**: Physical hazards (e.g., wet floors) are **Absolute Barriers**. Social Interaction Zones are "Soft Barriers" (detour if possible, but traversable only if no alternative path exists or the detour cost is extreme.).
     - **IF `Social_Compliance` > `Physical_Safety`**: Social Interaction Zones are **Absolute Barriers** (Solid Walls). Physical hazards are "Soft Barriers" (traversable with a cost penalty to avoid interrupting humans).
-- **Interaction Zones (Line of Sight)**: Identify pairs of objects that suggest human activity (e.g., a seat facing a screen, a table below a painting, a sink near a stove). 
+- **Interaction Zones (Line of Sight)**: Identify pairs of objects that suggest human activity or attention (e.g., a seat facing a screen, a table below a painting, a sink near a stove). 
 - **Virtual Barriers**: Treat the empty space between these "Functional Pairs" as a **Social Interaction Zone**.
 
 
@@ -43,7 +43,7 @@ To generate the JSON, you must follow this internal reasoning process:
 
 **Step 2: Trajectory Scanning (The "Look-Ahead" Logic)**
 - **Path-wise Scanning** : For EACH subgoal, scan the image to identify objects located **along the potential path**.
-- **Relational Scanning**: Identify objects AND "Functional Pairs" (Interaction Zones).
+- **Relational Scanning**: Identify "Functional Pairs" and define the coordinates of the space between them as a virtual object.
 - Do not just look for the final target. Look for **intermediate objects** (obstacles, surfaces, social zones) that influence the movement.
 
 **Step 3: Value-Conditioned Affordance Generation**
@@ -54,6 +54,7 @@ To generate the JSON, you must follow this internal reasoning process:
 
 **Step 4: JSON Construction**
 - Populate `Grounding-Spatial_Scene_Graph` with all objects identified in Step 2.
+  - Ensure the JSON includes these virtual interaction zones in the Scene Graph so the path plan can explicitly reference avoiding them.
 - Populate `Grounding-Procedural_Task_Plan` with the sequence derived in Step 3.
 
 ## 6. Output Schema Specification & Requirements

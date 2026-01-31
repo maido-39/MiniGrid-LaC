@@ -16,7 +16,10 @@ You are a path planner. Your goal is to decompose the given language instruction
 
 ## PRE-GENERATED GROUNDING (use this to inform your subtasks and paths)
 The following grounding (spatial scene graph and procedural task plan) was generated for this scene. Use it to align your subtask decomposition and path sequences.
-
+**IMPORTANT**: When the current situation matches the conditions described in a grounding rule, you MUST apply that rule when generating trajectories.
+- Review each grounding rule before generating trajectories.
+- If a grounding rule applies to the current situation, prioritize actions that follow the rule.
+- Match the situation carefully: only apply rules when the conditions are similar.
 $grounding_content
 
 ## TASK
@@ -28,7 +31,9 @@ $grounding_content
 
 ## LONG HORIZON TASK PLANNING
 - Plan the full mission as an ordered sequence of subtasks (subtask1, subtask2, ...).
+  - **Sequential Integrity**: You MUST complete subgoals in the order 1 -> 2 -> 3 -> 4. Never reorder or skip steps for efficiency.
 - For each subtask, define a clear start and goal so that executing them in order completes the instruction.
+  - **Subgoal Persistence**: All subgoals are mandatory. If a path is blocked or high-cost, you must find a **detour**. Never output "abort_task" or "unreachable" unless a physical enclosure exists.
 - Keep the high-level plan brief; details go in each subtask's reasoning and path.
 
 ## OUTPUT FORMAT
