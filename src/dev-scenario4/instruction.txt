@@ -1,0 +1,14 @@
+[Navigation_Context]
+{
+  "weights": {
+    "Task_Utility": 10,
+    "Physical_Safety": 80,
+    "Social_Compliance": 10
+  }
+}
+
+[Instruction]
+1. gather green pants and put into brown basket
+2. gather purple t-shirt inside bedroom
+3. get water from kitchen
+4. gather soap and do laundary inside shower room

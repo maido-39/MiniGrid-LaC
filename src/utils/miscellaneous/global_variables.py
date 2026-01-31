@@ -34,11 +34,12 @@ This module defines global configuration variables used across the MiniGrid-LaC 
 #   Vertex AI: "gemini-2.5-flash-vertex" (logprobs support)
 #   Qwen: "qwen2-vl-2b", "qwen2-vl-7b", "qwen2-vl-72b", "qwen2.5-vl-3b", "qwen2.5-vl-7b", "qwen2.5-vl-32b"
 #   Gemma: "gemma-2-2b", "gemma-2-9b", "gemma-2-27b"
-VLM_MODEL = "gemini-2.5-flash"
+VLM_MODEL = "gemini-2.5-pro"
 # VLM_TEMPERATURE: Generation Randomness Control (0.0 = Deterministic, 1.0 = Random, Recommended: 0.0)
 VLM_TEMPERATURE = 0.5
 # VLM_MAX_TOKENS: Maximum Output Token Count (Response Length Limit)
-VLM_MAX_TOKENS = 3000
+# Grounding JSON 등 긴 출력 시 8192 권장 (Gemini 2.5 Flash 출력 한도 8192)
+VLM_MAX_TOKENS = 65535
 # VLM_THINKING_BUDGET: Gemini 2.5 Flash Thinking Budget (Token Units, None=Default, 0 = Inactive)
 VLM_THINKING_BUDGET = 0
 # LOGPROBS_ENABLED: logprobs activation status (Vertex AI Gemini only)

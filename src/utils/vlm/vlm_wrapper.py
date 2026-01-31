@@ -15,6 +15,7 @@ This module internally uses the new handler system (vlm.handlers).
 The existing API is maintained for compatibility.
 """
 
+import os
 import time
 from typing import Optional, Union
 from pathlib import Path
@@ -27,6 +28,7 @@ from .vlm_manager import VLMManager
 
 # Import GeminiHandler (always check, will raise ImportError if not available)
 from .handlers.gemini_handler import GeminiHandler
+from utils.miscellaneous.global_variables import USE_GCP_KEY
 
 # Export VLMManager for backward compatibility
 __all__ = ["VLMWrapper", "VLMManager", "ChatGPT4oVLMWrapper"]  # ChatGPT4oVLMWrapper is alias for backward compatibility
@@ -99,6 +101,12 @@ class VLMWrapper:
         """
         # Select handler based on model name
         model_lower = model.lower() if model else ""
+        
+        # USE_GCP_KEY=True이면 Gemini 호출 시 Vertex AI(GCP 키) 사용. 호출자가 vertexai를 넘기지 않은 경우에만 적용.
+        if model_lower.startswith("gemini") and not vertexai and USE_GCP_KEY:
+            vertexai = True
+            project_id = project_id or os.getenv("GOOGLE_CLOUD_PROJECT")
+            location = location or os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
         
         if model_lower.startswith("gemini"):
             # Use GeminiHandler for Gemini models

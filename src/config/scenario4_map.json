@@ -1,0 +1,286 @@
+
+{
+  "Pallete": {"pallette":["🟥🟧🟨🟩🟦🟪⬛⬜️🟫🟤🔴🟠🟡🟢🔵🟣⚫⚪🔶🔷♦️🔺🔻💛"]},
+  "map": {
+    "emoji_render": [
+      "⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛",
+      "⬛🟣🟩🟩🧹🧹🟨🟡🟡🟨⬜️🔵🟦🟦⬛",
+      "⬛🟣🟩🟩🧹🧹🟨🟨🟨🟨⬜️🟦🟦🟦⬛",
+      "⬛🔴🟩🟩🧹🧹🔺💛🟨🟨⬜️🟦🟦🟦⬛",
+      "⬛⬜️⬜️⬜️⬜️⬜⬜️⬜️⬜️💦💦⬜️⬜️⬜️⬛",
+      "⬛⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️⬜️💦💦💦💦⬛",
+      "⬛🛋️⬜️⬜️📺⬜️⬜️⬜⬜️⬜⬜️🟨💦🟨⬛",
+      "⬛🛋️⬜️⬜️📺⬜️⬜️🤖⬜⬜️⬜️🟨🔻🟡⬛",
+      "⬛🛋️⬜️⬜️📺🚧🚧🚧🚧🚧⬜️🟨🟨🟡⬛",
+      "⬛⬜️⬜️⬜️⬜️💦🟪🟪🟢⬜️⬜️⬜️⬜️⬜️⬛",
+      "⬛⬜️⬜️⬜️⬜️💦🟪🟪🟪⬜️⬜️⬜️⬜️⬜️⬛",
+      "⬛🟨🟨🟨⬜️⬜️🟫🟪🟤⬜️⬜️🔶🔶⚪⬛",
+      "⬛🟨🟨🟨⬜️⬜️⬜️⬜️⬜️⬜️⬜️⚪🔶🔶⬛",
+      "⬛🟨🟡🟨⬜️⬜️⬜️⬜️⬜️⬜️⬜️⚪🔶🔶⬛",
+      "⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛"
+    ],
+    "emoji_objects": {
+      "♦️": {
+        "type": "emoji",
+        "emoji_name": "dress",
+        "color": "red",
+        "can_pickup": true,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🔺": {
+        "type": "emoji",
+        "emoji_name": "shirt",
+        "color": "red",
+        "can_pickup": true,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🔻": {
+        "type": "emoji",
+        "emoji_name": "short",
+        "color": "red",
+        "can_pickup": true,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "💛": {
+        "type": "emoji",
+        "emoji_name": "blouse",
+        "color": "pink",
+        "can_pickup": true,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "⬛": {
+        "type": "emoji",
+        "emoji_name": "brick",
+        "color": "red",
+        "can_pickup": false,
+        "can_overlap": false,
+        "use_emoji_color": true
+      },
+      "⬜️": {
+        "type": "empty",
+        "can_pickup": false,
+        "can_overlap": true
+      },
+      "🟦": {
+        "type": "floor",
+        "color": "blue",
+        "emoji_name": "laundry_room",
+        "can_pickup": false,
+        "can_overlap": false,
+        "use_emoji_color": true
+      },
+      "🟪": {
+        "type": "floor",
+        "color": "purple",
+        "emoji_name": "restroom",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🟩": {
+        "type": "floor",
+        "color": "green",
+        "emoji_name": "kitchen",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🟧": {
+        "type": "floor",
+        "color": "orange",
+        "emoji_name": "plating",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🟣": {
+        "type": "emoji",
+        "color": "red",
+        "emoji_name": "kitchen",
+        "can_pickup": false,
+        "can_overlap": false,
+        "use_emoji_color": true
+      },
+      "🟨": {
+        "type": "floor",
+        "color": "yellow",
+        "emoji_name": "bedroom",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🟫": {
+        "type": "emoji",
+        "color": "purple",
+        "emoji_name": "toilet",
+        "can_pickup": false,
+        "can_overlap": false,
+        "use_emoji_color": false
+      },
+      "🟤":{
+        "type" : "emoji",
+        "color" : "purple",
+        "emoji_name" : "shower",
+        "can_pickup" : false, 
+        "can_overlap" : false,
+        "use_emoji_color" : false
+      },
+      "🔴":{
+        "type" : "emoji",
+        "color" : "green",
+        "emoji_name" : "sink",
+        "can_pickup" : false, 
+        "can_overlap" : false,
+        "use_emoji_color" : true
+
+      },
+      "🟠":{
+        "type" : "emoji",
+        "color" : "orange",
+        "emoji_name" : "tomato",
+        "can_pickup" : true, 
+        "can_overlap" : true,
+        "use_emoji_color" : true
+
+      },
+      "🟡":{
+        "type" : "emoji",
+        "color" : "yellow",
+        "emoji_name" : "bed",
+        "can_pickup" : false, 
+        "can_overlap" : false,
+        "use_emoji_color" : true
+
+      },
+      "⚫":{
+        "type" : "emoji",
+        "color" : "yellow",
+        "emoji_name" : "shower",
+        "can_pickup" : false, 
+        "can_overlap" : false,
+        "use_emoji_color" : false
+
+      },
+      "🟢":{
+        "type" : "emoji",
+        "color" : "purple",
+        "emoji_name" : "soap",
+        "can_pickup" : false, 
+        "can_overlap" : true,
+        "use_emoji_color" : true
+
+      },
+      "🔵":{
+        "type" : "emoji",
+        "color" : "blue",
+        "emoji_name" : "laundry",
+        "can_pickup" : true, 
+        "can_overlap" : true,
+        "use_emoji_color" : true
+
+      },
+      "⚪":{
+        "type" : "emoji",
+        "color" : "red",
+        "emoji_name" : "tools",
+        "can_pickup" : false, 
+        "can_overlap" : true,
+        "use_emoji_color" : true
+
+      },
+      "🔷":{
+        "type" : "emoji",
+        "color" : "blue",
+        "emoji_name" : "plating",
+        "can_pickup" : false, 
+        "can_overlap" : false,
+        "use_emoji_color" : true
+
+      },
+      "🔶":{
+        "type" : "floor",
+        "color" : "red",
+        "emoji_name" : "garage",
+        "can_pickup" : false, 
+        "can_overlap" : true,
+        "use_emoji_color" : true
+      },
+      "🛋️": {
+        "type": "emoji",
+        "color": "brown",
+        "emoji_name": "sofa",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "📺": {
+        "type": "emoji",
+        "color": "blue",
+        "emoji_name": "TV",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🧹": {
+        "type": "emoji",
+        "color": "green",
+        "emoji_name": "broom",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "💦": {
+        "type": "emoji",
+        "color": "blue",
+        "emoji_name": "water",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "💡": {
+        "type": "emoji",
+        "color": "yellow",
+        "emoji_name": "lamp",
+        "can_pickup": false,
+        "can_overlap": true,
+        "use_emoji_color": true
+      },
+      "🚧": {
+        "type": "emoji",
+        "color": "grey",
+        "emoji_name": "wall",
+        "can_pickup": false,
+        "can_overlap": false,
+        "use_emoji_color": true
+      }
+    },
+    "robot_config": {
+
+      "use_robot_emoji": true,
+      "robot_emoji_color": "red",
+      "background_color": "white", 
+      "use_robot_emoji_color": true,
+
+      "highlight": false,
+      "highlight_color": "grey",
+      "agent_view_size": 4,
+
+      "fov_enabled": false,
+      "fov_range": 3,
+      "fov_width": 2,
+      "fov_color": "white"
+    },
+    "start_pos": [
+      2,
+      11
+    ],
+    "goal_pos": [
+      12,
+      1
+    ]
+  }
+}

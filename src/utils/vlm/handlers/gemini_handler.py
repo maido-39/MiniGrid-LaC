@@ -177,17 +177,14 @@ class GeminiHandler(VLMHandler):
             if base_model == "gemini-2.5-flash":
                 model = "gemini-2.5-flash"
         
-        # Validate thinking_budget
-        if thinking_budget is not None:
-            if model_lower not in ["gemini-2.5-flash", "gemini-2.5-flash-vertex", "gemini-2.5-flash-logprobs"]:
-                raise ValueError(
-                    f"thinking_budget is only supported for gemini-2.5-flash model. "
-                    f"Current model: {model}"
-                )
-            if thinking_budget < 0:
-                raise ValueError(
-                    f"thinking_budget must be non-negative. Got: {thinking_budget}"
-                )
+        # thinking_budget: gemini-2.5-flash 전용. 다른 모델이면 무시 (에러 없이 None 으로 둠)
+        thinking_supported = model_lower in ["gemini-2.5-flash", "gemini-2.5-flash-vertex", "gemini-2.5-flash-logprobs"]
+        if thinking_budget is not None and not thinking_supported:
+            thinking_budget = None
+        if thinking_budget is not None and thinking_budget < 0:
+            raise ValueError(
+                f"thinking_budget must be non-negative. Got: {thinking_budget}"
+            )
         
         # Validate logprobs
         if logprobs is not None:
@@ -382,9 +379,11 @@ class GeminiHandler(VLMHandler):
             self.initialize()
         
         # Prepare generation config with system_instruction and thinking_budget support
+        # google.genai.types.GenerateContentConfig 생성자 파라미터는 maxOutputTokens (camelCase).
+        # max_output_tokens 는 무시될 수 있으므로 maxOutputTokens 로 명시적으로 전달.
         config_kwargs = {
             "temperature": self.temperature,
-            "max_output_tokens": self.max_tokens,
+            "maxOutputTokens": self.max_tokens,
         }
         
         # Add system_instruction if provided
@@ -426,6 +425,10 @@ class GeminiHandler(VLMHandler):
             {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
         ]
         config_kwargs["safety_settings"] = safety_settings
+        
+        # Debug: maxOutputTokens 적용 확인 (환경변수 VLM_DEBUG_MAX_TOKENS=1 시 출력)
+        if os.getenv("VLM_DEBUG_MAX_TOKENS"):
+            print(f"[GeminiHandler] maxOutputTokens={self.max_tokens}, vertexai={self.vertexai}")
         
         # Add logprobs support for Vertex AI
         if self.vertexai and self.logprobs is not None:

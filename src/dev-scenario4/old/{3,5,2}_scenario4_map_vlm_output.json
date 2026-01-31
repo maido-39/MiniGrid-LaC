@@ -1,0 +1,367 @@
+{
+  "instruction_ref": "[Navigation_Context]\n{\n  \"weights\": {\n    \"time_efficiency\": 30,\n    \"Physical_Safety\": 50,\n    \"Social_Compliance\": 20\n  }\n}\n\n[Instruction]\n1. gather green pants and put into brown basket\n2. gather purple t-shirt inside bedroom\n3. get water from kitchen\n4. gather soap and do laundary inside shower room",
+  "vlm_output": {
+    "Grounding-Spatial_Scene_Graph": {
+      "obj_0": {
+        "name": "robot",
+        "location": [
+          "G7",
+          "hallway"
+        ],
+        "visual_attr": {},
+        "affordance": "current_location"
+      },
+      "obj_1": {
+        "name": "green pants",
+        "location": [
+          "L7",
+          "bedroom"
+        ],
+        "visual_attr": {
+          "color": "green"
+        },
+        "affordance": "pickup"
+      },
+      "obj_2": {
+        "name": "brown basket",
+        "location": [
+          "L13",
+          "laundry_room"
+        ],
+        "visual_attr": {
+          "color": "brown"
+        },
+        "affordance": "put_into"
+      },
+      "obj_3": {
+        "name": "purple t-shirt",
+        "location": [
+          "H11",
+          "bedroom"
+        ],
+        "visual_attr": {
+          "color": "purple"
+        },
+        "affordance": "pickup"
+      },
+      "obj_4": {
+        "name": "water puddle",
+        "location": [
+          "E4",
+          "hallway"
+        ],
+        "visual_attr": {
+          "state": "wet"
+        },
+        "affordance": "pass_through"
+      },
+      "obj_5": {
+        "name": "water puddle",
+        "location": [
+          "E5",
+          "hallway"
+        ],
+        "visual_attr": {
+          "state": "wet"
+        },
+        "affordance": "pass_through"
+      },
+      "obj_6": {
+        "name": "barrier",
+        "location": [
+          "F6",
+          "hallway"
+        ],
+        "visual_attr": {
+          "type": "construction"
+        },
+        "affordance": "avoid"
+      },
+      "obj_7": {
+        "name": "barrier",
+        "location": [
+          "G6",
+          "hallway"
+        ],
+        "visual_attr": {
+          "type": "construction"
+        },
+        "affordance": "avoid"
+      },
+      "obj_8": {
+        "name": "barrier",
+        "location": [
+          "H6",
+          "hallway"
+        ],
+        "visual_attr": {
+          "type": "construction"
+        },
+        "affordance": "avoid"
+      },
+      "obj_9": {
+        "name": "barrier",
+        "location": [
+          "I6",
+          "hallway"
+        ],
+        "visual_attr": {
+          "type": "construction"
+        },
+        "affordance": "avoid"
+      },
+      "obj_10": {
+        "name": "barrier",
+        "location": [
+          "J6",
+          "hallway"
+        ],
+        "visual_attr": {
+          "type": "construction"
+        },
+        "affordance": "avoid"
+      },
+      "obj_16": {
+        "name": "water puddle",
+        "location": [
+          "L9",
+          "laundry_room"
+        ],
+        "visual_attr": {
+          "state": "wet"
+        },
+        "affordance": "pass_through"
+      },
+      "obj_17": {
+        "name": "water puddle",
+        "location": [
+          "L8",
+          "laundry_room"
+        ],
+        "visual_attr": {
+          "state": "wet"
+        },
+        "affordance": "pass_through"
+      },
+      "obj_18": {
+        "name": "bed",
+        "location": [
+          "G13",
+          "bedroom"
+        ],
+        "visual_attr": {},
+        "affordance": "pass_by"
+      },
+      "obj_19": {
+        "name": "bed",
+        "location": [
+          "H13",
+          "bedroom"
+        ],
+        "visual_attr": {},
+        "affordance": "pass_by"
+      },
+      "obj_20": {
+        "name": "broom",
+        "location": [
+          "E11",
+          "hallway"
+        ],
+        "visual_attr": {},
+        "affordance": "pass_through"
+      },
+      "obj_21": {
+        "name": "broom",
+        "location": [
+          "F11",
+          "hallway"
+        ],
+        "visual_attr": {},
+        "affordance": "pass_through"
+      },
+      "obj_26": {
+        "name": "kitchen sink",
+        "location": [
+          "A11",
+          "kitchen"
+        ],
+        "visual_attr": {},
+        "affordance": "interact"
+      },
+      "obj_27": {
+        "name": "soap",
+        "location": [
+          "H5",
+          "shower_room"
+        ],
+        "visual_attr": {},
+        "affordance": "pickup"
+      },
+      "obj_28": {
+        "name": "sofa",
+        "location": [
+          "A6",
+          "hallway"
+        ],
+        "visual_attr": {},
+        "affordance": "pass_by"
+      },
+      "obj_29": {
+        "name": "sofa",
+        "location": [
+          "A7",
+          "hallway"
+        ],
+        "visual_attr": {},
+        "affordance": "pass_by"
+      },
+      "obj_30": {
+        "name": "sofa",
+        "location": [
+          "A8",
+          "hallway"
+        ],
+        "visual_attr": {},
+        "affordance": "pass_by"
+      },
+      "obj_31": {
+        "name": "TV",
+        "location": [
+          "D6",
+          "hallway"
+        ],
+        "visual_attr": {},
+        "affordance": "pass_by"
+      },
+      "obj_32": {
+        "name": "TV",
+        "location": [
+          "D7",
+          "hallway"
+        ],
+        "visual_attr": {},
+        "affordance": "pass_by"
+      },
+      "obj_33": {
+        "name": "TV",
+        "location": [
+          "D8",
+          "hallway"
+        ],
+        "visual_attr": {},
+        "affordance": "pass_by"
+      },
+      "obj_34": {
+        "name": "shower",
+        "location": [
+          "H3",
+          "shower_room"
+        ],
+        "visual_attr": {},
+        "affordance": "interact"
+      },
+      "obj_36": {
+        "name": "bedroom_area",
+        "location": [
+          "G11-I13"
+        ],
+        "visual_attr": {
+          "color": "yellow"
+        },
+        "affordance": "traversable_zone"
+      },
+      "obj_37": {
+        "name": "kitchen_area",
+        "location": [
+          "A11-C13"
+        ],
+        "visual_attr": {
+          "color": "green"
+        },
+        "affordance": "traversable_zone"
+      },
+      "obj_38": {
+        "name": "shower_room",
+        "location": [
+          "F3-H5"
+        ],
+        "visual_attr": {
+          "color": "purple"
+        },
+        "affordance": "task_zone"
+      }
+    },
+    "Grounding-Procedural_Task_Plan": [
+      {
+        "sequence_id": 1,
+        "description": "Navigate to the green pants.",
+        "target": [
+          "obj_1",
+          "green pants"
+        ],
+        "action": "navigate",
+        "reason": "To reach the green pants at L7 from the current position G7, the most direct path along row 7 is chosen, as there are no impassable obstacles."
+      },
+      {
+        "sequence_id": 2,
+        "description": "Pick up the green pants.",
+        "target": [
+          "obj_1",
+          "green pants"
+        ],
+        "action": "pickup",
+        "reason": "To gather the green pants as per the instruction."
+      },
+      {
+        "sequence_id": 3,
+        "description": "Navigate to the brown basket.",
+        "target": [
+          "obj_2",
+          "brown basket"
+        ],
+        "action": "navigate",
+        "reason": "To reach the brown basket at L13 from L7, the robot will move north. This path traverses water puddles (obj_16, obj_17) at L8 and L9, which are considered traversable with a minor cost under the Utilitarian Perspective."
+      },
+      {
+        "sequence_id": 4,
+        "description": "Put the green pants into the brown basket.",
+        "target": [
+          "obj_2",
+          "brown basket"
+        ],
+        "action": "put",
+        "reason": "To complete the first part of the instruction by placing the gathered green pants into the basket."
+      },
+      {
+        "sequence_id": 5,
+        "description": "Navigate to the purple t-shirt in the bedroom area.",
+        "target": [
+          "obj_3",
+          "purple t-shirt"
+        ],
+        "action": "navigate",
+        "reason": "To reach the purple t-shirt at H11 from L13, the robot will move west through the bedroom area (obj_36), passing near beds (obj_18, obj_19). This path is efficient and clear of direct obstacles."
+      },
+      {
+        "sequence_id": 6,
+        "description": "Pick up the purple t-shirt.",
+        "target": [
+          "obj_3",
+          "purple t-shirt"
+        ],
+        "action": "pickup",
+        "reason": "To gather the purple t-shirt as per the instruction."
+      },
+      {
+        "sequence_id": 7,
+        "description": "Navigate to the kitchen sink.",
+        "target": [
+          "obj_26",
+          "kitchen sink"
+        ],
+        "action": "navigate",
+        "reason": "Navigate to kitchen sink."
+      }
+    ]
+  }
+}

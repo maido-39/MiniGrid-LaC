@@ -51,6 +51,11 @@ from utils.miscellaneous.global_variables import (
 )
 from utils.map_manager.emoji_map_loader import load_emoji_map_from_json
 
+try:
+    from matplotlib import cm as _mpl_cm
+except ImportError:
+    _mpl_cm = None
+
 safe_minigrid_reg()
 
 # OpenCV window for map and path visualization (single window, updated in place)
@@ -81,11 +86,11 @@ def _sigint_close_opencv(signum, frame):
 # ---------------------------------------------------------------------------
 # Chess-style coordinate conversion (Alphabet + Number, e.g. A2, B7, G7)
 # Chess format: column letter(s) + row number (e.g. G7, F11). Row 1 = bottom.
-# Minigrid: (0,0) = top-left, x = column, y = row (increases downward).
+# Minigrid: (1,1) = top-left, x = column, y = row (increases downward).
 # Rule:
 #   Chess -> Minigrid: Num = row part, Alp = letter part.
-#     minigrid_Y = grid_size - Num - 1  (invert, 0-based)
-#     minigrid_X = alphabet to 0-based index (A=0, B=1, ...)
+#     minigrid_Y = grid_size - Num - 1  (invert, 1-based)
+#     minigrid_X = alphabet to 1-based index (A=1, B=2, ...)
 #   Minigrid -> Chess: Num = grid_size - minigrid_Y - 1, Letter = A + minigrid_X
 # ---------------------------------------------------------------------------
 
@@ -94,7 +99,7 @@ def chess_to_minigrid(chess_str: str, grid_size: int) -> Tuple[int, int]:
     """
     Parse chess-style cell string (e.g. "G7", "F11") to minigrid (x, y).
     Format: column letter(s) + row number (AlphabetNum). Row 1 = bottom.
-    minigrid_Y = grid_size - Num - 1; minigrid_X = A->0, B->1, ...
+    minigrid_Y = grid_size - Num - 1; minigrid_X = A->1, B->2, ..., H->8, L->12 (1-based).
     """
     s = str(chess_str).strip()
     m = re.match(r"^([A-Za-z]+)(\d+)$", s)
@@ -104,14 +109,13 @@ def chess_to_minigrid(chess_str: str, grid_size: int) -> Tuple[int, int]:
     num = int(m.group(2))
     if num < 1 or num > grid_size:
         raise ValueError(f"Chess row {num} out of range [1, {grid_size}]")
-    # Column: A=0, B=1, ...; multi-letter (AA, AB...) for grids > 26
+    # Column: A=1, B=2, ..., H=8, L=12 (1-based minigrid X). Do NOT subtract 1.
     col_index = 0
     for c in col_str:
         col_index = col_index * 26 + (ord(c) - ord("A") + 1)
-    col_index -= 1  # 0-based
-    if col_index < 0 or col_index >= grid_size:
+    if col_index < 1 or col_index > grid_size:
         raise ValueError(f"Chess column {col_str!r} out of range for grid_size={grid_size}")
-    minigrid_x = col_index
+    minigrid_x = col_index  # 1-based: L -> 12 (not 11)
     minigrid_y = grid_size - num - 1
     if minigrid_y < 0 or minigrid_y >= grid_size:
         raise ValueError(f"Chess row {num} out of range for grid_size={grid_size} (minigrid_y={minigrid_y})")
@@ -119,13 +123,14 @@ def chess_to_minigrid(chess_str: str, grid_size: int) -> Tuple[int, int]:
 
 
 def minigrid_to_chess(x: int, y: int, grid_size: int) -> str:
-    """Convert minigrid (x, y) to chess-style string e.g. 'A2', 'G7' (Alphabet + Num)."""
-    if x < 0 or x >= grid_size or y < 0 or y >= grid_size:
-        raise ValueError(f"Minigrid ({x},{y}) out of range [0, {grid_size})")
+    """Convert minigrid (x, y) to chess-style string e.g. 'A2', 'G7' (Alphabet + Num). x is 1-based (A=1..), y is 0-based."""
+    if x < 1 or x > grid_size or y < 0 or y >= grid_size:
+        raise ValueError(f"Minigrid ({x},{y}) out of range: x in [1, {grid_size}], y in [0, {grid_size})")
     num = grid_size - y - 1
-    col_letter = chr(ord("A") + x) if x < 26 else ""
-    if x >= 26:
-        t = x + 1
+    # x is 1-based: 1->A, 2->B, ..., 8->H, 12->L
+    col_letter = chr(ord("A") + (x - 1)) if x <= 26 else ""
+    if x > 26:
+        t = x
         while t > 0:
             t, r = divmod(t - 1, 26)
             col_letter = chr(ord("A") + r) + col_letter
@@ -348,11 +353,17 @@ def render_path_on_map(
     tile_size: int = 32,
     color_start: Tuple[int, int, int] = (0, 200, 0),
     color_end: Tuple[int, int, int] = (200, 50, 50),
+    inset: int = 1,
+    colormap: Optional[str] = "viridis",
 ) -> np.ndarray:
     """
-    Draw each subtask path on the map image with gradient from start to end.
-    Path is minigrid (x,y) = (column, row); (0,0)=top-left. Same as env render.
-    Chess notation: Alphabet+Num (e.g. G7); row 1 = bottom.
+    Draw each subtask path on the map image. Gradient is applied globally over all segments
+    (subtask1 start -> last subtask end) so sequence order is visible.
+    Path is minigrid (x,y): x is 1-based (A=1..), y is 0-based. Chess: Alphabet+Num, row 1 = bottom.
+    Outermost 1 row/column is not map; inset=1 shifts drawing inward by one tile.
+
+    colormap: If set (e.g. 'viridis', 'plasma', 'inferno', 'cividis'), use matplotlib's
+    perceptual colormap; None or '' uses linear RGB between color_start and color_end.
     """
     out = image.copy()
     if out.dtype != np.uint8:
@@ -360,12 +371,39 @@ def render_path_on_map(
     h, w = out.shape[:2]
 
     def cell_to_pixel(cx: int, cy: int) -> Tuple[int, int]:
-        # (cx, cy) = minigrid (column, row); matches env tile at (cx*ts, cy*ts)
-        px = int(cx * tile_size + tile_size // 2)
-        py = int(cy * tile_size + tile_size // 2)
+        # cx 1-based, cy 0-based. Inset: first map cell at (tile_size, tile_size).
+        px = int(inset * tile_size + (cx - 1) * tile_size + tile_size // 2)
+        py = int(inset * tile_size + cy * tile_size + tile_size // 2)
         return (min(max(px, 0), w - 1), min(max(py, 0), h - 1))
 
+    # Academic-style gradient: matplotlib viridis/plasma/inferno/cividis (perceptually uniform)
+    if colormap and _mpl_cm is not None:
+        try:
+            cmap = _mpl_cm.get_cmap(colormap)
+        except (ValueError, AttributeError):
+            cmap = _mpl_cm.get_cmap("viridis")
+
+        def interp(t: float) -> Tuple[int, int, int]:
+            rgba = cmap(t)
+            r, g, b = int(rgba[0] * 255), int(rgba[1] * 255), int(rgba[2] * 255)
+            return (b, g, r)
+    else:
+        def interp(t: float) -> Tuple[int, int, int]:
+            r = int(color_start[0] * (1 - t) + color_end[0] * t)
+            g = int(color_start[1] * (1 - t) + color_end[1] * t)
+            b = int(color_start[2] * (1 - t) + color_end[2] * t)
+            return (b, g, r)
+
     subtask_keys = sorted([k for k in parsed_action.get("action", {}).keys() if re.match(r"subtask\d+", k)])
+    # Count total segments (all subtasks) for global gradient
+    total_segments = 0
+    for sk in subtask_keys:
+        path = parsed_action["action"][sk].get("path", [])
+        total_segments += max(0, len(path) - 1)
+    total_segments = max(1, total_segments)
+
+    global_seg_idx = 0
+    thickness = max(2, tile_size // 8)
     for idx, sk in enumerate(subtask_keys):
         val = parsed_action["action"][sk]
         path = val.get("path", [])
@@ -375,27 +413,24 @@ def render_path_on_map(
         n = len(pts)
         if n < 2:
             if n == 1:
+                t = global_seg_idx / total_segments if total_segments else 0.0
                 cx, cy = int(path[0][0]), int(path[0][1])
                 px, py = cell_to_pixel(cx, cy)
-                c = (
-                    (color_start[0] + color_end[0]) // 2,
-                    (color_start[1] + color_end[1]) // 2,
-                    (color_start[2] + color_end[2]) // 2,
-                )
+                c = interp(t)
                 cv2.circle(out, (px, py), max(2, tile_size // 4), c, -1)
             continue
-        thickness = max(2, tile_size // 8)
-        for i in range(len(pts) - 1):
-            t = (i + 0.5) / max(1, n - 1)
-            r = int(color_start[0] * (1 - t) + color_end[0] * t)
-            g = int(color_start[1] * (1 - t) + color_end[1] * t)
-            b = int(color_start[2] * (1 - t) + color_end[2] * t)
-            c = (b, g, r)
+        for i in range(n - 1):
+            t = global_seg_idx / (total_segments - 1) if total_segments > 1 else 0.0
+            c = interp(t)
             cv2.line(out, pts[i], pts[i + 1], c, thickness)
-        px_s, py_s = pts[0]
-        px_e, py_e = pts[-1]
-        cv2.circle(out, (px_s, py_s), max(2, tile_size // 4), (color_start[2], color_start[1], color_start[0]), -1)
-        cv2.circle(out, (px_e, py_e), max(2, tile_size // 4), (color_end[2], color_end[1], color_end[0]), -1)
+            global_seg_idx += 1
+        # Start circle: t at beginning of this path
+        t_start = (global_seg_idx - (n - 1)) / (total_segments - 1) if total_segments > 1 else 0.0
+        t_end = (global_seg_idx - 1) / (total_segments - 1) if total_segments > 1 else 1.0
+        if total_segments == 1:
+            t_start, t_end = 0.0, 1.0
+        cv2.circle(out, pts[0], max(2, tile_size // 4), interp(t_start), -1)
+        cv2.circle(out, pts[-1], max(2, tile_size // 4), interp(t_end), -1)
 
     return out
 
@@ -457,7 +492,8 @@ class FullPathSubtaskExperiment(ScenarioExperiment):
             raise FileNotFoundError(f"User prompt not found: {user_path}")
         system_prompt = sys_path.read_text(encoding="utf-8")
         user_text = user_path.read_text(encoding="utf-8")
-        agent_chess = minigrid_to_chess(agent_x, agent_y, grid_size)
+        # Env agent_pos is 0-based; minigrid_to_chess expects 1-based x (A=1..).
+        agent_chess = minigrid_to_chess(agent_x + 1, agent_y, grid_size)
         user_prompt = user_text.replace("$mission", mission)
         user_prompt = user_prompt.replace("$agent_x", str(agent_x))
         user_prompt = user_prompt.replace("$agent_y", str(agent_y))
@@ -610,10 +646,12 @@ class FullPathSubtaskExperiment(ScenarioExperiment):
             path = val.get("path", [])
             if not path:
                 continue
-            seq = path_to_actions(path, pos, agent_dir)
+            # Path has 1-based x (from chess); wrapper uses 0-based. Convert for execution.
+            path_0based = [[int(p[0]) - 1, int(p[1])] for p in path]
+            seq = path_to_actions(path_0based, pos, agent_dir)
             for act_idx, (nx, ny) in seq:
                 state_before = {"agent_pos": list(pos), "agent_dir": agent_dir}
-                state_before_chess = {"agent_pos_chess": minigrid_to_chess(pos[0], pos[1], grid_size)}
+                state_before_chess = {"agent_pos_chess": minigrid_to_chess(pos[0] + 1, pos[1], grid_size)}
                 action_name = ["move up", "move down", "move left", "move right"][act_idx]
                 try:
                     _, reward, term, trunc, _ = self.wrapper.step(act_idx)
@@ -625,7 +663,7 @@ class FullPathSubtaskExperiment(ScenarioExperiment):
                 state_after = self.wrapper.get_state()
                 pos = (int(state_after["agent_pos"][0]), int(state_after["agent_pos"][1]))
                 agent_dir = int(state_after["agent_dir"])
-                state_after_chess = {"agent_pos_chess": minigrid_to_chess(pos[0], pos[1], grid_size)}
+                state_after_chess = {"agent_pos_chess": minigrid_to_chess(pos[0] + 1, pos[1], grid_size)}
                 self.execution_steps.append({
                     "subtask_id": sk,
                     "state_before": state_before,
@@ -656,11 +694,13 @@ class FullPathSubtaskExperiment(ScenarioExperiment):
         agent_start = getattr(self, "_run_agent_start", None)
         coordinates_section = {}
         if grid_size is not None and agent_start is not None:
+            # agent_start from env is 0-based; log minigrid with 1-based x (A=1..).
+            ax_0, ay = agent_start[0], agent_start[1]
             coordinates_section = {
                 "grid_size": grid_size,
                 "agent_start": {
-                    "minigrid": list(agent_start),
-                    "chess": minigrid_to_chess(agent_start[0], agent_start[1], grid_size),
+                    "minigrid": [ax_0 + 1, ay],
+                    "chess": minigrid_to_chess(ax_0 + 1, ay, grid_size),
                 },
             }
 
